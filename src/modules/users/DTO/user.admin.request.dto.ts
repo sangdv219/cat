@@ -73,12 +73,12 @@ export class UpdatedUserAdminRequestDto {
     
     @IsOptional()
     @Transform(({ value }) => value === 'true' || value === true)
-    @IsBoolean({ message: 'is_root must be a boolean (true/false123)' })
+    @IsBoolean({ message: 'is_root must be a boolean (true/false)' })
     is_root: boolean;
     
     @IsOptional()
     @Transform(({ value }) => value === 'true' || value === true)
-    @IsBoolean({ message: 'is_active must be a boolean (true/false)123' })
+    @IsBoolean({ message: 'is_active must be a boolean (true/false)' })
     is_active: boolean;
     
     @IsOptional()
