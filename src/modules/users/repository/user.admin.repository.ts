@@ -31,18 +31,23 @@ export class UserRepository {
             offset,
             where: { is_active: true },
             order: [['created_at', 'DESC']],
-            attributes: { exclude: ['password_hash'] }
+            attributes: { exclude: ['password_hash', 'failed_login_attempts', 'last_failed_login_at', 'locked_until'] }
         });
-
+        
         return { items, total };
     } 
-
+    
     async findEmail(email: string): Promise<UserModel | null> {
         return this.userModel.findOne({
-            where: { email }
+            where: { email },
         });
     };
 
+    async findOne(id: string): Promise<UserModel | null> {
+        return this.userModel.findOne({
+            where: { id },
+        });
+    }
 
     async created(payload: any): Promise<any> {
         return this.userModel.create(payload)

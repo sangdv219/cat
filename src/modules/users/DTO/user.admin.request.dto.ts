@@ -21,20 +21,20 @@ export class CreatedUserAdminRequestDto {
     @IsOptional()
     @IsNumber({}, { message: 'Age must be a number' })
     age: number;
-
+    
     @IsNotEmpty({ message: 'Phone is required' })
     @IsString({ message: 'Phone must be a string' })
     phone: string;
-
-    @IsNotEmpty({ message: 'is_root is required' })
+    
+    @IsOptional()
     @Transform(({ value }) => value === 'true' || value === true)
     @IsBoolean({ message: 'is_root must be a boolean (true/false)' })
-    is_root: boolean;
+    is_root: boolean = false;
     
-    @IsNotEmpty({ message: 'is_active is required' })
+    @IsOptional()
     @Transform(({ value }) => value === 'true' || value === true)
     @IsBoolean({ message: 'is_active must be a boolean (true/false)' })
-    is_active: boolean;
+    is_active: boolean = true;
 
     @IsNotEmpty({ message: 'avatar is required' })
     @IsString({ message: 'avatar must be a string' })

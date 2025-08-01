@@ -1,14 +1,14 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { redisStore } from 'cache-manager-ioredis-yet';
 import { createSequelizeInstance } from 'config/connect';
+import { config } from "dotenv";
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/users/user.module';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { ConfigService } from '@nestjs/config';
-import { config } from "dotenv";
-import { redisStore } from 'cache-manager-ioredis-yet';
-import { CacheModule } from '@nestjs/cache-manager';
-import { PasswordModule } from './modules/password/password.module';
 
 config();
 createSequelizeInstance()
@@ -30,12 +30,13 @@ const configService = new ConfigService();
         store: await redisStore({
           host: 'localhost',
           port: 6379,
-          ttl: 60 * 5, // default TTL = 5 phút
+          ttl: 60 * 5 * 1000, // default TTL = 5 phút
         }),
       }),
       isGlobal: true,
     }),
-    UserModule
+    UserModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

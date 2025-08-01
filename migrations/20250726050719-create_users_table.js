@@ -69,6 +69,21 @@ module.exports = {
         allowNull: true,
         defaultValue: null
       },
+      failed_login_attempts: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
+      last_failed_login_at: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        defaultValue: null
+      },
+      locked_until: {
+        type: Sequelize.DATE,
+        allowNull: true,
+        defaultValue: null
+      }
     });
     await queryInterface.addIndex('users', ['name', 'phone'], {
       unique: true,

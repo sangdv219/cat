@@ -66,4 +66,19 @@ export class UserModel extends Model {
     @Default(null)
     @Column(DataType.DATE)
     deleted_at: Date;
+
+    @AllowNull(true)
+    @Default(0)
+    @Column(DataType.INTEGER)
+    failed_login_attempts: number;
+
+    @AllowNull(true)
+    @Default(null)
+    @Column(DataType.DATE)
+    last_failed_login_at: Date;
+
+    @AllowNull(true)
+    @Default(null)
+    @Column(DataType.DATE)
+    locked_until: Date; // New field to track when the account is locked until
 }

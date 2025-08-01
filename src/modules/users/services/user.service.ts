@@ -1,13 +1,13 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import Redis from 'ioredis';
 import { UserModel } from 'models/user.model';
 import { Op } from 'sequelize';
-import { BaseResponseDto, DeleteResponseDto, UpdateCreateResponseDto } from 'src/shared/interface/common';
-import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
-import { UserRepository } from '../repository/user.admin.repository';
-import { PasswordService } from 'src/modules/password/services/password.service';
-import { CacheVersionService } from 'src/modules/common/services/cache-version.service';
+import { BaseResponse, DeleteResponse, UpdateCreateResponse } from '@/shared/interface/common';
+import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@/modules/users/DTO/user.admin.request.dto';
+import { UserRepository } from '@/modules/users/repository/user.admin.repository';
+import { PasswordService } from '@/modules/password/services/password.service';
+import { CacheVersionService } from '@/modules/common/services/cache-version.service';
 
 @Injectable()
 export class UserService {
@@ -19,10 +19,10 @@ export class UserService {
         private readonly cacheManager: CacheVersionService, // Assuming CacheVersionService is used for cache management
     ) { }
 
-    async getAllUsers(): Promise<BaseResponseDto<UserModel[]>> {
+    async getAllUsers(): Promise<BaseResponse<UserModel[]>> {
         const redisKey = `users`;
 
-        // if (cached) return cached as Promise<BaseResponseDto<UserModel[]>>;
+        // if (cached) return cached as Promise<BaseResponse<UserModel[]>>;
 
         const result = await this.userRepository.getAllUsers();
 
@@ -36,7 +36,19 @@ export class UserService {
 
     }
 
-    async getPaginationUsers(query): Promise<BaseResponseDto<UserModel[]>> {
+    async findEmail(email: string): Promise<UserModel | null> {
+        return this.userRepository.findEmail(email);
+    }
+
+    async findOne(id: string): Promise<UserModel | null> {
+        const user = await this.userRepository.findOne(id);
+        if (!user) {
+            throw new NotFoundException(`User with id ${id} not found`);
+        }
+        return user;
+    }
+
+    async getPaginationUsers(query): Promise<BaseResponse<UserModel[]>> {
         const { page = 1, limit = 10, keyword } = query;
         const { items, total } = await this.userRepository.findWithPagination(page, limit, keyword);
         const redis = new Redis();
@@ -94,7 +106,7 @@ export class UserService {
         return !!user;
     }
 
-    async createdUser(body: CreatedUserAdminRequestDto): Promise<UpdateCreateResponseDto<UserModel>> {
+    async createdUser(body: CreatedUserAdminRequestDto): Promise<UpdateCreateResponse<UserModel>> {
         const existsEmail = await this.checkExistsField({ email: { value: body.email, mode: 'equal' } });
         const existsPhone = await this.checkExistsField({ phone: { value: body.phone, mode: 'like' } });
 
@@ -121,7 +133,7 @@ export class UserService {
         }
     }
 
-    async updatedUser(id: string, body: UpdatedUserAdminRequestDto): Promise<UpdateCreateResponseDto<UserModel>> {
+    async updatedUser(id: string, body: UpdatedUserAdminRequestDto): Promise<UpdateCreateResponse<UserModel>> {
         const existsEmail = await this.checkDuplicateFieldExcludeId('email', body.email, id);
         const existsPhone = await this.checkDuplicateFieldExcludeId('phone', body.phone, id);
 
@@ -147,7 +159,7 @@ export class UserService {
         }
     }
 
-    async deletedUser(id: string): Promise<DeleteResponseDto<string>> {
+    async deletedUser(id: string): Promise<DeleteResponse<string>> {
         await this.cacheManager.incrementVersion('users');
 
         const result = await this.userRepository.updated(id, { is_active: false, deleted_at: new Date() });
@@ -160,7 +172,7 @@ export class UserService {
         }
     }
 
-    async restoreUser(id: string): Promise<UpdateCreateResponseDto<UserModel>> {
+    async restoreUser(id: string): Promise<UpdateCreateResponse<UserModel>> {
         await this.invalidateUsersCache();
 
         const user = await this.userModel.findOne({
@@ -180,5 +192,39 @@ export class UserService {
             success: true,
             data: safeData as Partial<UserModel>
         }
+    }
+    
+    async incrementFailedLogins(id: string): Promise<void> {
+        const user = await this.userRepository.findOne(id);
+        const userData = user?.get({ plain: true });
+        if (!userData) {
+            throw new NotFoundException('User not found');
+        }
+        
+        const maxAttempts = 2;
+        // const logoutDuration = 15 * 60 * 1000; // 15 minutes
+        const logoutDuration = 3*60*1000; // 3 minutes
+        const now = new Date();
+        
+        const updatedBody = {
+            ...userData,
+            failed_login_attempts: userData.failed_login_attempts + 1,
+            last_failed_login_at: new Date(),
+        } 
+        if (userData.failed_login_attempts >= maxAttempts) {
+            updatedBody.locked_until = new Date(now.getTime() + logoutDuration);
+        }
+        // console.log("updatedBody: ", updatedBody);
+        
+        await this.userRepository.updated(id, updatedBody);
+    }
+
+    async resetFailedLogins(id: string): Promise<void> {
+        const updated = {
+            locked_until: null,
+            failed_login_attempts: 0,
+        }
+
+        await this.userRepository.updated(id, updated)
     }
 }
