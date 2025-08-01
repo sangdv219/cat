@@ -46,7 +46,7 @@ export class UserService {
         if (!userData) {
             throw new NotFoundException(`User with id ${id} not found`);
         }
-        if(userData.deleted_at) {
+        if(!userData.is_active) {
             throw new GoneException("Account has been deleted");
         }
         return userData;
