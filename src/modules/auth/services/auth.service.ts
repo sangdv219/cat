@@ -23,12 +23,12 @@ export class AuthService {
 
         const user = await this.userService.findEmail(email);
         const userData = user?.get({ plain: true });
-        if(userData.locked_until && new Date() > new Date(userData.locked_until)) {
+        if (userData.locked_until && new Date() > new Date(userData.locked_until)) {
             await this.userService.resetFailedLogins(userData.id);
         }
         if (userData.locked_until && new Date() < new Date(userData.locked_until)) {
             throw new GoneException(`Account locked until 3 minutes from last failed login attempt`);
-        } 
+        }
         if (userData) {
             if (!userData.is_active) {
                 throw new UserNotActiveException(email);
@@ -40,9 +40,9 @@ export class AuthService {
             if (isPasswordValid) {
                 await this.userService.resetFailedLogins(userData.id);
                 const payload = { email: userData.email, id: userData.id }
-                const accessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET,  expiresIn: '15m' });
-                const refreshToken = await this.jwtService.signAsync(payload, { secret: process.env.REFRESH_TOKEN_SECRET,  expiresIn: '7d' });
-                
+                const accessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '15m' });
+                const refreshToken = await this.jwtService.signAsync(payload, { secret: process.env.REFRESH_TOKEN_SECRET, expiresIn: '7d' });
+
                 const response = new LoginResponseDto();
                 response.success = true;
                 response.accessToken = accessToken;
@@ -65,9 +65,10 @@ export class AuthService {
             if (!tokenOld) {
                 throw new UnauthorizedException("Invalid refresh token");
             }
-            
+
             const user = await this.userService.findOne(tokenOld.id);
             const userData = user?.get({ plain: true });
+
             if (!userData) {
                 throw new NotFoundException("User not found");
             }
@@ -77,22 +78,22 @@ export class AuthService {
             if (userData.deleted_at) {
                 throw new GoneException("Account has been deleted");
             }
-    
+
             const payload = { email: userData.email, id: userData.id };
             const newAccessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
             const decoded = this.jwtService.decode(newAccessToken) as { exp: number };
-            
+
             const response = new RefreshTokenResponseDto();
             response.success = true;
             response.accessToken = newAccessToken;
             response.expires = new Date(decoded.exp * 1000);
-            
+
             return response;
-            
+
         } catch (error) {
             console.log("error: ", error);
 
-             if (error.name === 'TokenExpiredError') {
+            if (error.name === 'TokenExpiredError') {
                 throw new UnauthorizedException('Token expired');
             }
             throw new UnauthorizedException('Invalid token');
