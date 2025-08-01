@@ -17,7 +17,7 @@ export class JWTAuthGuard implements CanActivate {
         }
 
         try {
-            request.user = await this.jwtService.verifyAsync(token);
+            request.user = await this.jwtService.verifyAsync(token, {secret: process.env.ACCESS_TOKEN_SECRET});
             return true;
         } catch (error: any) {
             if (error.name === 'TokenExpiredError') {
