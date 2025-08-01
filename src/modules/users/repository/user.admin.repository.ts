@@ -46,6 +46,7 @@ export class UserRepository {
     async findOne(id: string): Promise<UserModel | null> {
         return this.userModel.findOne({
             where: { id },
+            attributes: { exclude: ['password_hash', 'failed_login_attempts', 'last_failed_login_at', 'locked_until'] }
         });
     }
 
