@@ -90,6 +90,8 @@ export class AuthService {
             return response;
             
         } catch (error) {
+            console.log("error: ", error);
+
              if (error.name === 'TokenExpiredError') {
                 throw new UnauthorizedException('Token expired');
             }
