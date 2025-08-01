@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, GoneException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import Redis from 'ioredis';
 import { UserModel } from 'models/user.model';
@@ -42,10 +42,14 @@ export class UserService {
 
     async findOne(id: string): Promise<UserModel | null> {
         const user = await this.userRepository.findOne(id);
-        if (!user) {
+        const userData = user?.get({ plain: true });
+        if (!userData) {
             throw new NotFoundException(`User with id ${id} not found`);
         }
-        return user;
+        if(userData.deleted_at) {
+            throw new GoneException("Account has been deleted");
+        }
+        return userData;
     }
 
     async getPaginationUsers(query): Promise<BaseResponse<UserModel[]>> {
