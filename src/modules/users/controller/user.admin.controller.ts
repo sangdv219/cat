@@ -1,5 +1,6 @@
 import { PaginationQueryDto } from '@/dto/common';
 import { JWTAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { PermissionAuthGuard } from '@/modules/auth/guards/permission.guard';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@/modules/users/DTO/user.admin.request.dto';
 import { UserService } from '@/modules/users/services/user.service';
 import { BaseResponse } from '@/shared/interface/common';
@@ -25,7 +26,7 @@ export class UserAdminController {
 
     @Get()
     @HttpCode(HttpStatus.OK)
-    @UseGuards(JWTAuthGuard)
+    @UseGuards(JWTAuthGuard,PermissionAuthGuard)
     @CacheTTL(60)
     async getPagination(@Query() query:PaginationQueryDto): Promise<BaseResponse<UserModel[]>> {
         return await this.userService.getPaginationUsers(query);

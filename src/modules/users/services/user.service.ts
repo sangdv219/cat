@@ -36,7 +36,7 @@ export class UserService {
 
     }
 
-    async findEmail(email: string): Promise<UserModel | null> {
+    async findEmail(email: string)  {
         return this.userRepository.findEmail(email);
     }
 
@@ -218,7 +218,6 @@ export class UserService {
         if (userData.failed_login_attempts >= maxAttempts) {
             updatedBody.locked_until = new Date(now.getTime() + logoutDuration);
         }
-        // console.log("updatedBody: ", updatedBody);
         
         await this.userRepository.updated(id, updatedBody);
     }

@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserModel } from 'models/user.model';
 import { Op } from 'sequelize';
@@ -31,13 +31,13 @@ export class UserRepository {
             offset,
             where: { is_active: true },
             order: [['created_at', 'DESC']],
-            attributes: { exclude: ['password_hash', 'failed_login_attempts', 'last_failed_login_at', 'locked_until'] }
+            attributes: { exclude: ['password_hash', 'last_failed_login_at', 'locked_until'] }
         });
         
         return { items, total };
     } 
     
-    async findEmail(email: string): Promise<UserModel | null> {
+    async findEmail(email: string) {
         return this.userModel.findOne({
             where: { email },
         });
@@ -46,10 +46,16 @@ export class UserRepository {
     async findOne(id: string): Promise<UserModel | null> {
         return this.userModel.findOne({
             where: { id },
-            attributes: { exclude: ['password_hash', 'failed_login_attempts', 'last_failed_login_at', 'locked_until'] }
+            attributes: { exclude: ['password_hash', 'last_failed_login_at', 'locked_until'] }
         });
     }
 
+    async findOneByRaw(condition: Record<string, any>){
+        return this.userModel.findOne({
+            ...condition
+        })
+    }
+    
     async created(payload: any): Promise<any> {
         return this.userModel.create(payload)
     } 

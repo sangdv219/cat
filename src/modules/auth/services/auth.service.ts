@@ -1,12 +1,12 @@
-import { GoneException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { UserService } from "@/modules/users/services/user.service";
 import { LoginDto } from "@/modules/auth/DTO/login.dto";
 import { LoginResponseDto } from "@/modules/auth/interface/login.interface";
-import { Cron } from '@nestjs/schedule';
-import { UserNotActiveException } from "@/shared/exceptions/user-not-active.exception";
-import { PasswordService } from "@/modules/password/services/password.service";
-import { JwtService } from '@nestjs/jwt';
 import { RefreshTokenResponseDto } from "@/modules/auth/interface/refreshToken.interface";
+import { PasswordService } from "@/modules/password/services/password.service";
+import { UserService } from "@/modules/users/services/user.service";
+import { UserNotActiveException } from "@/shared/exceptions/user-not-active.exception";
+import { GoneException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { JwtService } from '@nestjs/jwt';
+import { Cron } from '@nestjs/schedule';
 import { config } from "dotenv";
 
 config();
@@ -40,8 +40,8 @@ export class AuthService {
             if (isPasswordValid) {
                 await this.userService.resetFailedLogins(userData.id);
                 const payload = { email: userData.email, id: userData.id }
-                const accessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '15m' });
-                const refreshToken = await this.jwtService.signAsync(payload, { secret: process.env.REFRESH_TOKEN_SECRET, expiresIn: '7d' });
+                const accessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '1h' });
+                const refreshToken = await this.jwtService.signAsync(payload, { secret: process.env.REFRESH_TOKEN_SECRET, expiresIn: '1y' });
 
                 const response = new LoginResponseDto();
                 response.success = true;
@@ -61,25 +61,23 @@ export class AuthService {
 
     async refreshToken(refreshToken: string): Promise<RefreshTokenResponseDto> {
         try {
-            const tokenOld = this.jwtService.verify(refreshToken);
+            const tokenOld = this.jwtService.verify(refreshToken, {secret: process.env.REFRESH_TOKEN_SECRET});
             if (!tokenOld) {
                 throw new UnauthorizedException("Invalid refresh token");
             }
-
             const user = await this.userService.findOne(tokenOld.id);
-            const userData = user?.get({ plain: true });
 
-            if (!userData) {
+            if (!user) {
                 throw new NotFoundException("User not found");
             }
-            if (!userData.is_active) {
-                throw new UserNotActiveException(userData.email);
+            if (!user.is_active) {
+                throw new UserNotActiveException(user.email);
             }
-            if (userData.deleted_at) {
+            if (user.deleted_at) {
                 throw new GoneException("Account has been deleted");
             }
 
-            const payload = { email: userData.email, id: userData.id };
+            const payload = { email: user.email, id: user.id };
             const newAccessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
             const decoded = this.jwtService.decode(newAccessToken) as { exp: number };
 
