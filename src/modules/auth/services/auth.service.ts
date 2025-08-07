@@ -7,7 +7,12 @@ import { UserNotActiveException } from "@/shared/exceptions/user-not-active.exce
 import { GoneException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from '@nestjs/jwt';
 import { Cron } from '@nestjs/schedule';
+import { InjectModel } from "@nestjs/sequelize";
 import { config } from "dotenv";
+import { UserModel } from "models/user.model";
+import { RegisterDto } from "../DTO/register.dto";
+import { EmailService } from "./mail.service";
+import { VerifyOTPResponseDto } from "../interface/verifyOTP.interface";
 
 config();
 @Injectable()
@@ -16,6 +21,7 @@ export class AuthService {
         readonly userService: UserService,
         private readonly passwordService: PasswordService,
         private jwtService: JwtService,
+        private readonly emailService: EmailService,
     ) { }
 
     async login(body: LoginDto): Promise<LoginResponseDto> {
@@ -61,7 +67,7 @@ export class AuthService {
 
     async refreshToken(refreshToken: string): Promise<RefreshTokenResponseDto> {
         try {
-            const tokenOld = this.jwtService.verify(refreshToken, {secret: process.env.REFRESH_TOKEN_SECRET});
+            const tokenOld = this.jwtService.verify(refreshToken, { secret: process.env.REFRESH_TOKEN_SECRET });
             if (!tokenOld) {
                 throw new UnauthorizedException("Invalid refresh token");
             }
@@ -98,8 +104,25 @@ export class AuthService {
         }
     }
 
-    @Cron('0 0 * * *') // Runs every day at midnight
-    async handleCron() {
-        // Implement any periodic tasks here if needed
+    async register(body: RegisterDto): Promise<VerifyOTPResponseDto> {
+        const { email } = body;
+        const existingUser = await this.userService.findEmail(email);
+
+        if (existingUser) {
+            throw new UnauthorizedException("Email already exists");
+        }
+
+        // await this.emailService.sendRegistrationEmail(email);
+
+        const payload = { email: email  }
+
+        const OTPToken = await this.jwtService.signAsync(payload, { secret: process.env.OTP_TOKEN_SECRET, expiresIn: '5m' });
+
+        return {
+            success: true,
+            otpToken: OTPToken
+        };
     }
+
+
 }

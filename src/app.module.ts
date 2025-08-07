@@ -1,6 +1,7 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { redisStore } from 'cache-manager-ioredis-yet';
 import { createSequelizeInstance } from 'config/connect';
@@ -9,12 +10,14 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/users/user.module';
+import { JwtModule } from '@nestjs/jwt';
 
 config();
 createSequelizeInstance()
 const configService = new ConfigService();
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     SequelizeModule.forRoot({
       dialect: 'postgres',
       host: process.env.DB_HOST,
@@ -30,13 +33,18 @@ const configService = new ConfigService();
         store: await redisStore({
           host: 'localhost',
           port: 6379,
-          ttl: 60 * 5 * 1000, // default TTL = 5 phút
+          ttl: 0, // default TTL = 5 phút
         }),
       }),
       isGlobal: true,
     }),
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET ?? (() => { throw new Error('Missing JWT_SECRET') })(),
+      signOptions: { expiresIn: '1h' },
+    }),
+    AuthModule,
     UserModule,
-    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

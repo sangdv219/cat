@@ -1,5 +1,4 @@
-import { UserRepository } from "@/modules/users/repository/user.admin.repository";
-import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { UserModel } from "models/user.model";
 

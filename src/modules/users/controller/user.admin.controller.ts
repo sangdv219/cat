@@ -1,5 +1,6 @@
 import { PaginationQueryDto } from '@/dto/common';
-import { JWTAuthGuard } from '@/modules/auth/guards/jwt-auth.guard';
+import { Roles } from '@/modules/auth/decorators/roles.decorator';
+import { JWTAuthGuard } from '@/modules/auth/guards/jwt.guard';
 import { PermissionAuthGuard } from '@/modules/auth/guards/permission.guard';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@/modules/users/DTO/user.admin.request.dto';
 import { UserService } from '@/modules/users/services/user.service';
@@ -13,11 +14,6 @@ import { UserModel } from 'models/user.model';
 export class UserAdminController {
     constructor(private readonly userService: UserService) { }
 
-    // @Get('all')
-    // async getAllUsers():Promise<BaseResponse<UserModel[]>> {
-    //     return await this.userService.getAllUsers();
-    // }
-    
     @Get(':id')
     @UseGuards(JWTAuthGuard)
     async getUserById(@Param('id') id: string): Promise<UserModel | null> {
@@ -26,6 +22,7 @@ export class UserAdminController {
 
     @Get()
     @HttpCode(HttpStatus.OK)
+    @Roles('admin')
     @UseGuards(JWTAuthGuard,PermissionAuthGuard)
     @CacheTTL(60)
     async getPagination(@Query() query:PaginationQueryDto): Promise<BaseResponse<UserModel[]>> {
@@ -57,8 +54,8 @@ export class UserAdminController {
     }
     
     @Patch(':id/restore')
-    @HttpCode(HttpStatus.NO_CONTENT)
     @UseGuards(JWTAuthGuard)
+    @HttpCode(HttpStatus.NO_CONTENT)
     async restoreUser(@Param('id') id: string) {
         return await this.userService.restoreUser(id);
     }
