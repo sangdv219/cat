@@ -29,4 +29,19 @@ export class CacheVersionService{
             
         return `${keyPrefix}:v${version}:${query}`;
     }
+
+    async delCache(keyPrefix: string): Promise<void> {
+        const keys = await this.redis.keys(`${keyPrefix}:*`);
+        
+        if (keys.length > 0) {
+            const pipeline = this.redis.pipeline();
+            keys.forEach(key => {
+                pipeline.del(key); // Queue deletion of each key
+            });
+            await pipeline.exec(); // Execute all deletions in a single operation
+            console.log(`Cleared ${keys.length} cache entries for prefix ${keyPrefix}`);
+        } else {
+            console.log(`No cache entries found for prefix ${keyPrefix}`);
+        }
+    }
 }

@@ -3,22 +3,22 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { UserModel } from 'models/user.model';
 import { Op } from 'sequelize';
-import { AbstractUserRepository } from '../interface/user.admin.interface';
+import { AbstractUserRepository } from '../abstract/user.admin.abstract';
 
 @Injectable()
 export class PostgresUserRepository extends AbstractUserRepository {
     constructor(
         @InjectModel(UserModel)
         private readonly userModel: typeof UserModel,
-        // private readonly db: DataSource
     ) {
         super();
-        this.entityName = 'User';
+        // this._entityName = 'User';
     }
 
     protected logAction(action: string): void {
-        console.log(`[${this.entityName} Repository] Action: ${action}`);
+        console.log(`[${this._entityName} Repository] Action: ${action}`);
     }
+
     async getAll(): Promise<UserModel[]> {
         return this.userModel.findAll();
     }

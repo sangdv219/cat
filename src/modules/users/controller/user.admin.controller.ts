@@ -22,7 +22,7 @@ export class UserAdminController {
 
     @Get()
     @HttpCode(HttpStatus.OK)
-    @Roles('admin')
+    // @Roles('admin')
     @UseGuards(JWTAuthGuard,PermissionAuthGuard)
     @CacheTTL(60)
     async getPagination(@Query() query:PaginationQueryDto): Promise<BaseResponse<UserModel[]>> {

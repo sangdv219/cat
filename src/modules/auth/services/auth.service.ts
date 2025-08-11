@@ -84,7 +84,7 @@ export class AuthService {
             }
 
             const payload = { email: user.email, id: user.id };
-            const newAccessToken = await this.jwtService.signAsync(payload, { expiresIn: '15m' });
+            const newAccessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '15m' });
             const decoded = this.jwtService.decode(newAccessToken) as { exp: number };
 
             const response = new RefreshTokenResponseDto();

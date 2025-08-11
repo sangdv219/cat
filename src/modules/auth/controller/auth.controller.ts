@@ -13,7 +13,7 @@ import { JWTAuthGuard } from "../guards/jwt.guard";
 import { RateLimitGuard } from "../guards/rate-limit.guard";
 // import { SendOTPLimitGuard } from "@/modules/auth/guards/sendOTPLimit.guard";
 
-const OTPGuuard = () => applyDecorators(
+const OTPGuard = () => applyDecorators(
   RateLimit(3, 86400), // Limit to 3 requests per day
   TokenType('otp'),
   UseGuards(JWTAuthGuard,RateLimitGuard)
@@ -48,7 +48,7 @@ export class AuthController {
     
     @Post('verify-otp')
     @HttpCode(HttpStatus.CREATED)
-    @OTPGuuard()
+    @OTPGuard()
     async verifyOTP(@Body() body: VerifyOtpDto): Promise<boolean> {
         return await this.OTPService.verifyOtp(body);
     }

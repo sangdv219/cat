@@ -27,18 +27,15 @@ export interface IBaseRepository<T> {
     deleted(id: string): Promise<T>;
 }
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
-    protected _entityName: string;
+    // protected _entityName: string;
+    public readonly _entityName: string
 
-    get entityName(): string {
-        return this._entityName;
+    constructor(entityName: string = 'BaseEntity') {
+        this._entityName = entityName;
     }
 
-    set entityName(name: string) {
-        this._entityName = name;
-    }
-
-    protected logAction(action: string) {
-        console.log(`[${this.entityName}] ${action}`);
+    protected logAction(_entityName: string) {
+        console.log(`[${this._entityName}] ${_entityName}`);
     }
 
     abstract getAll(): Promise<T[]>;
@@ -51,7 +48,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
 
     abstract findOneByRaw(condition: Record<string, any>): Promise<T | null>;
 
-    abstract created(payload: Required<T>): Promise<T>;
+    abstract created(payload: Required<T>): Promise<T>
 
     abstract updated(id: string, payload: Partial<T>): Promise<T>;
 

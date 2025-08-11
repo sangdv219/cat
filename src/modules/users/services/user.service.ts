@@ -1,4 +1,4 @@
-import { ConflictException, GoneException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, GoneException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import Redis from 'ioredis';
 import { UserModel } from 'models/user.model';
@@ -20,7 +20,7 @@ export class UserService {
     ) { }
 
     async getAllUsers(): Promise<BaseResponse<UserModel[]>> {
-        const redisKey = `users`;
+        const redisKey = `user`;
 
         // if (cached) return cached as Promise<BaseResponse<UserModel[]>>;
 
@@ -54,28 +54,27 @@ export class UserService {
 
     async getPaginationUsers(query): Promise<BaseResponse<UserModel[]>> {
         const { page = 1, limit = 10, keyword } = query;
-        const { items, total } = await this.userRepository.findWithPagination(query);
         const redis = new Redis();
         if (page < 1) {
-            throw new Error('Page number must be greater than 0');
+            throw new BadRequestException('Page number must be greater than 0');
         }
         if (limit < 1) {
-            throw new Error('Limit must be greater than 0');
+            throw new BadRequestException('Limit must be greater than 0');
         }
         if (limit > 100) {
-            throw new Error('Limit must not exceed 100');
+            throw new BadRequestException('Limit must not exceed 100');
         }
         if (page > 1000) {
-            throw new Error('Page must not exceed 1000');
+            throw new BadRequestException('Page must not exceed 1000');
         }
-        // const redisKey = `users:v${version}:page=${page}:limit=${limit}:keyword=${keyword ?? ''}`;
-        const redisKey = await this.cacheManager.buildVersionedKey('users', { page, limit, keyword: keyword ?? '' });
-        // const redisKey = `cache_version:users`;
+        const redisKey = await this.cacheManager.buildVersionedKey('user', { page, limit, keyword: keyword ?? '' });
         const cached = await redis.get(redisKey);
+        
+        const userInCache = cached ? JSON.parse(cached) : null;
+        
+        if (cached) return userInCache;
 
-        const parsed = cached ? JSON.parse(cached) : null;
-
-        if (cached) return parsed as any;
+        const { items, total } = await this.userRepository.findWithPagination(query);
 
         const response = {
             success: true,
@@ -139,7 +138,7 @@ export class UserService {
         // const redis = new Redis();
         // const currentVersion = Number(await redis.get('cache_version:users') || 1);
         // await redis.set('cache_version:users', currentVersion + 1);
-        await this.cacheManager.incrementVersion('users');
+        await this.cacheManager.delCache('user');
 
         const result = await this.userRepository.created({ ...body, password_hash: hashPassword });
         return {
@@ -159,11 +158,10 @@ export class UserService {
             return { success: false, message: 'Phone already exists' }
         }
 
-        await this.cacheManager.incrementVersion('users');
-
         const updatedBody = { ...body, updated_at: new Date() };
         const result = await this.userRepository.updated(id, updatedBody);
 
+        await this.cacheManager.delCache('user');
         // Exclude password_hash from the returned data
         const updatedUser = result[1][0] as UserModel;
         const { password_hash, ...safeData } = updatedUser.get({ plain: true });
@@ -175,7 +173,7 @@ export class UserService {
     }
 
     async deletedUser(id: string): Promise<DeleteResponse<string>> {
-        await this.cacheManager.incrementVersion('users');
+        await this.cacheManager.delCache('user');
 
         const result = await this.userRepository.updated(id, { is_active: false, deleted_at: new Date() });
 

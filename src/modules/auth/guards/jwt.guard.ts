@@ -7,9 +7,9 @@ import { TokenSecretResolver } from '@/modules/auth/interface/tokenSecret.interf
 @Injectable()
 export class JWTAuthGuard implements CanActivate {
     constructor(
-        private readonly jwtService: JwtService,
-        private readonly reflector: Reflector,
-        @Inject('TokenSecretResolver')
+      private readonly jwtService: JwtService,
+      private readonly reflector: Reflector,
+      @Inject('TokenSecretResolver')
         private readonly tokenSecretResolver: TokenSecretResolver,
     ) {}
 
@@ -32,7 +32,7 @@ export class JWTAuthGuard implements CanActivate {
           if (error.name === 'TokenExpiredError') {
             throw new UnauthorizedException('Token expired');
           }
-          throw new UnauthorizedException('Invalid token');
+          throw new UnauthorizedException(error);
         }
       }
 
