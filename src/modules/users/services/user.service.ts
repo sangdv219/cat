@@ -5,7 +5,7 @@ import { UserModel } from 'models/user.model';
 import { Op } from 'sequelize';
 import { BaseResponse, DeleteResponse, UpdateCreateResponse } from '@/shared/interface/common';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@/modules/users/DTO/user.admin.request.dto';
-import { UserRepository } from '@/modules/users/repository/user.admin.repository';
+import { PostgresUserRepository } from '@/modules/users/repository/user.admin.repository';
 import { PasswordService } from '@/modules/password/services/password.service';
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
 
@@ -14,7 +14,7 @@ export class UserService {
     constructor(
         @InjectModel(UserModel)
         private userModel: typeof UserModel,
-        private userRepository: UserRepository,
+        private userRepository: PostgresUserRepository,
         private readonly passwordService: PasswordService,
         private readonly cacheManager: CacheVersionService, // Assuming CacheVersionService is used for cache management
     ) { }
@@ -24,7 +24,7 @@ export class UserService {
 
         // if (cached) return cached as Promise<BaseResponse<UserModel[]>>;
 
-        const result = await this.userRepository.getAllUsers();
+        const result = await this.userRepository.getAll();
 
         const response = {
             success: true,
@@ -36,8 +36,8 @@ export class UserService {
 
     }
 
-    async findEmail(email: string)  {
-        return this.userRepository.findEmail(email);
+    async findEmail(email: string) {
+        return this.userRepository.findByField(email);
     }
 
     async findOne(id: string): Promise<UserModel | null> {
@@ -46,7 +46,7 @@ export class UserService {
         if (!userData) {
             throw new NotFoundException(`User with id ${id} not found`);
         }
-        if(!userData.is_active) {
+        if (!userData.is_active) {
             throw new GoneException("Account has been deleted");
         }
         return userData;
@@ -54,11 +54,22 @@ export class UserService {
 
     async getPaginationUsers(query): Promise<BaseResponse<UserModel[]>> {
         const { page = 1, limit = 10, keyword } = query;
-        const { items, total } = await this.userRepository.findWithPagination(page, limit, keyword);
+        const { items, total } = await this.userRepository.findWithPagination(query);
         const redis = new Redis();
-
+        if (page < 1) {
+            throw new Error('Page number must be greater than 0');
+        }
+        if (limit < 1) {
+            throw new Error('Limit must be greater than 0');
+        }
+        if (limit > 100) {
+            throw new Error('Limit must not exceed 100');
+        }
+        if (page > 1000) {
+            throw new Error('Page must not exceed 1000');
+        }
         // const redisKey = `users:v${version}:page=${page}:limit=${limit}:keyword=${keyword ?? ''}`;
-        const redisKey = await this.cacheManager.buildVersionedKey('users', { page, limit, keyword:keyword??'' });
+        const redisKey = await this.cacheManager.buildVersionedKey('users', { page, limit, keyword: keyword ?? '' });
         // const redisKey = `cache_version:users`;
         const cached = await redis.get(redisKey);
 
@@ -197,28 +208,28 @@ export class UserService {
             data: safeData as Partial<UserModel>
         }
     }
-    
+
     async incrementFailedLogins(id: string): Promise<void> {
         const user = await this.userRepository.findOne(id);
         const userData = user?.get({ plain: true });
         if (!userData) {
             throw new NotFoundException('User not found');
         }
-        
+
         const maxAttempts = 2;
         // const logoutDuration = 15 * 60 * 1000; // 15 minutes
-        const logoutDuration = 3*60*1000; // 3 minutes
+        const logoutDuration = 3 * 60 * 1000; // 3 minutes
         const now = new Date();
-        
+
         const updatedBody = {
             ...userData,
             failed_login_attempts: userData.failed_login_attempts + 1,
             last_failed_login_at: new Date(),
-        } 
+        }
         if (userData.failed_login_attempts >= maxAttempts) {
             updatedBody.locked_until = new Date(now.getTime() + logoutDuration);
         }
-        
+
         await this.userRepository.updated(id, updatedBody);
     }
 

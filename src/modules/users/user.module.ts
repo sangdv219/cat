@@ -1,7 +1,7 @@
 import { CommonModule } from '@/modules/common/common.module';
 import { PasswordModule } from '@/modules/password/password.module';
 import { UserAdminController } from '@/modules/users/controller/user.admin.controller';
-import { UserRepository } from '@/modules/users/repository/user.admin.repository';
+import { PostgresUserRepository } from '@/modules/users/repository/user.admin.repository';
 import { UserService } from '@/modules/users/services/user.service';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
@@ -17,12 +17,12 @@ config();
         CommonModule,
     ],
     controllers: [UserAdminController],
-    providers: [UserRepository, UserService, JwtModule,
+    providers: [PostgresUserRepository, UserService, JwtModule,
         {
             provide: 'TokenSecretResolver',
             useClass: DefaultTokenSecretResolverStrategy
         }
     ],
-    exports: [UserRepository, UserService],
+    exports: [PostgresUserRepository, UserService],
 })
 export class UserModule { } 
