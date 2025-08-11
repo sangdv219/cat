@@ -1,21 +1,27 @@
-# Use official Node.js LTS image
-FROM node:18-alpine
+FROM node:18-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy the rest of the application code
 COPY . .
-
-# Build the Next.js app
 RUN npm run build
 
-# Expose port
 EXPOSE 3000
 
-# Start the Next.js app
-CMD ["npm", "start"]
+
+FROM node:18-alpine AS production   
+WORKDIR /app
+
+
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/.env .env
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+
+
+
+
+CMD ["node", "dist/main"]
