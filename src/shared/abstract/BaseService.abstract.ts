@@ -42,7 +42,7 @@ export abstract class BaseService<T> {
 
     }
 
-    async getUserById(id: string): Promise<T | null> {
+    async getById(id: string): Promise<T | null> {
         const entity = await this.repository.findOne(id);
         const entityData = entity?.get({ plain: true });
         if (!entityData) {

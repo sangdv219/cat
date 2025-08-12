@@ -113,7 +113,7 @@ export class AuthService {
             if (!tokenOld) {
                 throw new UnauthorizedException("Invalid refresh token");
             }
-            const user = await this.userService.getUserById(tokenOld.id);
+            const user = await this.userService.getById(tokenOld.id);
 
             if (!user) {
                 throw new NotFoundException("User not found");

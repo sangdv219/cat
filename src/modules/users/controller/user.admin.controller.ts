@@ -16,7 +16,7 @@ export class UserAdminController {
     @Get(':id')
     @UseGuards(JWTAuthGuard)
     async getUserById(@Param('id') id: string): Promise<UserModel | null> {
-        return await this.userService.getUserById(id);
+        return await this.userService.getById(id);
     }
 
     @Get()
