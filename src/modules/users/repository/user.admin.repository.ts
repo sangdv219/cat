@@ -41,7 +41,7 @@ export class PostgresUserRepository extends AbstractUserRepository {
             offset,
             where: { is_active: true },
             order: [['created_at', 'DESC']],
-            attributes: { exclude: ['password_hash', 'last_failed_login_at', 'locked_until'] }
+            attributes: { exclude: ['password_hash', 'last_failed_login_at'] }
         });
 
         return { items, total };
@@ -56,7 +56,7 @@ export class PostgresUserRepository extends AbstractUserRepository {
     async findOne(id: string): Promise<UserModel | null> {
         return this.userModel.findOne({
             where: { id },
-            attributes: { exclude: ['password_hash', 'last_failed_login_at', 'locked_until'] }
+            attributes: { exclude: ['password_hash', 'last_failed_login_at'] }
         });
     }
 
@@ -81,6 +81,31 @@ export class PostgresUserRepository extends AbstractUserRepository {
         return this.userModel.destroy({
             where: { id }
         });
+    }
+
+    async checkDuplicateFieldExcludeId<K extends keyof UserModel>(field: K, value: UserModel[K], excludeId?: string): Promise<boolean> {
+        const condition: any = {
+            [field]: value,
+            id: { [Op.ne]: excludeId }
+        };
+
+        const user = await this.userModel.findOne({
+            where: condition
+        });
+
+        return !!user;
+    }
+
+    async checkExistsField(fields: Record<string, { value: string; mode?: 'like' | 'equal' }>): Promise<boolean> {
+        const orConditions = Object.entries(fields).map(([key, { value, mode = 'equal' }]) => ({
+            [key]: mode === 'like' ? { [Op.iLike]: `%${value}%` } : value,
+        }));
+
+        const exists = await this.userModel.findOne({
+            where: { [Op.or]: orConditions },
+        });
+
+        return !!exists;
     }
 }
 // export class MongoUserRepository extends AbstractUserRepository {

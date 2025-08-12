@@ -1,5 +1,4 @@
 import { PaginationQueryDto } from '@/dto/common';
-import { Roles } from '@/modules/auth/decorators/roles.decorator';
 import { JWTAuthGuard } from '@/modules/auth/guards/jwt.guard';
 import { PermissionAuthGuard } from '@/modules/auth/guards/permission.guard';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@/modules/users/DTO/user.admin.request.dto';
@@ -17,7 +16,7 @@ export class UserAdminController {
     @Get(':id')
     @UseGuards(JWTAuthGuard)
     async getUserById(@Param('id') id: string): Promise<UserModel | null> {
-        return await this.userService.findOne(id);
+        return await this.userService.getUserById(id);
     }
 
     @Get()
@@ -26,7 +25,7 @@ export class UserAdminController {
     @UseGuards(JWTAuthGuard,PermissionAuthGuard)
     @CacheTTL(60)
     async getPagination(@Query() query:PaginationQueryDto): Promise<BaseResponse<UserModel[]>> {
-        return await this.userService.getPaginationUsers(query);
+        return await this.userService.getPagination(query);
     }
     
     

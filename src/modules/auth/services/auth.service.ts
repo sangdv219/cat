@@ -13,6 +13,7 @@ import { UserModel } from "models/user.model";
 import { RegisterDto } from "../DTO/register.dto";
 import { EmailService } from "./mail.service";
 import { VerifyOTPResponseDto } from "../interface/verifyOTP.interface";
+import { PostgresUserRepository } from "@/modules/users/repository/user.admin.repository";
 
 config();
 @Injectable()
@@ -22,15 +23,56 @@ export class AuthService {
         private readonly passwordService: PasswordService,
         private jwtService: JwtService,
         private readonly emailService: EmailService,
+        private readonly userRepository: PostgresUserRepository, // Assuming Redis is injected for cache management
     ) { }
+
+    async incrementFailedLogins(id: string): Promise<void> {
+        const user = await this.userRepository.findOne(id);
+        const userData = user?.get({ plain: true });
+        if (!userData) {
+            throw new NotFoundException('User not found');
+        }
+
+        const maxAttempts = 2;
+        // const logoutDuration = 15 * 60 * 1000; // 15 minutes
+        const logoutDuration = 3 * 60 * 1000; // 3 minutes
+        const now = new Date();
+
+        const updatedBody = {
+            ...userData,
+            failed_login_attempts: userData.failed_login_attempts + 1,
+            last_failed_login_at: new Date(),
+        }
+        if (userData.failed_login_attempts >= maxAttempts) {
+            updatedBody.locked_until = new Date(now.getTime() + logoutDuration);
+        }
+
+        await this.userRepository.updated(id, updatedBody);
+    }
+
+    async findEmail(email: string) {
+        return this.userRepository.findByField(email);
+    }
+
+    async resetFailedLogins(id: string): Promise<void> {
+        const updated = {
+            locked_until: null,
+            failed_login_attempts: 0,
+        }
+
+        await this.userRepository.updated(id, updated)
+    }
 
     async login(body: LoginDto): Promise<LoginResponseDto> {
         const { email, password } = body;
-
-        const user = await this.userService.findEmail(email);
+        // console.log("userRepository: ", this.userRepository);
+        const user = await this.findEmail(email);
+        if (!user) {
+            throw new NotFoundException("User not found");
+        }
         const userData = user?.get({ plain: true });
         if (userData.locked_until && new Date() > new Date(userData.locked_until)) {
-            await this.userService.resetFailedLogins(userData.id);
+            await this.resetFailedLogins(userData.id);
         }
         if (userData.locked_until && new Date() < new Date(userData.locked_until)) {
             throw new GoneException(`Account locked until 3 minutes from last failed login attempt`);
@@ -44,9 +86,9 @@ export class AuthService {
             }
             const isPasswordValid = await this.passwordService.comparePassword(password, userData.password_hash);
             if (isPasswordValid) {
-                await this.userService.resetFailedLogins(userData.id);
+                await this.resetFailedLogins(userData.id);
                 const payload = { email: userData.email, id: userData.id }
-                const accessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '1h' });
+                const accessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '24h' });
                 const refreshToken = await this.jwtService.signAsync(payload, { secret: process.env.REFRESH_TOKEN_SECRET, expiresIn: '1y' });
 
                 const response = new LoginResponseDto();
@@ -56,11 +98,11 @@ export class AuthService {
                 return response;
 
             } else {
-                this.userService.incrementFailedLogins(userData.id);
+                this.incrementFailedLogins(userData.id);
                 throw new UnauthorizedException("Password is not correct");
             }
         } else {
-            this.userService.incrementFailedLogins(userData.id);
+            this.incrementFailedLogins(userData.id);
             throw new NotFoundException("User not found");
         }
     }
@@ -71,7 +113,7 @@ export class AuthService {
             if (!tokenOld) {
                 throw new UnauthorizedException("Invalid refresh token");
             }
-            const user = await this.userService.findOne(tokenOld.id);
+            const user = await this.userService.getUserById(tokenOld.id);
 
             if (!user) {
                 throw new NotFoundException("User not found");
@@ -84,7 +126,7 @@ export class AuthService {
             }
 
             const payload = { email: user.email, id: user.id };
-            const newAccessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '15m' });
+            const newAccessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '24h' });
             const decoded = this.jwtService.decode(newAccessToken) as { exp: number };
 
             const response = new RefreshTokenResponseDto();
@@ -106,7 +148,7 @@ export class AuthService {
 
     async register(body: RegisterDto): Promise<VerifyOTPResponseDto> {
         const { email } = body;
-        const existingUser = await this.userService.findEmail(email);
+        const existingUser = await this.findEmail(email);
 
         if (existingUser) {
             throw new UnauthorizedException("Email already exists");
@@ -114,7 +156,7 @@ export class AuthService {
 
         // await this.emailService.sendRegistrationEmail(email);
 
-        const payload = { email: email  }
+        const payload = { email: email }
 
         const OTPToken = await this.jwtService.signAsync(payload, { secret: process.env.OTP_TOKEN_SECRET, expiresIn: '5m' });
 
