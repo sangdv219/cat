@@ -12,17 +12,22 @@ import { config } from "dotenv";
 import { UserModel } from "models/user.model";
 import { RegisterDto } from "../DTO/register.dto";
 import { EmailService } from "./mail.service";
+import { OTPService } from "./OTP.service";
 import { VerifyOTPResponseDto } from "../interface/verifyOTP.interface";
 import { PostgresUserRepository } from "@/modules/users/repository/user.admin.repository";
+import Redis from "ioredis";
+import { buildRedisKey } from "@/shared/redis/helpers/redis-key.helper";
+import { RedisContext } from "@/shared/redis/enums/redis-key.enum";
 
 config();
 @Injectable()
 export class AuthService {
     constructor(
-        readonly userService: UserService,
+        // readonly userService: UserService,
         private readonly passwordService: PasswordService,
         private jwtService: JwtService,
         private readonly emailService: EmailService,
+        private readonly OTPService: OTPService,
         private readonly userRepository: PostgresUserRepository, // Assuming Redis is injected for cache management
     ) { }
 
@@ -65,7 +70,6 @@ export class AuthService {
 
     async login(body: LoginDto): Promise<LoginResponseDto> {
         const { email, password } = body;
-        // console.log("userRepository: ", this.userRepository);
         const user = await this.findEmail(email);
         if (!user) {
             throw new NotFoundException("User not found");
@@ -113,19 +117,8 @@ export class AuthService {
             if (!tokenOld) {
                 throw new UnauthorizedException("Invalid refresh token");
             }
-            const user = await this.userService.getById(tokenOld.id);
 
-            if (!user) {
-                throw new NotFoundException("User not found");
-            }
-            if (!user.is_active) {
-                throw new UserNotActiveException(user.email);
-            }
-            if (user.deleted_at) {
-                throw new GoneException("Account has been deleted");
-            }
-
-            const payload = { email: user.email, id: user.id };
+            const payload = { email: tokenOld.email, id: tokenOld.id };
             const newAccessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '24h' });
             const decoded = this.jwtService.decode(newAccessToken) as { exp: number };
 
@@ -148,15 +141,21 @@ export class AuthService {
 
     async register(body: RegisterDto): Promise<VerifyOTPResponseDto> {
         const { email } = body;
+        const redis = new Redis();
+
         const existingUser = await this.findEmail(email);
 
         if (existingUser) {
-            throw new UnauthorizedException("Email already exists");
+            throw new UnauthorizedException("Email already exists in system");
         }
+        const otp = this.OTPService.gennerateOtp()
+        const TTL_OTP = 300
+        const key = buildRedisKey('auth', RedisContext.OTP, email)
+        await redis.set(key, otp, 'EX', TTL_OTP);
+        
+        await this.emailService.sendRegistrationEmail(email,otp);
 
-        // await this.emailService.sendRegistrationEmail(email);
-
-        const payload = { email: email }
+        const payload = { email: email };
 
         const OTPToken = await this.jwtService.signAsync(payload, { secret: process.env.OTP_TOKEN_SECRET, expiresIn: '5m' });
 

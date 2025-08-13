@@ -30,6 +30,7 @@
     "@nestjs/sequelize": "^11.0.0",
     "@sequelize/postgres": "^7.0.0-alpha.46",
     "argon2": "^0.43.1",
+    "bullmq": "^5.56.10",
     "cache-manager": "^7.0.1",
     "cache-manager-ioredis": "^2.1.0",
     "cache-manager-ioredis-yet": "^2.1.2",

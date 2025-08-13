@@ -12,11 +12,15 @@ export class RateLimitGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest();
         const RATE_LIMIT = 'rateLimit';
+        const REDIS_KEY = 'redisKey';
+
         const rateLimit = this.reflector.get<{ limit: number; ttl: number }>(RATE_LIMIT, context.getHandler());
         if (!rateLimit) return true;
-
-        const ip = request.connection.remoteAddress;
-        const key = `rate_limit:${ip}`;
+        
+        const redisKey = this.reflector.get<string>(REDIS_KEY, context.getHandler()) ?? '';
+        if (!redisKey) return true;
+        const ip = request.ip;
+        const key = `${redisKey}:${ip}`
         const redis = new Redis();
 
         const currentCount = await redis.incr(key);
