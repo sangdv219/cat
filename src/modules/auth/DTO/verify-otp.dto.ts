@@ -1,7 +1,7 @@
 import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
 
 export class VerifyOtpDto {
-    @IsNotEmpty({ message: 'Email is required' })
+    @IsNotEmpty({ message: 'otpToken is required' })
     @IsEmail({}, { message: 'Email must be a valid email address' })
     otpToken: string;
     @IsNotEmpty({ message: 'OTP is required' })
