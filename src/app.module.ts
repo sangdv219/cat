@@ -4,13 +4,13 @@ import { ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { redisStore } from 'cache-manager-ioredis-yet';
-import { createSequelizeInstance } from 'config/connect';
 import { config } from "dotenv";
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/users/user.module';
 import { JwtModule } from '@nestjs/jwt';
+import { createSequelizeInstance } from '../config/connect';
 
 config();
 createSequelizeInstance()

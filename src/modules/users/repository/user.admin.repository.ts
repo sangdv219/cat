@@ -1,9 +1,9 @@
 import { IPaginationDTO } from '@/shared/interface/common';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { UserModel } from 'models/user.model';
 import { Op } from 'sequelize';
 import { AbstractUserRepository } from '../abstract/user.admin.abstract';
+import { UserModel } from '@models/user.model';
 
 @Injectable()
 export class PostgresUserRepository extends AbstractUserRepository {

@@ -9,7 +9,6 @@ import { JwtService } from '@nestjs/jwt';
 import { Cron } from '@nestjs/schedule';
 import { InjectModel } from "@nestjs/sequelize";
 import { config } from "dotenv";
-import { UserModel } from "models/user.model";
 import { RegisterDto } from "../DTO/register.dto";
 import { EmailService } from "./mail.service";
 import { OTPService } from "./OTP.service";

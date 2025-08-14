@@ -4,9 +4,9 @@ import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@/module
 import { PostgresUserRepository } from '@/modules/users/repository/user.admin.repository';
 import { BaseService } from '@/shared/abstract/BaseService.abstract';
 import { DeleteResponse, UpdateCreateResponse } from '@/shared/interface/common';
+import { UserModel } from '@models/user.model';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { UserModel } from 'models/user.model';
 
 @Injectable()
 

@@ -5,9 +5,9 @@ import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@/module
 import { UserService } from '@/modules/users/services/user.service';
 import { BaseResponse } from '@/shared/interface/common';
 import { ForbidPasswordInUpdatePipe } from '@/shared/pipe';
+import { UserModel } from '@models/user.model';
 import { CacheTTL } from '@nestjs/cache-manager';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { UserModel } from 'models/user.model';
 
 @Controller('admin/users')
 export class UserAdminController {
