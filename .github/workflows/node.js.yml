@@ -29,3 +29,7 @@ jobs:
     - run: npm install
     - run: npm run build --if-present
     - run: npm test
+    - name: SonarQube Scan
+      run: |
+          npm run sonar \
+            -Dsonar.token=${{ b2c00fd0f25bb9abd8fd6a2fee7e0ca143821b9b }} \

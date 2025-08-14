@@ -13,4 +13,9 @@ export default {
      prefix: '<rootDir>/src/' 
     }),
   },
+
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['lcov', 'text'],
+  testResultsProcessor: 'jest-sonar-reporter',
 };

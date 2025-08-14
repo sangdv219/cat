@@ -36,7 +36,7 @@ export class AuthService {
         if (!userData) {
             throw new NotFoundException('User not found');
         }
-
+        const i = 0;
         const maxAttempts = 2;
         // const logoutDuration = 15 * 60 * 1000; // 15 minutes
         const logoutDuration = 3 * 60 * 1000; // 3 minutes
