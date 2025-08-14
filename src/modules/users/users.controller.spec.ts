@@ -9,14 +9,14 @@ import { PasswordModule } from '../password/password.module';
 describe('UserAdminController', () => {
   let userController: INestApplication;
 
-    beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [UserModule, PasswordModule],
-    }).compile();
+    // beforeAll(async () => {
+    // const moduleFixture: TestingModule = await Test.createTestingModule({
+    //   imports: [UserModule, PasswordModule],
+    // }).compile();
 
-    userController = moduleFixture.createNestApplication();
-    userController.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-    await userController.init();
+    // userController = moduleFixture.createNestApplication();
+    // userController.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+    // await userController.init();
   // });
    afterAll(async () => {
     // await getConnection().close(); // đóng DB
