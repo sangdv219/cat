@@ -8,7 +8,9 @@ import { ForbidPasswordInUpdatePipe } from '@/shared/pipe';
 import { UserModel } from '@models/user.model';
 import { CacheTTL } from '@nestjs/cache-manager';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiBearerAuth('Authorization')
 @Controller('admin/users')
 export class UserAdminController {
     constructor(private readonly userService: UserService) { }

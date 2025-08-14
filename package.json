@@ -28,6 +28,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/schedule": "^6.0.0",
     "@nestjs/sequelize": "^11.0.0",
+    "@nestjs/swagger": "^11.2.0",
     "@sequelize/postgres": "^7.0.0-alpha.46",
     "argon2": "^0.43.1",
     "bullmq": "^5.56.10",
@@ -74,5 +75,4 @@
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   }
-  
 }
