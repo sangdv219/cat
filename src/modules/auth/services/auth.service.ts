@@ -2,29 +2,25 @@ import { LoginDto } from "@/modules/auth/DTO/login.dto";
 import { LoginResponseDto } from "@/modules/auth/interface/login.interface";
 import { RefreshTokenResponseDto } from "@/modules/auth/interface/refreshToken.interface";
 import { PasswordService } from "@/modules/password/services/password.service";
-import { UserService } from "@/modules/users/services/user.service";
+import { PostgresUserRepository } from "@/modules/users/repository/user.admin.repository";
 import { UserNotActiveException } from "@/shared/exceptions/user-not-active.exception";
+import { RedisContext } from "@/shared/redis/enums/redis-key.enum";
+import { buildRedisKey } from "@/shared/redis/helpers/redis-key.helper";
 import { GoneException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from '@nestjs/jwt';
-import { Cron } from '@nestjs/schedule';
-import { InjectModel } from "@nestjs/sequelize";
 import { config } from "dotenv";
+import Redis from "ioredis";
 import { RegisterDto } from "../DTO/register.dto";
+import { VerifyOTPResponseDto } from "../interface/verifyOTP.interface";
 import { EmailService } from "./mail.service";
 import { OTPService } from "./OTP.service";
-import { VerifyOTPResponseDto } from "../interface/verifyOTP.interface";
-import { PostgresUserRepository } from "@/modules/users/repository/user.admin.repository";
-import Redis from "ioredis";
-import { buildRedisKey } from "@/shared/redis/helpers/redis-key.helper";
-import { RedisContext } from "@/shared/redis/enums/redis-key.enum";
 
 config();
 @Injectable()
 export class AuthService {
     constructor(
-        // readonly userService: UserService,
         private readonly passwordService: PasswordService,
-        private jwtService: JwtService,
+        private readonly jwtService: JwtService,
         private readonly emailService: EmailService,
         private readonly OTPService: OTPService,
         private readonly userRepository: PostgresUserRepository, // Assuming Redis is injected for cache management
@@ -36,9 +32,7 @@ export class AuthService {
         if (!userData) {
             throw new NotFoundException('User not found');
         }
-        const i = 0;
         const maxAttempts = 2;
-        // const logoutDuration = 15 * 60 * 1000; // 15 minutes
         const logoutDuration = 3 * 60 * 1000; // 3 minutes
         const now = new Date();
 
@@ -119,12 +113,10 @@ export class AuthService {
 
             const payload = { email: tokenOld.email, id: tokenOld.id };
             const newAccessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '24h' });
-            const decoded = this.jwtService.decode(newAccessToken) as { exp: number };
 
             const response = new RefreshTokenResponseDto();
             response.success = true;
             response.accessToken = newAccessToken;
-            response.expires = new Date(decoded.exp * 1000);
 
             return response;
 
