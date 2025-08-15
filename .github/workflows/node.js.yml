@@ -32,7 +32,7 @@ jobs:
     - name: SonarQube Scan
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: npm run sonar
+      run: npm run sonar -- -Dsonar.token=${{ secrets.SONAR_TOKEN }}
           
     - name: Build & push Docker image
       uses: docker/build-push-action@v6
