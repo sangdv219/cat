@@ -10,7 +10,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/users/user.module';
 import { JwtModule } from '@nestjs/jwt';
-import { createSequelizeInstance } from '../config/connect';
+import { createSequelizeInstance } from './config/connect';
 
 config();
 createSequelizeInstance()

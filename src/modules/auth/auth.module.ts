@@ -1,7 +1,6 @@
 import { Module } from "@nestjs/common";
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from "@nestjs/sequelize";
-import { UserModel } from "models/user.model";
 import { PasswordModule } from "../password/password.module";
 import { UserModule } from "../users/user.module";
 import { AuthController } from "./controller/auth.controller";
