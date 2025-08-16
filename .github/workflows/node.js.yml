@@ -34,7 +34,7 @@ jobs:
         if [ -z "${{secrets.SONAR_TOKEN}}" ]; then
           echo "❌ SONAR_TOKEN is empty"
         else
-          echo "✅ SONAR_TOKEN is set"
+          echo "✅ SONAR_TOKEN is set: ${{secrets.SONAR_TOKEN}}"
         fi
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
