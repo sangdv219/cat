@@ -36,12 +36,10 @@ jobs:
         else
           echo "✅ SONAR_TOKEN is set: ${{secrets.SONAR_TOKEN}}"
         fi
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     - name: SonarQube Scan
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: sonar-scanner -Dsonar.token=$SONAR_TOKEN
+      run: npm run sonar
           
     - name: Build & push Docker image
       uses: docker/build-push-action@v6
