@@ -42,7 +42,7 @@ jobs:
       run: npm run sonar
           
     - name: Build & push Docker image
-      uses: docker/build-push-action@v6
+      # uses: docker/build-push-action@v6
       # with:
       #   push: true
       #   tags: ghcr.io/sangduong-dev/nest-postgres:latest
