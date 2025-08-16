@@ -152,25 +152,25 @@ export class AuthService {
         const key = buildRedisKey('auth', RedisContext.OTP, email);
         const keyCacheOtpByEmail = await scanlAlKeys(`${buildRedisKey('auth', RedisContext.OTP)}*`)
         const cacheByEmail = findCacheByEmail(keyCacheOtpByEmail, email)
-        
+
         if (cacheByEmail) {
             const cache = JSON.parse(await redis.get(cacheByEmail) as string)
             const sendCount = cache.sendCount
             const limitSendEmail = process.env.LIMIT_SEND_EMAIL
             const now = Date.now()
             const lastTime = cache.lastTime
-            if(sendCount <= Number(limitSendEmail)){
-                if(now >= lastTime){
+            if (sendCount <= Number(limitSendEmail)) {
+                if (now >= lastTime) {
                     // await this.emailService.sendRegistrationEmail(email, otp);
-                   const updatedOtpCache = Object.assign({}, otpCache, { sendCount: sendCount + 1, lastTime: Date.now() + 1 * 60 * 1000 })
+                    const updatedOtpCache = Object.assign({}, otpCache, { sendCount: sendCount + 1, lastTime: Date.now() + 1 * 60 * 1000 })
                     await redis.set(key, JSON.stringify(updatedOtpCache), 'EX', TTL_OTP);
-                }else{
+                } else {
                     throw new GoneException('Vui lòng đợi khoảng 1p')
                 }
-            }else{
+            } else {
                 throw new GoneException('Đã vượt quá số lần gửi')
             }
-            
+
         } else {
             console.log('init')
             await redis.set(key, JSON.stringify(otpCache), 'EX', TTL_OTP);
