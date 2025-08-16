@@ -30,9 +30,9 @@ jobs:
     - run: npm run build --if-present
     - run: npm test
     - name: SonarQube Scan
-      run: npm run sonar
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: sonar-scanner -Dsonar.token=$SONAR_TOKEN
           
     - name: Build & push Docker image
       uses: docker/build-push-action@v6
