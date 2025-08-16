@@ -11,9 +11,9 @@ import { JwtService } from '@nestjs/jwt';
 import { config } from "dotenv";
 import Redis from "ioredis";
 import { RegisterDto } from "../DTO/register.dto";
-import { VerifyOTPResponseDto } from "../interface/verifyOTP.interface";
 import { EmailService } from "./mail.service";
 import { OTPService } from "./OTP.service";
+import { findCacheByEmail, scanlAlKeys } from "@/shared/utils/common.util";
 
 config();
 @Injectable()
@@ -130,7 +130,7 @@ export class AuthService {
         }
     }
 
-    async register(body: RegisterDto): Promise<VerifyOTPResponseDto> {
+    async register(body: RegisterDto): Promise<void> {
         const { email } = body;
         const redis = new Redis();
 
@@ -140,20 +140,44 @@ export class AuthService {
             throw new UnauthorizedException("Email already exists in system");
         }
         const otp = this.OTPService.gennerateOtp()
-        const TTL_OTP = 300
-        const key = buildRedisKey('auth', RedisContext.OTP, email)
-        await redis.set(key, otp, 'EX', TTL_OTP);
+        const otpCache = {
+            otp,
+            sendCount: 1,
+            checkCount: 1,
+            lastTime: Date.now() + 1 * 60 * 1000,
+        }
+        const TTL_OTP = 86400;
+
+
+        const key = buildRedisKey('auth', RedisContext.OTP, email);
+        const keyCacheOtpByEmail = await scanlAlKeys(`${buildRedisKey('auth', RedisContext.OTP)}*`)
+        const cacheByEmail = findCacheByEmail(keyCacheOtpByEmail, email)
         
-        await this.emailService.sendRegistrationEmail(email,otp);
+        if (cacheByEmail) {
+            const cache = JSON.parse(await redis.get(cacheByEmail) as string)
+            const sendCount = cache.sendCount
+            const limitSendEmail = process.env.LIMIT_SEND_EMAIL
+            const now = Date.now()
+            const lastTime = cache.lastTime
+            if(sendCount <= Number(limitSendEmail)){
+                if(now >= lastTime){
+                    // await this.emailService.sendRegistrationEmail(email, otp);
+                   const updatedOtpCache = Object.assign({}, otpCache, { sendCount: sendCount + 1, lastTime: Date.now() + 1 * 60 * 1000 })
+                    await redis.set(key, JSON.stringify(updatedOtpCache), 'EX', TTL_OTP);
+                }else{
+                    throw new GoneException('Vui lòng đợi khoảng 1p')
+                }
+            }else{
+                throw new GoneException('Đã vượt quá số lần gửi')
+            }
+            
+        } else {
+            console.log('init')
+            await redis.set(key, JSON.stringify(otpCache), 'EX', TTL_OTP);
 
-        const payload = { email: email };
+        }
 
-        const OTPToken = await this.jwtService.signAsync(payload, { secret: process.env.OTP_TOKEN_SECRET, expiresIn: '5m' });
 
-        return {
-            success: true,
-            otpToken: OTPToken
-        };
     }
 
 

@@ -3,7 +3,6 @@ import { RefreshTokenDto } from "@/modules/auth/DTO/refreshToken.dto";
 import { RegisterDto } from "@/modules/auth/DTO/register.dto";
 import { VerifyOtpDto } from "@/modules/auth/DTO/verify-otp.dto";
 import { LoginResponseDto } from "@/modules/auth/interface/login.interface";
-import { VerifyOTPResponseDto } from "@/modules/auth/interface/verifyOTP.interface";
 import { AuthService } from "@/modules/auth/services/auth.service";
 import { OTPService } from "@/modules/auth/services/OTP.service";
 import { applyDecorators, Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from "@nestjs/common";
@@ -14,6 +13,7 @@ import { RateLimitGuard } from "../guards/rate-limit.guard";
 import { RedisKey } from "../decorators/redis-key.decorator";
 import { buildRedisKey } from "@/shared/redis/helpers/redis-key.helper";
 import { RedisContext, RedisEntity } from "@/shared/redis/enums/redis-key.enum";
+import { ApiBearerAuth } from "@nestjs/swagger";
 // import { SendOTPLimitGuard } from "@/modules/auth/guards/sendOTPLimit.guard";
 
 const OTPGuard = () => applyDecorators(
@@ -43,20 +43,20 @@ export class AuthController {
   }
 
   @Post('register')
-  @HttpCode(HttpStatus.CREATED)
-  @RateLimit(3, 300)
-  @RedisKey(buildRedisKey('auth',RedisContext.RATE_LIMIT,'send'))
-  @UseGuards(RateLimitGuard)
-  async register(@Body() body: RegisterDto): Promise<VerifyOTPResponseDto> {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  // @RateLimit(3, 300)
+  // @RedisKey(buildRedisKey('auth', RedisContext.RATE_LIMIT, 'send'))
+  // @UseGuards(RateLimitGuard)
+  async register(@Body() body: RegisterDto): Promise<void> {
     return await this.authService.register(body);
   }
-  
+
+  @ApiBearerAuth('Authorization')
   @Post('verify-otp')
   @HttpCode(HttpStatus.CREATED)
-  @TokenType('otp')
-  @RateLimit(3, 86400) // Limit to 3 requests per day
-  @RedisKey(buildRedisKey('auth',RedisContext.RATE_LIMIT,'check'))
-  @UseGuards(JWTAuthGuard, RateLimitGuard)
+  @RateLimit(3, 86400)
+  @RedisKey(buildRedisKey('auth', RedisContext.RATE_LIMIT, 'check'))
+  @UseGuards(RateLimitGuard)
   // @OTPGuard()
   async verifyOTP(@Body() body: VerifyOtpDto): Promise<boolean> {
     return await this.OTPService.verifyOtp(body);
