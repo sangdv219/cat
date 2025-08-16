@@ -43,11 +43,11 @@ jobs:
           
     - name: Build & push Docker image
       uses: docker/build-push-action@v6
-      with:
-        push: true
-        tags: ghcr.io/sangduong-dev/nest-postgres:latest
+      # with:
+      #   push: true
+      #   tags: ghcr.io/sangduong-dev/nest-postgres:latest
       run: |
-        docker build \
+        docker build -d \
           -e DB_HOST=${{ secrets.DB_HOST }} \
           -e DB_PORT=${{ secrets.DB_PORT }} \
           -e DB_USER=${{ secrets.DB_USER }} \
