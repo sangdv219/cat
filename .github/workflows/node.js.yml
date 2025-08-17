@@ -36,7 +36,6 @@ jobs:
         node-version: 22.x
         cache: 'npm'
     - run: node --version
-    - run: echo "Deploy to STAGING server"
     - run: npm install
     - run: npm run build --if-present
     - run: | 
