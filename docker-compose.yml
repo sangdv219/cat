@@ -3,6 +3,23 @@ networks:
     driver: bridge
     external: true
 services:
+  # api-gateway:
+  #   image: my-app/api-gateway:1.0
+  #   depends_on:
+  #     - user-service
+  #     - auth-service
+
+  # user-service:
+  #   image: my-app/user-service:1.0
+  #   depends_on:
+  #       - postgres
+
+  # auth-service:
+  #   image: my-app/auth-service:1.0
+  #   depends_on:
+  #       - postgres
+  #       # - redis
+
   postgres:
     # conrtainer_name: nestjs1
     image: postgres:17
@@ -10,14 +27,18 @@ services:
       - demo
     restart: always
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       POSTGRES_USER: sangduong
-      POSTGRES_DB: fintech
+      POSTGRES_DB: cat
       POSTGRES_PASSWORD: 210919
-      POSTGRES_HOST_AUTH_METHOD: trust
     volumes: 
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sangduong -d cat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 
   pgadmin:
@@ -32,7 +53,8 @@ services:
       PGADMIN_DEFAULT_EMAIL: sangdev219@gmail.com 
       PGADMIN_DEFAULT_PASSWORD: 210919
     depends_on:
-      - postgres
+      postgres:
+          condition: service_healthy
     volumes:
       - pgadmin_data:/var/lib/pgadmin 
 

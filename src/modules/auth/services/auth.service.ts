@@ -4,7 +4,7 @@ import { RefreshTokenResponseDto } from "@/modules/auth/interface/refreshToken.i
 import { PasswordService } from "@/modules/password/services/password.service";
 import { PostgresUserRepository } from "@/modules/users/repository/user.admin.repository";
 import { UserNotActiveException } from "@/shared/exceptions/user-not-active.exception";
-import { RedisContext } from "@/shared/redis/enums/redis-key.enum";
+import { RedisContext, RedisModule } from "@/shared/redis/enums/redis-key.enum";
 import { buildRedisKey } from "@/shared/redis/helpers/redis-key.helper";
 import { GoneException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from '@nestjs/jwt';
@@ -148,9 +148,8 @@ export class AuthService {
         }
         const TTL_OTP = 86400;
 
-
-        const key = buildRedisKey('auth', RedisContext.OTP, email);
-        const keyCacheOtpByEmail = await scanlAlKeys(`${buildRedisKey('auth', RedisContext.OTP)}*`)
+        const key = buildRedisKey(RedisModule.AUTH, RedisContext.OTP, email);
+        const keyCacheOtpByEmail = await scanlAlKeys(`${buildRedisKey(RedisModule.AUTH, RedisContext.OTP)}*`)
         const cacheByEmail = findCacheByEmail(keyCacheOtpByEmail, email)
 
         if (cacheByEmail) {
@@ -172,7 +171,6 @@ export class AuthService {
             }
 
         } else {
-            console.log('init')
             await redis.set(key, JSON.stringify(otpCache), 'EX', TTL_OTP);
 
         }

@@ -5,8 +5,9 @@ export enum RedisContext {
   RATE_LIMIT = 'rate',
   OTP = 'otp'
 }
-export enum RedisEntity {
+export enum RedisModule {
   USER = 'user',
   ORDER = 'order',
+  AUTH = 'auth',
   TRANSACTION = 'transaction',
 }

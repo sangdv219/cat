@@ -5,15 +5,15 @@ import { VerifyOtpDto } from "@/modules/auth/DTO/verify-otp.dto";
 import { LoginResponseDto } from "@/modules/auth/interface/login.interface";
 import { AuthService } from "@/modules/auth/services/auth.service";
 import { OTPService } from "@/modules/auth/services/OTP.service";
+import { RedisContext, RedisModule } from "@/shared/redis/enums/redis-key.enum";
+import { buildRedisKey } from "@/shared/redis/helpers/redis-key.helper";
 import { applyDecorators, Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth } from "@nestjs/swagger";
 import { RateLimit } from "../decorators/rate-limit";
+import { RedisKey } from "../decorators/redis-key.decorator";
 import { TokenType } from "../decorators/token-type.decorator";
 import { JWTAuthGuard } from "../guards/jwt.guard";
 import { RateLimitGuard } from "../guards/rate-limit.guard";
-import { RedisKey } from "../decorators/redis-key.decorator";
-import { buildRedisKey } from "@/shared/redis/helpers/redis-key.helper";
-import { RedisContext, RedisEntity } from "@/shared/redis/enums/redis-key.enum";
-import { ApiBearerAuth } from "@nestjs/swagger";
 // import { SendOTPLimitGuard } from "@/modules/auth/guards/sendOTPLimit.guard";
 
 const OTPGuard = () => applyDecorators(
@@ -55,8 +55,8 @@ export class AuthController {
   @Post('verify-otp')
   @HttpCode(HttpStatus.CREATED)
   @RateLimit(3, 86400)
-  @RedisKey(buildRedisKey('auth', RedisContext.RATE_LIMIT, 'check'))
-  @UseGuards(RateLimitGuard)
+  @RedisKey(buildRedisKey(RedisModule.AUTH, RedisContext.RATE_LIMIT, 'check'))
+  // @UseGuards(RateLimitGuard)
   // @OTPGuard()
   async verifyOTP(@Body() body: VerifyOtpDto): Promise<boolean> {
     return await this.OTPService.verifyOtp(body);
