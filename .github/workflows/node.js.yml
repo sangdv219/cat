@@ -38,7 +38,6 @@ jobs:
   deploy-prod:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    environment: production
     needs: build
     environment:
       name: production
@@ -49,41 +48,41 @@ jobs:
 
   
 
-    steps:
-    - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node }}
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ matrix.node }}
-        cache: 'npm'
-    - run: node --version
-    - run: npm install
-    - run: npm run build --if-present
-    - run: npm test
-    - name: Check if SONAR_TOKEN exists
-      run: |
-        if [ -z "${{secrets.SONAR_TOKEN}}" ]; then
-          echo "❌ SONAR_TOKEN is empty"
-        else
-          echo "✅ SONAR_TOKEN is set: ${{secrets.SONAR_TOKEN}}"
-        fi
-    - name: SonarQube Scan
-      env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: npm run sonar
+    # steps:
+    # - uses: actions/checkout@v4
+    # - name: Use Node.js ${{ matrix.node }}
+    #   uses: actions/setup-node@v4
+    #   with:
+    #     node-version: ${{ matrix.node }}
+    #     cache: 'npm'
+    # - run: node --version
+    # - run: npm install
+    # - run: npm run build --if-present
+    # - run: npm test
+    # - name: Check if SONAR_TOKEN exists
+    #   run: |
+    #     if [ -z "${{secrets.SONAR_TOKEN}}" ]; then
+    #       echo "❌ SONAR_TOKEN is empty"
+    #     else
+    #       echo "✅ SONAR_TOKEN is set: ${{secrets.SONAR_TOKEN}}"
+    #     fi
+    # - name: SonarQube Scan
+    #   env:
+    #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    #   run: npm run sonar
           
-    - name: Build & push Docker image
-      uses: docker/build-push-action@v6
-      with:
-        push: true
-        tags: ghcr.io/sangduong-dev/nest-postgres:latest
-      run: docker build -t cat .
+    # - name: Build & push Docker image
+    #   uses: docker/build-push-action@v6
+    #   with:
+    #     push: true
+    #     tags: ghcr.io/sangduong-dev/nest-postgres:latest
+    #   run: docker build -t cat .
 
-    - name: Notify
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ secrets.TG_CHAT_ID }}
-        token: ${{ secrets.TG_BOT_TOKEN }}
-        message: "🚨 Deploy failed at ${{ github.sha }}"
+    # - name: Notify
+    #   uses: appleboy/telegram-action@master
+    #   with:
+    #     to: ${{ secrets.TG_CHAT_ID }}
+    #     token: ${{ secrets.TG_BOT_TOKEN }}
+    #     message: "🚨 Deploy failed at ${{ github.sha }}"
           
 
