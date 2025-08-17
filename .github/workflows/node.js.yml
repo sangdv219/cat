@@ -5,27 +5,58 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: 
+      - develop # staging
+      - master  #production
   pull_request:
     branches: [ "master" ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [22.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+        node: [22.x]
+        os: [ubuntu-latest, windows-latest]
+
+  deploy-staging:
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+    steps:
+      - run: | 
+         echo "Deploy to STAGING server"
+          if [ -z "${{secrets.LIMIT_SEND_EMAIL}}" ]; then
+              echo "❌ LIMIT_SEND_EMAIL is empty"
+          else
+            echo "✅ LIMIT_SEND_EMAIL is set: ${{secrets.LIMIT_SEND_EMAIL}}"
+          fi
+      # - run: ./scripts/deploy-staging.sh     #deploy
+
+  deploy-prod:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    environment: production
+    needs: build
+    environment:
+      name: production
+      url: https://yourapp.com    #util
+    steps:
+      - run: echo "Deploy to PRODUCTION server"
+      - run: ./scripts/deploy-prod.sh
+
+  
 
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js ${{ matrix.node }}
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: ${{ matrix.node }}
         cache: 'npm'
+    - run: node --version
     - run: npm install
     - run: npm run build --if-present
     - run: npm test
@@ -42,22 +73,17 @@ jobs:
       run: npm run sonar
           
     - name: Build & push Docker image
-      # uses: docker/build-push-action@v6
-      # with:
-      #   push: true
-      #   tags: ghcr.io/sangduong-dev/nest-postgres:latest
+      uses: docker/build-push-action@v6
+      with:
+        push: true
+        tags: ghcr.io/sangduong-dev/nest-postgres:latest
       run: docker build -t cat .
-          # -e DB_HOST=${{ secrets.DB_HOST }} \
-          # -e DB_PORT=${{ secrets.DB_PORT }} \
-          # -e DB_USER=${{ secrets.DB_USER }} \
-          # -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-          # -e DB_DATABASE=${{ secrets.DB_DATABASE }} \
-          # -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
-          # -e ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }} \
-          # -e REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }} \
-          # -e SMTP_USER=${{ secrets.SMTP_USER }} \
-          # -e SMTP_PASS=${{ secrets.SMTP_PASS }} \
-          # -e NODE_ENV=${{ secrets.NODE_ENV }} \
-          # -e SONAR_TOKEN=${{ secrets.SONAR_TOKEN }} \
+
+    - name: Notify
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TG_CHAT_ID }}
+        token: ${{ secrets.TG_BOT_TOKEN }}
+        message: "🚨 Deploy failed at ${{ github.sha }}"
           
 
