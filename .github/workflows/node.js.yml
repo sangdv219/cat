@@ -19,6 +19,9 @@ jobs:
       matrix:
         node: [22.x]
         os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install && npm run build
 
   deploy-staging:
     if: github.ref == 'refs/heads/develop'
@@ -44,8 +47,6 @@ jobs:
       url: https://yourapp.com    #util
     # steps:
     #   - run: ./scripts/deploy-prod.sh
-
-  
 
     steps:
     - uses: actions/checkout@v4
