@@ -34,14 +34,14 @@ jobs:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       #   run: npm run sonar 
       - run: npm run build 
+
+      - name: Build & Push image
+        uses: docker/build-push-action@v6
       - name: View context default
         run: |
           echo "Commit SHA = ${{ github.sha }}"
           echo "Branch = ${{ github.ref_name }}"
           docker build -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
-
-      - name: Build & Push image
-        uses: docker/build-push-action@v6
       # - run: docker build -t ghcr.io/org/repo:${GITHUB_SHA}
         with:
           push: true
