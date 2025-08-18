@@ -121,7 +121,7 @@ jobs:
       run: |
             docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
     - name: Deploy to prod 
-      if: github.ref == 'refs/heads/develop'
+      if: github.ref == 'refs/heads/master'
       run: |
         ssh ubuntu@prod-server 'bash -s' < scripts/deploy-prod.sh  
 
