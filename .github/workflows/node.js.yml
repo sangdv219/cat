@@ -51,9 +51,9 @@ jobs:
         - name: Download build artifact
           uses: actions/download-artifact@v4
           with:
-          name: app-build
+            name: app-build
         - name: Check STAGING database variable
-        - run: | 
+          run: | 
             echo "View variable STAGING database"
               if [ -z "${{vars.DATABASE_URL}}" ]; then
                   echo "❌ DATABASE_URL is empty"
@@ -62,7 +62,7 @@ jobs:
               fi
       
         - name: Deploy
-        - run: echo "Deploy to STAGING server"
+          run: echo "Deploy to STAGING server"
       # - run: ./scripts/deploy-staging.sh     #deploy
 
 
@@ -86,7 +86,7 @@ jobs:
       with:
           name: app-build 
     - name: Deploy
-    - run: echo "Deploy to PRODUCTION server"
+      run: echo "Deploy to PRODUCTION server"
    
 
           
