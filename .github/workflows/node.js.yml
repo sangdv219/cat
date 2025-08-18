@@ -89,8 +89,9 @@ jobs:
         docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
     - name: Deploy Staging
       if: github.ref == 'refs/heads/develop'
-      run: bash ./scripts/deploy-staging.sh
+      run: |
         docker run -d --name cat -p 3000:3000 ghcr.io/${{ github.repository }}:${github.sha}
+        bash ./scripts/deploy-staging.sh
       env:
           APP_NAME: cat
           GITHUB_SHA: ${{ github.sha }} 
