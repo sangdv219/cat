@@ -95,7 +95,7 @@ jobs:
         bash ./scripts/deploy-staging.sh
       env:
           APP_NAME: cat
-          GITHUB_SHA: ${{ github.sha }} 
+          BRANCH: ${{ github.ref_name }} 
 
   deploy-prod:
     if: github.ref == 'refs/heads/master'

@@ -2,9 +2,9 @@
 set -e
 
 # APP_NAME=cat
-IMAGE=ghcr.io/sangdev/cat:develop
+IMAGE=ghcr.io/sangdev/cat:$BRANCH
 
-echo "Using SHA: $GITHUB_SHA"
+echo "Using SHA: $BRANCH"
 echo "[INFO] Deploying $APP_NAME with image $IMAGE"
 
 # Stop old container
@@ -19,3 +19,4 @@ docker run -d --name $APP_NAME \
   -p 3000:3000 \
   --env-file /home/ubuntu/.env \
   $IMAGE
+s 
