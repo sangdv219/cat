@@ -90,7 +90,10 @@ jobs:
     - name: Deploy Staging
       if: github.ref == 'refs/heads/develop'
       run: bash ./scripts/deploy-staging.sh
-        
+        docker run -d --name cat -p 3000:3000 ghcr.io/${{ github.repository }}:${github.sha}
+      env:
+          APP_NAME: cat
+          GITHUB_SHA: ${{ github.sha }} 
 
   deploy-prod:
     if: github.ref == 'refs/heads/master'

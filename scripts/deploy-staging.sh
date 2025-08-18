@@ -1,9 +1,10 @@
 #!/bin/bash
 set -e
 
-APP_NAME=cat
+# APP_NAME=cat
 IMAGE=ghcr.io/sangdev/cat:develop
 
+echo "Using SHA: $GITHUB_SHA"
 echo "[INFO] Deploying $APP_NAME with image $IMAGE"
 
 # Stop old container
