@@ -19,9 +19,6 @@ jobs:
         node: [22.x]
         os: [ubuntu-latest] # or windows-latest
     steps:
-      - name: Dump GitHub context
-        run: echo "${{ toJSON(github) }}"
-
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -29,11 +26,11 @@ jobs:
           cache: 'npm'
       - run: npm install
       # - run: npm test 
+      # - run: npm run build 
       # - name: SonarQube Scan
       #   env:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       #   run: npm run sonar 
-      - run: npm run build 
       - name: view secrets TOKEN
         run: | 
             echo "View variable TOKEN"
