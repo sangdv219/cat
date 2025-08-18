@@ -2,7 +2,7 @@
 set -e
 
 # APP_NAME=cat
-IMAGE=ghcr.io/sangdev/cat:$BRANCH
+IMAGE=ghcr.io/sangdv219/cat:$BRANCH
 
 echo "Using SHA: $BRANCH"
 echo "[INFO] Deploying $APP_NAME with image $IMAGE"
