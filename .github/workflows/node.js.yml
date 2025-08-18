@@ -57,9 +57,10 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.sha }}
-            ${{ github.ref == 'refs/heads/master' && format('ghcr.io/{0}:latest', github.repository) || '' }}
-            ${{ github.ref == 'refs/heads/develop' && format('ghcr.io/{0}:dev', github.repository) || '' }}
-            ${{ startsWith(github.ref, 'refs/tags/v') && format('ghcr.io/{0}:{1}', github.repository, github.ref_name) || '' }}
+            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+            # ${{ github.ref == 'refs/heads/master' && format('ghcr.io/{0}:latest', github.repository) || '' }}
+            # ${{ github.ref == 'refs/heads/develop' && format('ghcr.io/{0}:dev', github.repository) || '' }}
+            # ${{ startsWith(github.ref, 'refs/tags/v') && format('ghcr.io/{0}:{1}', github.repository, github.ref_name) || '' }}
 
   deploy-staging:
     if: github.ref == 'refs/heads/develop'
@@ -85,7 +86,7 @@ jobs:
           password: ${{ secrets.TOKEN }} 
     - name: Pull & Deploy
       run: |
-            docker pull ghcr.io/${{ github.repository }}:${{ github.sha }}
+            docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
       # - run: ./scripts/deploy-staging.sh     #deploy
             # ./scripts/deploy-staging.sh ghcr.io/${{ github.repository }}:develop 
 
