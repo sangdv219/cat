@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-APP_NAME=myapp
-IMAGE=ghcr.io/sangdev/myapp:${GITHUB_SHA}
+APP_NAME=cat
+IMAGE=ghcr.io/sangdev/cat:master
 
 echo "[INFO] Deploying $APP_NAME with image $IMAGE"
 
