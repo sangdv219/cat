@@ -85,10 +85,9 @@ jobs:
           password: ${{ secrets.TOKEN }} 
     - name: Pull & Deploy
       run: |
-            docker pull ghcr.io/${{ github.repository }}:develop
-            ./scripts/deploy-staging.sh ghcr.io/${{ github.repository }}:develop 
-        
+            docker pull ghcr.io/${{ github.repository }}:${{ github.sha }}
       # - run: ./scripts/deploy-staging.sh     #deploy
+            # ./scripts/deploy-staging.sh ghcr.io/${{ github.repository }}:develop 
 
   deploy-prod:
     if: github.ref == 'refs/heads/master'
