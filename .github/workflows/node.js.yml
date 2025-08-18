@@ -45,20 +45,16 @@ jobs:
     needs: build 
     environment:
       name: staging
-      url: https://notebooklm.google.com/notebook/8fc114df-f7ca-4af4-81ff-4886294e8ff4    #util
+      url: http://sangduong.io.vn    #util
     steps:
         - uses: actions/checkout@v4
-        - name: Download build artifact
-          uses: actions/download-artifact@v4
-          with:
-            name: app-build
-        - name: Check STAGING database variable
+        - name: Check STAGING host variable
           run: | 
-            echo "View variable STAGING database"
-              if [ -z "${{vars.DATABASE_URL}}" ]; then
-                  echo "❌ DATABASE_URL is empty"
+            echo "View variable STAGING host"
+              if [ -z "${{vars.DB_HOST_STAGING}}" ]; then
+                  echo "❌ DB_HOST_STAGING is empty"
               else
-                echo "✅ DATABASE_URL is set: ${{vars.DATABASE_URL}}"
+                echo "✅ DB_HOST_STAGING is set: ${{vars.DB_HOST_STAGING}}"
               fi
       
         - name: Deploy
@@ -73,16 +69,20 @@ jobs:
     needs: build    # đảm bảo,chắc chắn build pass mới deploy
     environment:
       name: production
-      url: https://notebooklm.google.com/notebook/8fc114df-f7ca-4af4-81ff-4886294e8ff4    #util
+      url: http://sangduong.io.vn    #util
     # steps:
     #   - run: ./scripts/deploy-prod.sh
 
     steps:
     - uses: actions/checkout@v4
-    - name: Download build artifact
-      uses: actions/download-artifact@v4
-      with:
-          name: app-build 
+    - name: Check PRODUCTION host variable
+      run: | 
+            echo "View variable PRODUCTION host"
+              if [ -z "${{vars.DB_HOST_PROD}}" ]; then
+                  echo "❌ DB_HOST_PROD is empty"
+              else
+                echo "✅ DB_HOST_PROD is set: ${{vars.DB_HOST_PROD}}"
+              fi 
     - name: Deploy
       run: echo "Deploy to PRODUCTION server"
    
