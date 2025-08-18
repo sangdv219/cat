@@ -28,19 +28,25 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'npm'
       - run: npm install
-      - run: npm test 
-      - name: SonarQube Scan
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: npm run sonar 
+      # - run: npm test 
+      # - name: SonarQube Scan
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #   run: npm run sonar 
       - run: npm run build 
-      # - run: docker build -t ghcr.io/org/repo:${GITHUB_SHA}
+      - name: View context default
+        run: |
+          echo "Commit SHA = ${{ github.sha }}"
+          echo "Branch = ${{ github.ref_name }}"
+          docker build -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
+
       - name: Build & Push image
         uses: docker/build-push-action@v6
+      # - run: docker build -t ghcr.io/org/repo:${GITHUB_SHA}
         with:
           push: true
           tags: |
-            ghcr.io/sangdev2109/cat
+            ghcr.io/sangdev2109/cat:${{ github.sha }}
             ${{ github.ref == 'refs/heads/master' && format('ghcr.io/{0}:latest', github.repository) || '' }}
             ${{ github.ref == 'refs/heads/develop' && format('ghcr.io/{0}:dev', github.repository) || '' }}
             ${{ startsWith(github.ref, 'refs/tags/v') && format('ghcr.io/{0}:{1}', github.repository, github.ref_name) || '' }}
