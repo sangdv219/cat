@@ -69,9 +69,8 @@ jobs:
       name: staging
       url: http://sangduong.io.vn    #util
     steps:
-        - uses: actions/checkout@v4
-        - name: Check STAGING host variable
-          run: | 
+    - name: Check STAGING host variable
+      run: | 
             echo "View variable STAGING host"
               if [ -z "${{vars.DB_HOST_STAGING}}" ]; then
                   echo "❌ DB_HOST_STAGING is empty"
@@ -79,14 +78,11 @@ jobs:
                 echo "✅ DB_HOST_STAGING is set: ${{vars.DB_HOST_STAGING}}"
               fi
       
-      
-
-        # - name: Pull & Deploy
-        #   run: |
-        #     docker pull ghcr.io/${{ sangdev2109/cat }}:develop
-        #     ./scripts/deploy-staging.sh ghcr.io/${{ sangdev2109/cat }}:develop
-        - name: Deploy
-          run: echo "Deploy to STAGING server"
+    - name: Pull & Deploy
+      run: |
+            docker pull ghcr.io/${{ github.repository }}:develop
+            ./scripts/deploy-staging.sh ghcr.io/${{ github.repository }}:develop 
+        
       # - run: ./scripts/deploy-staging.sh     #deploy
 
   deploy-prod:
@@ -100,7 +96,6 @@ jobs:
     #   - run: ./scripts/deploy-prod.sh
 
     steps:
-    - uses: actions/checkout@v4
     - name: Check PRODUCTION host variable
       run: | 
             echo "View variable PRODUCTION host"
@@ -109,8 +104,10 @@ jobs:
               else
                 echo "✅ DB_HOST_PROD is set: ${{vars.DB_HOST_PROD}}"
               fi 
-    - name: Deploy
-      run: echo "Deploy to PRODUCTION server"
+    - name: Pull & Deploy
+      run: |
+            docker pull ghcr.io/${{ github.repository }}:master
+            ./scripts/deploy-staging.sh ghcr.io/${{ github.repository }}:master 
    
 
           
