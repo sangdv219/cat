@@ -34,7 +34,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: npm run sonar 
       - run: npm run build 
-      - run: docker build -t ghcr.io/org/repo:${GITHUB_SHA}
+      # - run: docker build -t ghcr.io/org/repo:${GITHUB_SHA}
       - name: Build & Push image
         uses: docker/build-push-action@v6
         with:
