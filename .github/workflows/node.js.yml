@@ -68,6 +68,8 @@ jobs:
       name: staging
       url: http://sangduong.io.vn    #util
     steps:
+    - name: Checkout
+      uses: actions/checkout@v4
     - name: Check STAGING host variable
       run: | 
             echo "View variable STAGING host"
@@ -85,12 +87,10 @@ jobs:
     - name: Pull 
       run: |
         docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-    - name: Deploy to Staging
+    - name: Deploy Staging
       if: github.ref == 'refs/heads/develop'
-      run: |
-        ssh ubuntu@staging-server 'bash -s' < scripts/deploy-staging.sh 
-      # - run: ./scripts/deploy-staging.sh     #deploy
-            # ./scripts/deploy-staging.sh ghcr.io/${{ github.repository }}:develop 
+      run: bash ./scripts/deploy-staging.sh
+        
 
   deploy-prod:
     if: github.ref == 'refs/heads/master'
@@ -103,6 +103,8 @@ jobs:
     #   - run: ./scripts/deploy-prod.sh
 
     steps:
+    - name: Checkout
+      uses: actions/checkout@v4
     - name: Check PRODUCTION host variable
       run: | 
             echo "View variable PRODUCTION host"
@@ -120,7 +122,7 @@ jobs:
     - name: Pull 
       run: |
             docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-    - name: Deploy to prod 
+    - name: Deploy prod 
       if: github.ref == 'refs/heads/master'
       run: |
         ssh ubuntu@prod-server 'bash -s' < scripts/deploy-prod.sh  

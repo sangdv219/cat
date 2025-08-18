@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+APP_NAME=myapp
+IMAGE=ghcr.io/sangdev/myapp:${GITHUB_SHA}
+
+echo "[INFO] Deploying $APP_NAME with image $IMAGE"
+
+# Stop old container
+docker stop $APP_NAME || true
+docker rm $APP_NAME || true
+
+# Pull latest image
+docker pull $IMAGE
+
+# Run new container
+docker run -d --name $APP_NAME \
+  -p 3000:3000 \
+  --env-file /home/ubuntu/.env \
+  $IMAGE
