@@ -58,10 +58,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.sha }}
             ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-      - name: Deploy to Staging
-        if: github.ref == 'refs/heads/develop'
-        run: |
-          ssh ubuntu@staging-server 'bash -s' < scripts/deploy-staging.sh 
+      
 
   deploy-staging:
     if: github.ref == 'refs/heads/develop'
@@ -85,9 +82,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.TOKEN }} 
-    - name: Pull & Deploy
+    - name: Pull 
       run: |
-            docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+        docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+    - name: Deploy to Staging
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        ssh ubuntu@staging-server 'bash -s' < scripts/deploy-staging.sh 
       # - run: ./scripts/deploy-staging.sh     #deploy
             # ./scripts/deploy-staging.sh ghcr.io/${{ github.repository }}:develop 
 
@@ -116,11 +117,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }} 
-    - name: Pull & Deploy
+    - name: Pull 
       run: |
-            docker pull ghcr.io/${{ github.repository }}:master
-            ./scripts/deploy-staging.sh ghcr.io/${{ github.repository }}:master 
-   
+            docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+    - name: Deploy to prod 
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        ssh ubuntu@prod-server 'bash -s' < scripts/deploy-prod.sh  
 
           
     # - name: Build & push Docker image
