@@ -18,7 +18,10 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "sonar": "sonar-scanner -Dsonar.token=$SONAR_TOKEN"
+    "sonar": "sonar-scanner -Dsonar.token=$SONAR_TOKEN",
+    "sequelize:generate": "npx sequelize-cli migration:generate --name $npm_config_name",
+    "sequelize:run": "npx sequelize-cli db:migrate",
+    "sequelize:undo": "npx sequelize-cli db:migrate:undo"
   },
   "dependencies": {
     "@nestjs/cache-manager": "^3.0.1",

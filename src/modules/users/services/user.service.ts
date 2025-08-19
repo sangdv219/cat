@@ -7,6 +7,7 @@ import { DeleteResponse, UpdateCreateResponse } from '@/shared/interface/common'
 import { UserModel } from '@models/user.model';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
+import { CreatedUserAuthRequestDto } from '../DTO/user-auth.request.dto';
 
 @Injectable()
 
@@ -90,8 +91,8 @@ export class UserService extends BaseService<UserModel> {
             where: { id, is_active: false },
             paranoid: false // Allow fetching soft-deleted records
         });
-        if(!user){
-             throw new NotFoundException(`User with id ${id} not found`);
+        if (!user) {
+            throw new NotFoundException(`User with id ${id} not found`);
         }
         const result = await this.userRepository.updated(id, { is_active: true, deleted_at: null });
 
@@ -105,6 +106,18 @@ export class UserService extends BaseService<UserModel> {
         return {
             success: true,
             data: safeData as Partial<UserModel>
+        }
+    }
+
+    async createUserWithEmailOnly(body: CreatedUserAuthRequestDto): Promise<Promise<UpdateCreateResponse<UserModel>>> {
+        const existsEmail = await this.userRepository.checkExistsField({ email: { value: body.email, mode: 'equal' } });
+        if (existsEmail) {
+            throw new ConflictException('Email already exists');
+        }
+        const result = await this.userRepository.created(body);
+        return {
+            success: true,
+            data: result.id
         }
     }
 }

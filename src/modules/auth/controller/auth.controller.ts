@@ -2,7 +2,7 @@ import { LoginDto } from "@/modules/auth/DTO/login.dto";
 import { RefreshTokenDto } from "@/modules/auth/DTO/refreshToken.dto";
 import { RegisterDto } from "@/modules/auth/DTO/register.dto";
 import { VerifyOtpDto } from "@/modules/auth/DTO/verify-otp.dto";
-import { LoginResponseDto } from "@/modules/auth/interface/login.interface";
+import { LoginResponseDto, VerifyResponseDto } from "@/modules/auth/interface/login.interface";
 import { AuthService } from "@/modules/auth/services/auth.service";
 import { OTPService } from "@/modules/auth/services/OTP.service";
 import { RedisContext, RedisModule } from "@/shared/redis/enums/redis-key.enum";
@@ -58,7 +58,7 @@ export class AuthController {
   @RedisKey(buildRedisKey(RedisModule.AUTH, RedisContext.RATE_LIMIT, 'check'))
   // @UseGuards(RateLimitGuard)
   // @OTPGuard()
-  async verifyOTP(@Body() body: VerifyOtpDto): Promise<boolean> {
+  async verifyOTP(@Body() body: VerifyOtpDto): Promise<VerifyResponseDto> {
     return await this.OTPService.verifyOtp(body);
   }
 }

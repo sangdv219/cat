@@ -4,3 +4,4 @@ export class LoginResponseDto {
     accessToken: string;
     refreshToken: String;
 }
+export class VerifyResponseDto extends LoginResponseDto {}

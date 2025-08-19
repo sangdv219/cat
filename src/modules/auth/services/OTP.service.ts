@@ -7,15 +7,22 @@ import { VerifyOtpDto } from "../DTO/verify-otp.dto";
 import { findCacheByEmail, scanlAlKeys } from "@/shared/utils/common.util";
 import { buildRedisKey } from "@/shared/redis/helpers/redis-key.helper";
 import { RedisContext, RedisModule } from "@/shared/redis/enums/redis-key.enum";
+import { UserService } from "@/modules/users/services/user.service";
+import { AuthService } from "./auth.service";
+import { PostgresUserRepository } from "@/modules/users/repository/user.admin.repository";
+import { LoginResponseDto, VerifyResponseDto } from "../interface/login.interface";
 
 config();
 @Injectable()
 export class OTPService {
     constructor(
-        private jwtService: JwtService,
+        private readonly jwtService: JwtService,
+        private readonly userService: UserService,
+        // private readonly authService: AuthService,
+        private readonly userRepository: PostgresUserRepository,
     ) { }
 
-    @Cron('00 15 16 * * *') // Every minute
+    @Cron('00 00 00 * * *') // Every minute
     async resetVerifyOtp() {
         const redis = new Redis();
         const keyCacheOtpByEmail = await scanlAlKeys(`${buildRedisKey(RedisModule.AUTH, RedisContext.OTP)}*`)
@@ -34,7 +41,7 @@ export class OTPService {
         console.log('----------------Reset check OTP----------------');
     }
 
-    async verifyOtp(body: VerifyOtpDto): Promise<boolean> {
+    async verifyOtp(body: VerifyOtpDto): Promise<VerifyResponseDto> {
         const redis = new Redis();
         const { otp, email } = body;
         const keyCacheOtpByEmail = await scanlAlKeys(`${buildRedisKey(RedisModule.AUTH, RedisContext.OTP)}*`)
@@ -55,16 +62,33 @@ export class OTPService {
                 }
                 await redis.set(key, JSON.stringify(updatedOtpCache))
                 throw new GoneException('Sai OTP')
-            }
-            const storedOtp = JSON.parse(await redis.get(`dev:cat:auth:otp:${email}`) as string);
-            if (otp == storedOtp) {
-                await redis.del('dev:cat:auth:rate:check:::1')
-                return true;
+            } else {
+                const userAuth = {
+                    email,
+                    name: '',
+                    phone: '',
+                    isRoot: false
+                    // password_hash: '',
+                    // provider: 'local',
+                    // provider_user_id: ''
+                };
+
+                const user = await this.userService.createUserWithEmailOnly(userAuth)
+                const { data: userId } = user || {};
+                const payload = { email: email, id: userId }
+                const accessToken = await this.jwtService.signAsync(payload, { secret: process.env.ACCESS_TOKEN_SECRET, expiresIn: '24h' });
+                const refreshToken = await this.jwtService.signAsync(payload, { secret: process.env.REFRESH_TOKEN_SECRET, expiresIn: '1y' });
+                
+                await redis.del(keyByEmailCache)
+                const response = new VerifyResponseDto();
+                response.success = true;
+                response.accessToken = accessToken;
+                response.refreshToken = refreshToken;
+                return response;
             }
         } else {
             throw new UnauthorizedException('Email này chưa yêu cầu OTP')
         }
-        return true
     }
 
     gennerateOtp() {

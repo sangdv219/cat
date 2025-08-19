@@ -16,9 +16,9 @@ export abstract class BaseService<T> {
         const redisKey = await this.cacheManager.buildVersionedKey(this.entityName, { page, limit, keyword: keyword ?? '' });
         const cached = await redis.get(redisKey);
 
-        const userInCache = cached ? JSON.parse(cached) : null;
+        const dataCache = cached ? JSON.parse(cached) : null;
 
-        if (cached) return userInCache;
+        if (cached) return dataCache;
 
         const { items, total } = await this.repository.findWithPagination(query);
 
