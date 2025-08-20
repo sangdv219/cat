@@ -34,16 +34,19 @@ jobs:
 
       - name: DEBUG variable exists yet 
         run: | 
-            echo "View variable TOKEN"
+            echo "View variable secrets"
                 if [ -z "${{ secrets.EC2_USER }}" ] || [ -z "${{ secrets.EC2_HOST }}" ] || [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then
                   echo "❌ One or more secrets are missing"
                   exit 1
             fi
-            echo "✅ All secrets are set"
             echo "✅ EC2_SSH_KEY ${{EC2_SSH_KEY}}"
             echo "✅ EC2_HOST ${{EC2_HOST}}"
-            echo "✅ EC2_HOST ${{EC2_USER}}"
+            echo "✅ EC2_USER ${{EC2_USER}}"
             echo "✅ All secrets are set"
+        env:
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
