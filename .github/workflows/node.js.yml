@@ -96,6 +96,16 @@ jobs:
           APP_NAME: cat
           BRANCH: ${{ github.ref_name }} 
 
+    # - name: Deploy to S2 via SSH
+    #   uses: appleboy/ssh-action@v1.0.0
+    #   with:
+    #     host: ${{ secrets.EC2_HOST  }}
+    #     username: ${{ secrets.EC2_USER  }}
+    #     key: ${{ secrets.EC2_SSH_KEY  }}
+    #     scripts: |
+    #       docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+    #       docker top myapp || true && docker rm myapp || true
+    #       docker run -d --name app -p 4000:5000 ${{secrets.DOCKER_NAME}}/my-app:latest 
   deploy-prod:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest

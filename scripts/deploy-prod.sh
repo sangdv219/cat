@@ -2,7 +2,7 @@
 set -e
 
 APP_NAME=cat
-IMAGE=ghcr.io/sangdev/cat:master
+IMAGE=ghcr.io/sangdev/cat:$BRANCH
 
 echo "[INFO] Deploying $APP_NAME with image $IMAGE"
 
@@ -16,5 +16,5 @@ docker pull $IMAGE
 # Run new container
 docker run -d --name $APP_NAME \
   -p 3000:3000 \
-  --env-file /home/ubuntu/.env \
+  # --env-file /home/ubuntu/.env \
   $IMAGE
