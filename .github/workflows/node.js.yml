@@ -34,12 +34,12 @@ jobs:
 
       - name: DEBUG variable exists yet 
         env:
-          EC2_USER: ${{ secrets.EC2_USER }}
-          EC2_HOST: ${{ secrets.EC2_HOST }}
-          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_USER: ${{secrets.EC2_USER}}
+          EC2_HOST: ${{secrets.EC2_HOST}}
+          EC2_SSH_KEY: ${{secrets.EC2_SSH_KEY}}
         run: | 
             echo "View variable secrets"
-                if [ -z "${ EC2_USER }" ] || [ -z "${ EC2_HOST }" ] || [ -z "${ EC2_SSH_KEY }" ]; then
+                if [ -z "${EC2_USER}" ] || [ -z "${EC2_HOST}" ] || [ -z "${EC2_SSH_KEY}" ]; then
                   echo "❌ One or more secrets are missing"
                   exit 1
             fi
