@@ -31,14 +31,15 @@ jobs:
       #   env:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       #   run: npm run sonar 
-      - name: view secrets TOKEN
+
+      - name: DEBUG variable exists yet 
         run: | 
             echo "View variable TOKEN"
-              if [ -z "${{secrets.TOKEN}}" ]; then
-                  echo "❌ TOKEN is empty"
-              else
-                echo "✅ TOKEN is set: ${{secrets.TOKEN}}"
-              fi
+                if [ -z "${{ secrets.TOKEN }}" ] || [ -z "${{ secrets.API_KEY }}" ] || [ -z "${{ secrets.DB_PASSWORD }}" ]; then
+                  echo "❌ One or more secrets are missing"
+                  exit 1
+            fi
+            echo "✅ All secrets are set"
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -47,9 +48,7 @@ jobs:
           password: ${{ secrets.TOKEN }}
       - name: Build image
         run: |
-          echo "Commit SHA = ${{ github.sha }}"
-          echo "Branch = ${{ github.ref_name }}"
-          echo "Actor = ${{ github.actor }}"
+      
           docker build -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
       - name: Push image
         uses: docker/build-push-action@v6
@@ -83,26 +82,24 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.TOKEN }} 
-    - name: Pull 
-      run: |
-        docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-    - name: Deploy Staging
+
+
+    - name: Deploy to EC2 via SSH in Staging
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST  }}
+        username: ${{ secrets.EC2_USER  }}
+        key: ${{ secrets.EC2_SSH_KEY  }}
       if: github.ref == 'refs/heads/develop'
       run: |
         bash ./scripts/deploy-staging.sh
       env:
           APP_NAME: cat
 
-    # - name: Deploy to S2 via SSH
-    #   uses: appleboy/ssh-action@v1.0.0
-    #   with:
-    #     host: ${{ secrets.EC2_HOST  }}
-    #     username: ${{ secrets.EC2_USER  }}
-    #     key: ${{ secrets.EC2_SSH_KEY  }}
-    #     scripts: |
-    #       docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-    #       docker top myapp || true && docker rm myapp || true
-    #       docker run -d --name app -p 4000:5000 ${{secrets.DOCKER_NAME}}/my-app:latest 
+      scripts: |
+          echo "[INFO] Start Deploy"
+
+
   deploy-prod:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
