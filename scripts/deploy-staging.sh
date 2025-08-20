@@ -3,9 +3,9 @@ set -e
 
 BRANCH=${BRANCH:-develop}
 IMAGE=ghcr.io/sangdv219/cat:$BRANCH
-PORT=${APP_PORT:-3000}
+PORT=3000
 
-echo "Using branch: $BRANCH"
+echo "[INFO] Using branch: $BRANCH"
 echo "[INFO] Deploying $APP_NAME with image $IMAGE"
 
 # Stop old container
