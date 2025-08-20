@@ -17,6 +17,6 @@ docker pull $IMAGE
 # Run new container
 docker run -d --name $APP_NAME \
   -p 3000:3000 \
-  --env-file /home/ubuntu/.env \
   $IMAGE
-s 
+  
+echo "[INFO] $APP_NAME deployed on port $PORT"

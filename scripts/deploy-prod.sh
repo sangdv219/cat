@@ -3,6 +3,7 @@ set -e
 
 APP_NAME=cat
 IMAGE=ghcr.io/sangdev/cat:$BRANCH
+PORT=${APP_PORT:-3000}
 
 echo "[INFO] Deploying $APP_NAME with image $IMAGE"
 
@@ -16,4 +17,7 @@ docker pull $IMAGE
 # Run new container
 docker run -d --name $APP_NAME \
   -p 3000:3000 \
+  --env-file /home/ubuntu/.env \
   $IMAGE
+
+echo "[INFO] $APP_NAME deployed on port $PORT"

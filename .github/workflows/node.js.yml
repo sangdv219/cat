@@ -57,8 +57,8 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.sha }}
-            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-      
+            ghcr.io/${{ github.repository }}:${{ github.ref_name }}-latest
+            ghcr.io/${{ github.repository }}:
 
   deploy-staging:
     if: github.ref == 'refs/heads/develop'
@@ -90,7 +90,6 @@ jobs:
     - name: Deploy Staging
       if: github.ref == 'refs/heads/develop'
       run: |
-        docker run -d --name cat -p 3000:3000 ghcr.io/${{ github.repository }}:${{github.ref_name}}
         bash ./scripts/deploy-staging.sh
       env:
           APP_NAME: cat
