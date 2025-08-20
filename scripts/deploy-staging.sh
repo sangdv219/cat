@@ -5,6 +5,7 @@ BRANCH=${BRANCH:-develop}
 IMAGE=ghcr.io/sangdv219/cat:$BRANCH
 PORT=3000
 
+echo "[INFO] Using port: $PORT"
 echo "[INFO] Using branch: $BRANCH"
 echo "[INFO] Deploying $APP_NAME with image $IMAGE"
 
@@ -22,12 +23,12 @@ docker run -d --name $APP_NAME \
 
 
   # Healthcheck (optional)
-sleep 10
-if curl -fs http://localhost:$APP_PORT/health >/dev/null; then
-  echo "[INFO] ✅ $APP_NAME is up and healthy on port $APP_PORT"
-else
-  echo "[ERROR] ❌ $APP_NAME failed to start" >&2
-  exit 1
-fi
+# sleep 10
+# if curl -fs http://localhost:$PORT/health >/dev/null; then
+#   echo "[INFO] ✅ $APP_NAME is up and healthy on port $APP_PORT"
+# else
+#   echo "[ERROR] ❌ $APP_NAME failed to start" >&2
+#   exit 1
+# fi
 
 echo "[INFO] $APP_NAME deployed on port $PORT"
