@@ -22,7 +22,7 @@ docker run -d --name $APP_NAME \
 
 
   # Healthcheck (optional)
-sleep 5
+sleep 10
 if curl -fs http://localhost:$APP_PORT/health >/dev/null; then
   echo "[INFO] ✅ $APP_NAME is up and healthy on port $APP_PORT"
 else
