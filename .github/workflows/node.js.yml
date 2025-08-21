@@ -38,7 +38,6 @@ jobs:
           EC2_HOST: ${{secrets.EC2_HOST}}
           EC2_SSH_KEY: ${{secrets.EC2_SSH_KEY}}
           TOKEN: ${{secrets.TOKEN}}
-
         run: | 
             echo "View variable secrets"
                 if [ -z "${EC2_USER}" ] || [ -z "${EC2_HOST}" ] || [ -z "${EC2_SSH_KEY}" ] || [ -z "${TOKEN}" ]; then
@@ -105,7 +104,7 @@ jobs:
         username: ${{ secrets.EC2_USER  }}
         key: ${{ secrets.EC2_SSH_KEY  }}
         envs: APP_NAME
-        scripts: |
+        script: |
           echo "[INFO] Start Deploy"
           bash ./scripts/deploy-staging.sh
       env:
