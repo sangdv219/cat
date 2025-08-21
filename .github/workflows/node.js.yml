@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
           cache: 'npm'
-      # - run: npm install
+      # - run: npm ci
       # - run: npm test 
       # - run: npm run build 
       # - name: SonarQube Scan
@@ -37,16 +37,19 @@ jobs:
           EC2_USER: ${{secrets.EC2_USER}}
           EC2_HOST: ${{secrets.EC2_HOST}}
           EC2_SSH_KEY: ${{secrets.EC2_SSH_KEY}}
+          TOKEN: ${{secrets.TOKEN}}
+
         run: | 
             echo "View variable secrets"
-                if [ -z "${EC2_USER}" ] || [ -z "${EC2_HOST}" ] || [ -z "${EC2_SSH_KEY}" ]; then
-                  echo "❌ One or more secrets are missing"
+                if [ -z "${EC2_USER}" ] || [ -z "${EC2_HOST}" ] || [ -z "${EC2_SSH_KEY}" ] || [ -z "${TOKEN}" ]; then
+                  echo "❌ One or more secrets was missing"
                   exit 1
             fi
-            echo "✅ EC2_SSH_KEY are set"
-            echo "✅ EC2_HOST are set"
-            echo "✅ EC2_USER are set"
-            echo "✅ All secrets are set"
+            echo "✅ EC2_SSH_KEY was set"
+            echo "✅ EC2_HOST was set"
+            echo "✅ EC2_USER was set"
+            echo "✅ TOKEN was set"
+            echo "✅ All secrets was set"
         
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -106,52 +109,54 @@ jobs:
           echo "[INFO] Start Deploy"
           bash ./scripts/deploy-staging.sh
       env:
-          APP_NAME: cat
-
-
+          APP_NAME: auth
 
   deploy-prod:
     if: github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    needs: build    # đảm bảo,chắc chắn build pass mới deploy
+    needs: build 
     environment:
-      name: production
-      url: http://sangduong.io.vn    #util
-    # steps:
-    #   - run: ./scripts/deploy-prod.sh
-
+      name: staging
+      url: http://54.252.231.194    #util
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Check PRODUCTION host variable
+    - name: Check STAGING TOKEN variable
       run: | 
-            echo "View variable PRODUCTION host"
-              if [ -z "${{vars.DB_HOST_PROD}}" ]; then
-                  echo "❌ DB_HOST_PROD is empty"
+            echo "View variable TOKEN"
+              if [ -z "${{secrets.TOKEN}}" ]; then
+                  echo "❌ TOKEN is empty"
               else
-                echo "✅ DB_HOST_PROD is set: ${{vars.DB_HOST_PROD}}"
-              fi 
+                echo "✅ TOKEN is set: ${{secrets.TOKEN}}"
+              fi
+            echo "View variable github.actor"
+              if [ -z "${{github.actor}}" ]; then
+                  echo "❌ Dgithub.actor is empty"
+              else
+                echo "✅ github.actor is set: ${{github.actor}}"
+              fi
     - name: Log in to GHCR
       uses: docker/login-action@v3
       with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }} 
-    - name: Pull 
-      run: |
-            docker pull ghcr.io/${{ github.repository }}:${{ github.ref_name }}
-    - name: Deploy prod 
-      if: github.ref == 'refs/heads/master'
-      run: |
-        ssh ubuntu@prod-server 'bash -s' < scripts/deploy-prod.sh  
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.TOKEN }} 
 
-          
-    # - name: Build & push Docker image
-    #   uses: docker/build-push-action@v6
-    #   with:
-    #     push: true
-    #     tags: ghcr.io/sangduong-dev/nest-postgres:latest
-    #   run: docker build -t cat .
+    - name: Deploy to EC2 via SSH in Production
+      if: github.ref == 'refs/heads/master'
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu 
+        key: ${{ secrets.EC2_SSH_KEY }}
+        envs: APP_NAME
+        script: |
+          echo "---------- Start deploy-prod.sh on EC2 ----------"
+          chmod +x /home/ubuntu/scripts/deploy-prod.sh
+          bash /home/ubuntu/scripts/deploy-prod.sh
+          echo "---------- Finished deploy-prod.sh ----------"
+      env:
+        APP_NAME: auth
 
     # - name: Notify
     #   uses: appleboy/telegram-action@master
