@@ -2,8 +2,8 @@
 #!/bin/bash
 set -e  # dừng script nếu lệnh nào fail
 
-APP_NAME=${APP_NAME:-auth}  
-BRANCH=${BRANCH:-master}
+APP_NAME=${APP_NAME:-cat}  
+BRANCH=${BRANCH:-develop}
 IMAGE=ghcr.io/sangdv219/$APP_NAME:$BRANCH
 HOST_PORT=80
 CONTAINER_PORT=3000
