@@ -27,7 +27,6 @@ export interface IBaseRepository<T> {
     deleted(id: string): Promise<T>;
 }
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
-    // protected _entityName: string;
     public readonly _entityName: string
 
     constructor(entityName: string = 'BaseEntity') {

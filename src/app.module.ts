@@ -1,33 +1,21 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { ScheduleModule } from '@nestjs/schedule';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { redisStore } from 'cache-manager-ioredis-yet';
-import { config } from "dotenv";
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './modules/auth/auth.module';
-import { UserModule } from './modules/users/user.module';
 import { JwtModule } from '@nestjs/jwt';
-import { createSequelizeInstance } from './config/connect';
+import { ScheduleModule } from '@nestjs/schedule';
+import { redisStore } from 'cache-manager-ioredis-yet';
+import { AppController } from './app.controller';
+import { DatabaseModule } from './database/database.module';
+import { DatabaseService } from './database/database.service';
+import { AuthModule } from './modules/auth/auth.module';
+import { BrandModule } from './modules/brands/brand.module';
+import { CategoryModule } from './modules/categories/categories.module';
+import { ProductModule } from './modules/products/product.module';
+import { UserModule } from './modules/users/user.module';
 
-config();
-createSequelizeInstance()
-const configService = new ConfigService();
+export const REDIS_CLIENT = 'REDIS_CLIENT';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    SequelizeModule.forRoot({
-      dialect: 'postgres',
-      host: process.env.DB_HOST,
-      port: parseInt(configService.getOrThrow('DB_PORT'), 10),
-      username: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
-      autoLoadModels: true,
-      synchronize: true,
-    }),
     CacheModule.registerAsync({
       useFactory: async () => ({
         store: await redisStore({
@@ -43,10 +31,15 @@ const configService = new ConfigService();
       secret: process.env.JWT_SECRET ?? (() => { throw new Error('Missing JWT_SECRET') })(),
       signOptions: { expiresIn: '1h' },
     }),
+    DatabaseModule,
     AuthModule,
     UserModule,
+    BrandModule,
+    CategoryModule,
+    ProductModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [DatabaseService],
+  exports: [DatabaseService]
 })
 export class AppModule { }

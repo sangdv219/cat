@@ -1,7 +1,7 @@
 import Redis from "ioredis";
 
 export class CacheVersionService{
-    private redis: Redis;
+    private readonly redis: Redis;
 
     constructor(redis?: Redis) {
         this.redis = redis ?? new Redis();
@@ -43,5 +43,12 @@ export class CacheVersionService{
         } else {
             console.log(`No cache entries found for prefix ${keyPrefix}`);
         }
+    }
+
+    async get(key: string): Promise<any> {
+        return await this.redis.get(key)
+    }
+    async set(key: string, value: any, secondsToken, TTL): Promise<any> {
+        return await this.redis.set(key, value, secondsToken, TTL)
     }
 }

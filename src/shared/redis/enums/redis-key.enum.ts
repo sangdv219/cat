@@ -1,4 +1,7 @@
 export enum RedisContext {
+  LIST = 'list',
+  DETAIL = 'detail',
+  QUERY = 'query',
   SESSION = 'session',
   CACHE = 'cache',
   LOCK = 'lock',
@@ -6,7 +9,7 @@ export enum RedisContext {
   OTP = 'otp'
 }
 export enum RedisModule {
-  USER = 'user',
+  USER = 'users',
   ORDER = 'order',
   AUTH = 'auth',
   TRANSACTION = 'transaction',

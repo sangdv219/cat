@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { SwaggerModule, DocumentBuilder, SwaggerCustomOptions, SwaggerDocumentOptions } from '@nestjs/swagger';
-import { CreatedUserAdminRequestDto } from './modules/users/DTO/user.admin.request.dto';
 import { LoginDto } from './modules/auth/DTO/login.dto';
+import { CreatedUserAdminRequestDto } from './modules/users/DTO/user.admin.request.dto';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

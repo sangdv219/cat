@@ -66,8 +66,8 @@ export class OTPService {
                 const userAuth = {
                     email,
                     name: '',
-                    phone: '',
-                    isRoot: false
+                    isRoot: false,
+                    isActive: true
                     // password_hash: '',
                     // provider: 'local',
                     // provider_user_id: ''

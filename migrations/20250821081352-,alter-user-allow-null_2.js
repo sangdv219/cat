@@ -3,11 +3,11 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.changeColumn('users', 'email', {
+    await queryInterface.changeColumn('users', 'name', {
       type:Sequelize.STRING(500),
-      allowNull: false
+      allowNull: true
     }) 
-    await queryInterface.changeColumn('users', 'updated_at', {
+    await queryInterface.changeColumn('users', 'phone', {
       type:Sequelize.STRING(100),
       allowNull: true
     }) 
@@ -18,11 +18,11 @@ module.exports = {
   },
   
   async down (queryInterface, Sequelize) {
-    await queryInterface.changeColumn('users', 'email', {
+    await queryInterface.changeColumn('users', 'name', {
       type:Sequelize.STRING(500),
-      allowNull: true 
+      allowNull: false 
     }) 
-     await queryInterface.changeColumn('users', 'updated_at', {
+    await queryInterface.changeColumn('users', 'phone', {
       type:Sequelize.STRING(100),
       allowNull: false
     }) 

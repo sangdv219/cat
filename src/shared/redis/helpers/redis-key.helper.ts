@@ -17,3 +17,21 @@ export const buildRedisKey = (
     attribute
   ].filter(Boolean).join(':');
 };
+
+export const buildRedisKeyQuery = (
+  module: string,
+  context: RedisContext,
+  hashOfQuery?: string
+) => {
+  const paramString = Object.entries(hashOfQuery || {})
+    .filter(([_, v]) => v !== undefined && v !== null)
+    .map(([k, v]) => `${k}=${v}`)
+    .sort()
+    .join('&');
+  return [
+    REDIS_PREFIX,
+    module,
+    context,
+    paramString
+  ].filter(Boolean).join(':');
+};

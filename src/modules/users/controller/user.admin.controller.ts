@@ -36,7 +36,7 @@ export class UserAdminController {
     @UseGuards(JWTAuthGuard)
     @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
     async create(@Body() createUserDto: CreatedUserAdminRequestDto) {
-        return this.userService.createdUser(createUserDto);
+        return this.userService.createImpl(createUserDto);
     }
     
     @Patch(':id')
@@ -44,14 +44,14 @@ export class UserAdminController {
     @UseGuards(JWTAuthGuard)
     @UsePipes(new ForbidPasswordInUpdatePipe())
     async updateUser(@Param('id') id: string, @Body() body: UpdatedUserAdminRequestDto) {
-        return await this.userService.updatedUser(id, body);
+        return await this.userService.update(id, body);
     }
     
     @Delete(':id')
     @UseGuards(JWTAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     async deleteUser(@Param('id') id: string) {
-        return await this.userService.deletedUser(id);
+        return await this.userService.delete(id);
     }
     
     @Patch(':id/restore')
