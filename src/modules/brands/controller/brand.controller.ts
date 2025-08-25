@@ -13,7 +13,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 @ApiBearerAuth('Authorization')
 @Controller('brands')
 export class BrandController {
-    constructor(private readonly productService: BrandService) { }
+    constructor(private readonly brandService: BrandService) { }
 
     @Get()
     @HttpCode(HttpStatus.OK)
@@ -21,35 +21,35 @@ export class BrandController {
     @UseGuards(JWTAuthGuard)
     @CacheTTL(60)
     async getPagination(@Query() query:PaginationQueryDto): Promise<BaseResponse<BrandModel[]>> {
-        return await this.productService.getPagination(query);
+        return await this.brandService.getPagination(query);
     }
 
     @Get(':id')
     @UseGuards(JWTAuthGuard)
     async getBrandById(@Param('id') id: string): Promise<BrandModel | null> {
-        return await this.productService.getById(id);
+        return await this.brandService.getById(id);
     }
     
     @Post()
-    // @HttpCode(HttpStatus.CREATED)
+    @HttpCode(HttpStatus.CREATED)
     @UseGuards(JWTAuthGuard)
     @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
     async create(@Body() createBrandDto: CreatedBrandRequestDto) {
-        return this.productService.create(createBrandDto);
+        return this.brandService.create(createBrandDto);
     }
     
     @Patch(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
     @UseGuards(JWTAuthGuard)
     @UsePipes(new ForbidPasswordInUpdatePipe())
-    async updateBrand(@Param('id') id: string, @Body() body: UpdatedBrandRequestDto) {
-        return await this.productService.update(id, body);
+    async updateBrand(@Param('id') id: string, @Body() body: UpdatedBrandRequestDto):Promise<void> {
+        return await this.brandService.update(id, body);
     }
     
     @Delete(':id')
     @UseGuards(JWTAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
-    async deleteBrand(@Param('id') id: string) {
-        return await this.productService.delete(id);
+    async deleteBrand(@Param('id') id: string):Promise<void> {
+        return await this.brandService.delete(id);
     }
 }

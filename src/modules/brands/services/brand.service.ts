@@ -41,7 +41,7 @@ export class BrandService extends BaseService<BrandModel> {
         console.log("* Ngắt kết nối queue worker: ");
     }
 
-    protected async moduledestroy() {
+    protected async moduleDestroy() {
         this.brands = [];
         console.log("🗑️onModuleDestroy -> brands: ", this.brands);
     }

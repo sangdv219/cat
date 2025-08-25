@@ -41,7 +41,7 @@ export class CategoryService extends BaseService<CategoryModel> {
           console.log("* Ngắt kết nối queue worker: ");
     }
 
-    protected async moduledestroy() {
+    protected async moduleDestroy() {
         this.categorys = [];
         console.log("🗑️onModuleDestroy -> categorys: ", this.categorys);
     }

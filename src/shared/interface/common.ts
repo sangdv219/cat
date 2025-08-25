@@ -2,7 +2,7 @@ export class BaseResponse<T = any> {
     success: boolean;
     message?: string;
     data?: T;   
-    totalRecord: number
+    totalRecord?: number
 }
 
 export class UpdateCreateResponse<T= any> {

@@ -44,7 +44,7 @@ export class UserService extends BaseService<UserModel> {
         console.log("* Ngắt kết nối queue worker: ");
     }
 
-    protected async moduledestroy() {
+    protected async moduleDestroy() {
         this.users = [];
         console.log("🗑️onModuleDestroy -> users: ", this.users);
     }

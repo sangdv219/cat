@@ -3,7 +3,6 @@ import { CreatedProductRequestDto } from '@/modules/products/DTO/product.request
 import { BaseService } from '@/shared/abstract/BaseService.abstract';
 import { ProductModel } from '@models/product.model';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
 import { PostgresProductRepository } from '../repository/product.repository';
 
 @Injectable()
@@ -11,7 +10,6 @@ import { PostgresProductRepository } from '../repository/product.repository';
 export class ProductService extends BaseService<ProductModel> {
     protected entityName: string;
     private products: string[] = [];
-    // public cacheManage: CacheVersionService
     constructor(
         protected repository: PostgresProductRepository,
          public cacheManage: CacheVersionService
@@ -42,7 +40,7 @@ export class ProductService extends BaseService<ProductModel> {
           console.log("* Ngắt kết nối queue worker: ");
     }
 
-    protected async moduledestroy() {
+    protected async moduleDestroy() {
         this.products = [];
         console.log("🗑️onModuleDestroy -> products: ", this.products);
     }

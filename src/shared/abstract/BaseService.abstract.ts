@@ -11,14 +11,14 @@ export abstract class BaseService<T> implements OnModuleInit, OnApplicationBoots
     protected abstract moduleInit(): Promise<void>;
     protected abstract bootstrapLogic(): Promise<void>;
     protected abstract beforeAppShutDown(signal?: string): Promise<void>;
-    protected abstract moduledestroy(): Promise<void>;
+    protected abstract moduleDestroy(): Promise<void>;
     protected abstract createImpl(body): any
-    protected abstract updateImpl(body): any
+    protected abstract updateImpl(id, body): any
 
     async onModuleInit() {
         await this.moduleInit();
     }
-    
+
     async onApplicationBootstrap() {
         await this.bootstrapLogic()
     }
@@ -28,7 +28,7 @@ export abstract class BaseService<T> implements OnModuleInit, OnApplicationBoots
     }
 
     async onModuleDestroy() {
-        await this.moduledestroy();
+        await this.moduleDestroy();
     }
 
     async getPagination(query): Promise<BaseResponse<T[]>> {
@@ -63,7 +63,7 @@ export abstract class BaseService<T> implements OnModuleInit, OnApplicationBoots
 
     async update(id: string, body: any) {
         await this.updatedCommon(id, body)
-        await this.updateImpl(body)
+        await this.updateImpl(id, body)
     }
 
     protected async createdCommon(body: T): Promise<UpdateCreateResponse<T>> {
@@ -118,17 +118,9 @@ export abstract class BaseService<T> implements OnModuleInit, OnApplicationBoots
         }
     }
 
-    async delete(id: string): Promise<DeleteResponse<string>> {
+    async delete(id: string): Promise<void> {
         const keyCacheList = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST)
         await this.cacheManage.delCache(keyCacheList);
-
-        const result = await this.repository.deleted(id);
-
-        const success = !!result; // Check if any rows were affected
-        return {
-            id: success ? id : '',
-            success: !!success,
-            message: success ? `${this.entityName} successfully` : `${this.entityName} not found or deletion failed`
-        }
+        await this.repository.deleted(id);
     }
 }

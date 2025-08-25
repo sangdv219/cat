@@ -1,9 +1,11 @@
 import { IPaginationDTO } from '@/shared/interface/common';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 import { AbstractBrandRepository } from '../abstract/branch.abstract';
 import { BrandModel } from '@/models/branch.model';
+import { UUID } from 'crypto';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class PostgresBrandRepository extends AbstractBrandRepository {
@@ -76,10 +78,17 @@ export class PostgresBrandRepository extends AbstractBrandRepository {
         });
     }
 
-    async deleted(id: string): Promise<any> {
-        return this.brandModel.destroy({
+    async deleted(id: UUID): Promise<any> {
+        if (!isUUID(id)) {
+            throw new BadRequestException('Invalid UUID format');
+        }
+        const deletedRows = await this.brandModel.destroy({
             where: { id }
         });
+        if (deletedRows === 0) {
+            throw new NotFoundException('Record not found');
+        }
+        return true
     }
 
     async checkDuplicateFieldExcludeId<K extends keyof BrandModel>(field: K, value: BrandModel[K], excludeId?: string): Promise<boolean> {
