@@ -1,8 +1,15 @@
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { BaseService } from '../services/base.service';
 
 // Mock dependency types
-interface Entity { id: string; name?: string }
+interface Entity {
+  id: string;
+  name?: string;
+}
 
 const buildRedisKeyQuery = jest.fn((...args) => `redis:${args.join(':')}`);
 const RedisContext = { LIST: 'list' } as const;
@@ -33,7 +40,7 @@ const mockCacheManage = () => ({
 class TestService extends BaseService<Entity> {
   protected entityName = 'Entity';
   protected repository = mockRepository();
-  protected cacheManage:any = mockCacheManage();
+  protected cacheManage: any = mockCacheManage();
 
   protected async moduleInit() {}
   protected async bootstrapLogic() {}
@@ -89,7 +96,9 @@ describe('BaseService', () => {
 
   describe('getPagination', () => {
     it('lấy từ cache nếu tồn tại', async () => {
-      cache.get.mockResolvedValue(JSON.stringify({ success: true, data: [1], totalRecord: 1 }));
+      cache.get.mockResolvedValue(
+        JSON.stringify({ success: true, data: [1], totalRecord: 1 }),
+      );
       const result = await service.getPagination({ page: 1, limit: 10 });
       expect(cache.get).toHaveBeenCalled();
       expect(result.data).toEqual([1]);
@@ -97,7 +106,10 @@ describe('BaseService', () => {
 
     it('lấy từ repository nếu cache không có', async () => {
       cache.get.mockResolvedValue(null);
-      repository.findWithPagination.mockResolvedValue({ items: [{ id: '1' }], total: 1 });
+      repository.findWithPagination.mockResolvedValue({
+        items: [{ id: '1' }],
+        total: 1,
+      });
       const result = await service.getPagination({ page: 1, limit: 10 });
       expect(repository.findWithPagination).toHaveBeenCalled();
       expect(cache.set).toHaveBeenCalled();
@@ -106,10 +118,18 @@ describe('BaseService', () => {
     });
 
     it('throw BadRequest nếu page/limit không hợp lệ', async () => {
-      await expect(service.getPagination({ page: 0, limit: 10 })).rejects.toBeInstanceOf(BadRequestException);
-      await expect(service.getPagination({ page: 1, limit: 0 })).rejects.toBeInstanceOf(BadRequestException);
-      await expect(service.getPagination({ page: 1, limit: 101 })).rejects.toBeInstanceOf(BadRequestException);
-      await expect(service.getPagination({ page: 1001, limit: 10 })).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.getPagination({ page: 0, limit: 10 }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.getPagination({ page: 1, limit: 0 }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.getPagination({ page: 1, limit: 101 }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.getPagination({ page: 1001, limit: 10 }),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
   });
 
@@ -121,8 +141,12 @@ describe('BaseService', () => {
     });
 
     it('throw Conflict khi duplicate key', async () => {
-      repository.created.mockRejectedValue({ name: 'SequelizeUniqueConstraintError' });
-      await expect(service.create({ id: '1' })).rejects.toBeInstanceOf(ConflictException);
+      repository.created.mockRejectedValue({
+        name: 'SequelizeUniqueConstraintError',
+      });
+      await expect(service.create({ id: '1' })).rejects.toBeInstanceOf(
+        ConflictException,
+      );
     });
   });
 
@@ -137,7 +161,9 @@ describe('BaseService', () => {
 
     it('throw NotFound khi entity không tồn tại', async () => {
       repository.findOne.mockResolvedValue(null);
-      await expect(service.update('404', { name: 'X' })).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.update('404', { name: 'X' })).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 
@@ -151,7 +177,9 @@ describe('BaseService', () => {
 
     it('throw NotFound khi không tìm thấy', async () => {
       repository.findOne.mockResolvedValue(null);
-      await expect(service.getById('404')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.getById('404')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 

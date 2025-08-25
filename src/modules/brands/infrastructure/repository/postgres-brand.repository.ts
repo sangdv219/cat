@@ -6,11 +6,11 @@ import { BRAND_ENTITY } from '../../constants/brand.constant';
 
 @Injectable()
 export class PostgresBrandRepository extends AbstractBrandRepository {
-    private static readonly ENTITY_NAME = BRAND_ENTITY.NAME;
-    constructor(
-        @InjectModel(BrandModel)
-        protected readonly brandModel: typeof BrandModel,
-    ) {
-        super(PostgresBrandRepository.ENTITY_NAME, brandModel);
-    }
+  private static readonly ENTITY_NAME = BRAND_ENTITY.NAME;
+  constructor(
+    @InjectModel(BrandModel)
+    protected readonly brandModel: typeof BrandModel,
+  ) {
+    super(PostgresBrandRepository.ENTITY_NAME, brandModel);
+  }
 }

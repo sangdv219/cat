@@ -5,22 +5,23 @@ import { CommonModule } from '@modules/common/common.module';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { config } from "dotenv";
+import { config } from 'dotenv';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
 import { BrandController } from './controller/brand.controller';
 
 config();
 @Module({
-    imports: [SequelizeModule.forFeature([BrandModel]),
-        CommonModule,
-    ],
-    controllers: [BrandController],
-    providers: [PostgresBrandRepository, BrandService, JwtModule,
-        {
-            provide: 'TokenSecretResolver',
-            useClass: DefaultTokenSecretResolverStrategy
-        }
-    ],
-    exports: [PostgresBrandRepository, BrandService],
+  imports: [SequelizeModule.forFeature([BrandModel]), CommonModule],
+  controllers: [BrandController],
+  providers: [
+    PostgresBrandRepository,
+    BrandService,
+    JwtModule,
+    {
+      provide: 'TokenSecretResolver',
+      useClass: DefaultTokenSecretResolverStrategy,
+    },
+  ],
+  exports: [PostgresBrandRepository, BrandService],
 })
-export class BrandModule { } 
+export class BrandModule {}

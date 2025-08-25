@@ -2,7 +2,10 @@ import { PaginationQueryDto } from '@/dto/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { BrandController } from './controller/brand.controller';
-import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from './DTO/brand.request.dto';
+import {
+  CreatedBrandRequestDto,
+  UpdatedBrandRequestDto,
+} from './DTO/brand.request.dto';
 import { BrandService } from './services/brand.service';
 
 // DTO và model giả định (thay theo dự án thật)
@@ -41,16 +44,18 @@ describe('BrandController', () => {
       const query: PaginationQueryDto = { page: 1, limit: 10 };
       const expected: any = {
         success: true,
-        data: [{
-          id: '1',
-          name: 'Nike',
-          image: '',
-          is_public: true,
-          created_at: new Date(),
-          updated_at: new Date(),
-          // add other required BrandModel properties with mock values here
-        }],
-        totalRecord: 1
+        data: [
+          {
+            id: '1',
+            name: 'Nike',
+            image: '',
+            is_public: true,
+            created_at: new Date(),
+            updated_at: new Date(),
+            // add other required BrandModel properties with mock values here
+          },
+        ],
+        totalRecord: 1,
       };
       service.getPagination.mockResolvedValue(expected);
 
@@ -83,13 +88,19 @@ describe('BrandController', () => {
     it('ném NotFound khi service trả về null', async () => {
       service.getById.mockRejectedValue(new NotFoundException('Not found'));
 
-      await expect(controller.getBrandById('404')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(controller.getBrandById('404')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 
   describe('create', () => {
     it('gọi service.create và trả về kết quả', async () => {
-      const dto: CreatedBrandRequestDto = { name: 'Puma', image: '', is_public: true };
+      const dto: CreatedBrandRequestDto = {
+        name: 'Puma',
+        image: '',
+        is_public: true,
+      };
       const expected = { id: '1', name: 'Puma' };
       service.create.mockResolvedValue(expected);
 
@@ -102,7 +113,11 @@ describe('BrandController', () => {
 
   describe('updateBrand', () => {
     it('gọi service.update và trả về void', async () => {
-      const dto: UpdatedBrandRequestDto = { name: 'Reebok', image: 'sd', is_public: true };
+      const dto: UpdatedBrandRequestDto = {
+        name: 'Reebok',
+        image: 'sd',
+        is_public: true,
+      };
       service.update.mockResolvedValue(undefined);
 
       const result = await controller.updateBrand('1', dto);

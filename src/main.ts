@@ -12,14 +12,14 @@ async function bootstrap() {
     .setVersion('1.0')
     // .addTag('cats')
     .addBearerAuth(
-    {
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      in: 'header',
-    },
-    'Authorization', // Tên định danh security
-  )
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'Authorization', // Tên định danh security
+    )
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

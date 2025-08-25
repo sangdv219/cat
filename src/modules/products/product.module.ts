@@ -5,22 +5,23 @@ import { ProductService } from '@modules/products/services/product.service';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { config } from "dotenv";
+import { config } from 'dotenv';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
 import { ProductController } from './controller/product.controller';
 
 config();
 @Module({
-    imports: [SequelizeModule.forFeature([ProductModel]),
-        CommonModule,
-    ],
-    controllers: [ProductController],
-    providers: [PostgresProductRepository, ProductService, JwtModule,
-        {
-            provide: 'TokenSecretResolver',
-            useClass: DefaultTokenSecretResolverStrategy
-        }
-    ],
-    exports: [PostgresProductRepository, ProductService],
+  imports: [SequelizeModule.forFeature([ProductModel]), CommonModule],
+  controllers: [ProductController],
+  providers: [
+    PostgresProductRepository,
+    ProductService,
+    JwtModule,
+    {
+      provide: 'TokenSecretResolver',
+      useClass: DefaultTokenSecretResolverStrategy,
+    },
+  ],
+  exports: [PostgresProductRepository, ProductService],
 })
-export class ProductModule { } 
+export class ProductModule {}

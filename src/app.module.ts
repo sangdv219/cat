@@ -28,7 +28,11 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
     }),
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET ?? (() => { throw new Error('Missing JWT_SECRET') })(),
+      secret:
+        process.env.JWT_SECRET ??
+        (() => {
+          throw new Error('Missing JWT_SECRET');
+        })(),
       signOptions: { expiresIn: '1h' },
     }),
     DatabaseModule,
@@ -40,6 +44,6 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
   ],
   controllers: [AppController],
   providers: [DatabaseService],
-  exports: [DatabaseService]
+  exports: [DatabaseService],
 })
-export class AppModule { }
+export class AppModule {}

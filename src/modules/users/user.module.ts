@@ -7,22 +7,26 @@ import { UserService } from '@modules/users/services/user.service';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { config } from "dotenv";
+import { config } from 'dotenv';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
 
 config();
 @Module({
-    imports: [SequelizeModule.forFeature([UserModel]),
-        PasswordModule,
-        CommonModule,
-    ],
-    controllers: [UserAdminController],
-    providers: [PostgresUserRepository, UserService, JwtModule,
-        {
-            provide: 'TokenSecretResolver',
-            useClass: DefaultTokenSecretResolverStrategy
-        }
-    ],
-    exports: [PostgresUserRepository, UserService],
+  imports: [
+    SequelizeModule.forFeature([UserModel]),
+    PasswordModule,
+    CommonModule,
+  ],
+  controllers: [UserAdminController],
+  providers: [
+    PostgresUserRepository,
+    UserService,
+    JwtModule,
+    {
+      provide: 'TokenSecretResolver',
+      useClass: DefaultTokenSecretResolverStrategy,
+    },
+  ],
+  exports: [PostgresUserRepository, UserService],
 })
-export class UserModule { } 
+export class UserModule {}
