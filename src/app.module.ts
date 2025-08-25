@@ -6,11 +6,11 @@ import { redisStore } from 'cache-manager-ioredis-yet';
 import { AppController } from './app.controller';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
-import { AuthModule } from './modules/auth/auth.module';
-import { BrandModule } from './modules/brands/brand.module';
-import { CategoryModule } from './modules/categories/categories.module';
-import { ProductModule } from './modules/products/product.module';
-import { UserModule } from './modules/users/user.module';
+import { AuthModule } from '@/modules/auth/auth.module';
+import { BrandModule } from '@/modules/brands/brand.module';
+import { UserModule } from '@/modules/users/user.module';
+import { CategoryModule } from '@/modules/categories/category.module';
+import { ProductModule } from '@/modules/products/product.module';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
 @Module({

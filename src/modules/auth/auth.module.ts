@@ -1,21 +1,22 @@
 import { Module } from "@nestjs/common";
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from "@nestjs/sequelize";
-import { PasswordModule } from "../password/password.module";
-import { UserModule } from "../users/user.module";
-import { AuthController } from "./controller/auth.controller";
-import { AuthService } from "./services/auth.service";
-import { EmailService } from "./services/mail.service";
-import { OTPService } from "./services/OTP.service";
-import { DefaultTokenSecretResolverStrategy } from "./strategies/default-token-secret-resolver.strategy";
+import { PasswordModule } from "@/modules/password/password.module";
+import { UserModule } from "@/modules/users/user.module";
+import { AuthController } from "@/modules/auth/controller/auth.controller";
+import { AuthService } from "@/modules/auth/services/auth.service";
+import { EmailService } from "@/modules/auth/services/mail.service";
+import { OTPService } from "@/modules/auth/services/OTP.service";
+import { DefaultTokenSecretResolverStrategy } from "../../core/strategies/default-token-secret-resolver.strategy";
+import { UserModel } from "@/modules/users/domain/models/user.model";
 
 @Module({
-    imports: [SequelizeModule.forFeature([]),
+    imports: [SequelizeModule.forFeature([UserModel]),
         UserModule,
         PasswordModule,
     ],
     controllers: [AuthController],
-    providers: [AuthService, EmailService, OTPService, JwtModule,
+    providers: [AuthService, EmailService, OTPService, JwtModule, 
         {
             provide: 'TokenSecretResolver',
             useClass: DefaultTokenSecretResolverStrategy

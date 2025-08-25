@@ -14,6 +14,8 @@ import { RegisterDto } from "../DTO/register.dto";
 import { EmailService } from "./mail.service";
 import { OTPService } from "./OTP.service";
 import { findCacheByEmail, scanlAlKeys } from "@/shared/utils/common.util";
+import { UserModel } from "@/modules/users/domain/models/user.model";
+import { InjectModel } from "@nestjs/sequelize";
 
 config();
 @Injectable()
@@ -23,6 +25,8 @@ export class AuthService {
         private readonly jwtService: JwtService,
         private readonly emailService: EmailService,
         private readonly OTPService: OTPService,
+        @InjectModel(UserModel)
+        protected readonly userModel: typeof UserModel,
         private readonly userRepository: PostgresUserRepository, // Assuming Redis is injected for cache management
     ) { }
 
@@ -49,7 +53,7 @@ export class AuthService {
     }
 
     async findEmail(email: string) {
-        return this.userRepository.findByField(email);
+        return this.userRepository.findByField('email');
     }
 
     async resetFailedLogins(id: string): Promise<void> {
@@ -63,7 +67,10 @@ export class AuthService {
 
     async login(body: LoginDto): Promise<LoginResponseDto> {
         const { email, password } = body;
-        const user = await this.findEmail(email);
+        const user = await this.userRepository.findOneByRaw({
+            where: { email },
+            returning: true,
+        });
         if (!user) {
             throw new NotFoundException("User not found");
         }

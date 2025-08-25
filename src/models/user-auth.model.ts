@@ -1,5 +1,5 @@
 import { Column, Model, Table, PrimaryKey, Default, AllowNull, Unique, DataType, IsUUID, AutoIncrement, ForeignKey } from 'sequelize-typescript';
-import { UserModel } from '@/models/user.model';
+import { UserModel } from '@/modules/users/domain/models/user.model';
 
 @Table({
     tableName: 'users',

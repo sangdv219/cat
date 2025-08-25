@@ -1,9 +1,10 @@
+import { ProductModel } from '@/modules/products/domain/models/product.model';
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
-import { CreatedProductRequestDto } from '@/modules/products/DTO/product.request.dto';
-import { BaseService } from '@/shared/abstract/BaseService.abstract';
-import { ProductModel } from '@models/product.model';
 import { Injectable } from '@nestjs/common';
-import { PostgresProductRepository } from '../repository/product.repository';
+import { CreatedProductRequestDto } from '../DTO/product.request.dto';
+import { PostgresProductRepository } from '../infrastructure/repository/postgres-product.repository';
+import { BaseService } from '@/core/services/base.service';
+import { PRODUCT_ENTITY } from '../constants/product.constant';
 
 @Injectable()
 
@@ -12,10 +13,10 @@ export class ProductService extends BaseService<ProductModel> {
     private products: string[] = [];
     constructor(
         protected repository: PostgresProductRepository,
-         public cacheManage: CacheVersionService
+        public cacheManage: CacheVersionService
     ) {
         super();
-        this.entityName = 'Product';
+        this.entityName = PRODUCT_ENTITY.NAME;
     }
 
     protected async moduleInit() {
@@ -36,8 +37,8 @@ export class ProductService extends BaseService<ProductModel> {
     }
 
     private async stopJob() {
-          console.log("logic dừng cron job: ");
-          console.log("* Ngắt kết nối queue worker: ");
+        console.log("logic dừng cron job: ");
+        console.log("* Ngắt kết nối queue worker: ");
     }
 
     protected async moduleDestroy() {
@@ -45,9 +46,12 @@ export class ProductService extends BaseService<ProductModel> {
         console.log("🗑️onModuleDestroy -> products: ", this.products);
     }
 
-    async createImpl(body: CreatedProductRequestDto) {}
+    async createImpl(body: CreatedProductRequestDto){
+        console.log("body: ", body);
+        console.log("đây là logic riêng: ")
+    }
 
-    async updateImpl(body: CreatedProductRequestDto) {
+    async updateImpl(id, body: CreatedProductRequestDto) {
         console.log("đây là logic riêng: ")
     }
 }

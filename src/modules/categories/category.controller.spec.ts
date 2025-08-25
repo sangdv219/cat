@@ -1,22 +1,22 @@
 import { PaginationQueryDto } from '@/dto/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { BrandController } from './controller/brand.controller';
-import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from './DTO/brand.request.dto';
-import { BrandService } from './services/brand.service';
+import { CategoryController } from './controller/category.controller';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from './DTO/category.request.dto';
+import { CategoryService } from './services/category.service';
 
 // DTO và model giả định (thay theo dự án thật)
 
-describe('BrandController', () => {
-  let controller: BrandController;
-  let service: jest.Mocked<BrandService & { create: jest.Mock<any, any> }>;
+describe('CategoryController', () => {
+  let controller: CategoryController;
+  let service: jest.Mocked<CategoryService & { create: jest.Mock<any, any> }>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [BrandController],
+      controllers: [CategoryController],
       providers: [
         {
-          provide: BrandService,
+          provide: CategoryService,
           useValue: {
             getPagination: jest.fn(),
             getById: jest.fn(),
@@ -28,8 +28,8 @@ describe('BrandController', () => {
       ],
     }).compile();
 
-    controller = module.get<BrandController>(BrandController);
-    service = module.get(BrandService);
+    controller = module.get<CategoryController>(CategoryController);
+    service = module.get(CategoryService);
   });
 
   afterEach(() => {
@@ -48,7 +48,7 @@ describe('BrandController', () => {
           is_public: true,
           created_at: new Date(),
           updated_at: new Date(),
-          // add other required BrandModel properties with mock values here
+          // add other required CategoryModel properties with mock values here
         }],
         totalRecord: 1
       };
@@ -61,35 +61,35 @@ describe('BrandController', () => {
     });
   });
 
-  describe('getBrandById', () => {
-    it('trả về brand khi tồn tại', async () => {
-      const brand: any = {
+  describe('getCategoryById', () => {
+    it('trả về Category khi tồn tại', async () => {
+      const Category: any = {
         id: '1',
         name: 'Adidas',
         image: '',
         is_public: true,
         created_at: new Date(),
         updated_at: new Date(),
-        // add other required BrandModel properties with mock values here
+        // add other required CategoryModel properties with mock values here
       };
-      service.getById.mockResolvedValue(brand);
+      service.getById.mockResolvedValue(Category);
 
-      const result = await controller.getBrandById('1');
+      const result = await controller.getCategoryById('1');
 
       expect(service.getById).toHaveBeenCalledWith('1');
-      expect(result).toEqual(brand);
+      expect(result).toEqual(Category);
     });
 
     it('ném NotFound khi service trả về null', async () => {
       service.getById.mockRejectedValue(new NotFoundException('Not found'));
 
-      await expect(controller.getBrandById('404')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(controller.getCategoryById('404')).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
   describe('create', () => {
     it('gọi service.create và trả về kết quả', async () => {
-      const dto: CreatedBrandRequestDto = { name: 'Puma', image: '', is_public: true };
+      const dto: CreatedCategoryRequestDto = { name: 'Puma', image: '', is_public: true };
       const expected = { id: '1', name: 'Puma' };
       service.create.mockResolvedValue(expected);
 
@@ -100,23 +100,23 @@ describe('BrandController', () => {
     });
   });
 
-  describe('updateBrand', () => {
+  describe('updateCategory', () => {
     it('gọi service.update và trả về void', async () => {
-      const dto: UpdatedBrandRequestDto = { name: 'Reebok', image: 'sd', is_public: true };
+      const dto: UpdatedCategoryRequestDto = { name: 'Reebok', image: 'sd', is_public: true };
       service.update.mockResolvedValue(undefined);
 
-      const result = await controller.updateBrand('1', dto);
+      const result = await controller.updateCategory('1', dto);
 
       expect(service.update).toHaveBeenCalledWith('1', dto);
       expect(result).toBeUndefined();
     });
   });
 
-  describe('deleteBrand', () => {
+  describe('deleteCategory', () => {
     it('gọi service.delete và trả về void', async () => {
       service.delete.mockResolvedValue(undefined);
 
-      const result = await controller.deleteBrand('1');
+      const result = await controller.deleteCategory('1');
 
       expect(service.delete).toHaveBeenCalledWith('1');
       expect(result).toBeUndefined();

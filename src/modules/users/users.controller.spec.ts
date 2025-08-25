@@ -1,10 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UserAdminController } from './controller/user.admin.controller';
-import { UserService } from './services/user.service';
-import { UserModule } from './user.module';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import request from 'supertest';
-import { PasswordModule } from '../password/password.module';
+import { INestApplication } from '@nestjs/common';
 
 describe('UserAdminController', () => {
   let userController: INestApplication;

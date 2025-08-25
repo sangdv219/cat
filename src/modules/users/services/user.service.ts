@@ -1,12 +1,11 @@
-import { UserModel } from '@/models/user.model';
-import { BaseService } from '@/shared/abstract/BaseService.abstract';
-import { UpdateCreateResponse } from '@/shared/interface/common';
+import { UpdateCreateResponse } from '@/core/repositories/base.repository';
+import { BaseService } from '@/core/services/base.service';
+import { UserModel } from '@/modules/users/domain/models/user.model';
+import { CacheVersionService } from '@/modules/common/services/cache-version.service';
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
 import { CreatedUserAuthRequestDto } from '../DTO/user-auth.request.dto';
 import { CreatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
 import { PostgresUserRepository } from '../repository/user.admin.repository';
-import { CacheVersionService } from '@/modules/common/services/cache-version.service';
 
 @Injectable()
 

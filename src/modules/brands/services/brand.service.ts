@@ -1,10 +1,10 @@
-import { BrandModel } from '@/models/branch.model';
+import { BrandModel } from '@/modules/brands/domain/models/brand.model';
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
-import { BaseService } from '@/shared/abstract/BaseService.abstract';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
 import { CreatedBrandRequestDto } from '../DTO/brand.request.dto';
-import { PostgresBrandRepository } from '../repository/brand.repository';
+import { PostgresBrandRepository } from '../infrastructure/repository/postgres-brand.repository';
+import { BaseService } from '@/core/services/base.service';
+import { BRAND_ENTITY } from '../constants/brand.constant';
 
 @Injectable()
 
@@ -16,7 +16,7 @@ export class BrandService extends BaseService<BrandModel> {
         public cacheManage: CacheVersionService
     ) {
         super();
-        this.entityName = 'Brand';
+        this.entityName = BRAND_ENTITY.NAME;
     }
 
     protected async moduleInit() {
@@ -48,7 +48,7 @@ export class BrandService extends BaseService<BrandModel> {
 
     async createImpl(body: CreatedBrandRequestDto){}
 
-    async updateImpl(body: CreatedBrandRequestDto) {
+    async updateImpl(id, body: CreatedBrandRequestDto) {
         console.log("đây là logic riêng: ")
     }
 }

@@ -1,10 +1,10 @@
 import { PaginationQueryDto } from '@/dto/common';
-import { BrandModel } from '@/models/branch.model';
+import { BrandModel } from '@/modules/brands/domain/models/brand.model';
 import { JWTAuthGuard } from '@/modules/auth/guards/jwt.guard';
 import { PermissionAuthGuard } from '@/modules/auth/guards/permission.guard';
 import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '@/modules/brands/DTO/brand.request.dto';
 import { BrandService } from '@/modules/brands/services/brand.service';
-import { BaseResponse } from '@/shared/interface/common';
+import { BaseResponse } from '@/core/repositories/base.repository';
 import { ForbidPasswordInUpdatePipe } from '@/shared/pipe';
 import { CacheTTL } from '@nestjs/cache-manager';
 import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
