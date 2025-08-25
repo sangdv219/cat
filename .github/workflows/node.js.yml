@@ -5,50 +5,72 @@ name: Node.js CI
 
 on:
   push:
-    branches: 
-      - develop # staging
-      - master  # production
-  pull_request:
-    branches: [ "master" ]
+    branches: [ "main", "staging", "develop", "feature/**" ]
+  # pull_request:
+  #   branches: [ "main", "staging" ] # production, staging
 
 jobs:
-  build:
+  lint:
+    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [22.x]
-        os: [ubuntu-latest] # or windows-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 22
           cache: 'npm'
-      # - run: npm ci
-      # - run: npm test 
-      # - run: npm run build 
-      # - name: SonarQube Scan
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #   run: npm run sonar 
 
-      - name: DEBUG variable exists yet 
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  test:
+    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Tests
+        run: npm run test --if-present
+
+  sonarQube:
+    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: SonarQube Scan 
         env:
-          EC2_USER: ${{secrets.EC2_USER}}
-          EC2_HOST: ${{secrets.EC2_HOST}}
-          EC2_SSH_KEY: ${{secrets.EC2_SSH_KEY}}
-          TOKEN: ${{secrets.TOKEN}}
-        run: | 
-            echo "View variable secrets"
-                if [ -z "${EC2_USER}" ] || [ -z "${EC2_HOST}" ] || [ -z "${EC2_SSH_KEY}" ] || [ -z "${TOKEN}" ]; then
-                  echo "❌ One or more secrets was missing"
-                  exit 1
-            fi
-            echo "✅ EC2_SSH_KEY was set"
-            echo "✅ EC2_HOST was set"
-            echo "✅ EC2_USER was set"
-            echo "✅ TOKEN was set"
-            echo "✅ All secrets was set"
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: npm run sonar 
+
+  package:
+    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
+    runs-on: ubuntu-latest
+    needs: [lint, test, sonarQube] 
+    steps:
+      - uses: actions/checkout@v4
         
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -57,92 +79,43 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.TOKEN }}
 
-      - name: Build image
-        run: |
-      
-          docker build -t ghcr.io/${{ github.repository }}:${{ github.sha }} .
-
-      - name: Push image
+      - name: Build & Push Docker image
         uses: docker/build-push-action@v6
         with:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.sha }}
-            ghcr.io/${{ github.repository }}:${{ github.ref_name }}
 
   deploy-staging:
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
-    needs: build 
     environment:
       name: staging
-      url: http://sangduong.io.vn    #util
+      url: ${{vars.URL}}   
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Check STAGING host variable
-      run: | 
-            echo "View variable STAGING host"
-              if [ -z "${{vars.DB_HOST_STAGING}}" ]; then
-                  echo "❌ DB_HOST_STAGING is empty"
-              else
-                echo "✅ DB_HOST_STAGING is set: ${{vars.DB_HOST_STAGING}}"
-              fi
-    - name: Log in to GHCR
-      uses: docker/login-action@v3
-      with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.TOKEN }} 
-
-
     - name: Deploy to EC2 via SSH in Staging
-      if: github.ref == 'refs/heads/develop'
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST  }}
-        username: ${{ secrets.EC2_USER  }}
+        username: ubuntu 
         key: ${{ secrets.EC2_SSH_KEY  }}
         envs: APP_NAME
         script: |
-          echo "[INFO] Start Deploy"
-          bash ./scripts/deploy-staging.sh
+          echo "---------- Start deploy-staging.sh on EC2 ----------"
+          chmod +x ${{vars.PATH_DEPLOY}}
+          bash ${{vars.PATH_DEPLOY}}
+          echo "---------- Finished deploy-staging.sh ----------"
       env:
-          APP_NAME: auth
+          APP_NAME: cat
 
   deploy-prod:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    needs: build 
     environment:
-      name: staging
-      url: http://54.252.231.194    #util
+      name: production
+      url: ${{vars.URL}}
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Check STAGING TOKEN variable
-      run: | 
-            echo "View variable TOKEN"
-              if [ -z "${{secrets.TOKEN}}" ]; then
-                  echo "❌ TOKEN is empty"
-              else
-                echo "✅ TOKEN is set: ${{secrets.TOKEN}}"
-              fi
-            echo "View variable github.actor"
-              if [ -z "${{github.actor}}" ]; then
-                  echo "❌ Dgithub.actor is empty"
-              else
-                echo "✅ github.actor is set: ${{github.actor}}"
-              fi
-    - name: Log in to GHCR
-      uses: docker/login-action@v3
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.TOKEN }} 
-
     - name: Deploy to EC2 via SSH in Production
-      if: github.ref == 'refs/heads/master'
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.EC2_HOST }}
@@ -151,17 +124,8 @@ jobs:
         envs: APP_NAME
         script: |
           echo "---------- Start deploy-prod.sh on EC2 ----------"
-          chmod +x /home/ubuntu/scripts/deploy-prod.sh
-          bash /home/ubuntu/scripts/deploy-prod.sh
+          chmod +x ${{vars.PATH_DEPLOY}}
+          bash ${{vars.PATH_DEPLOY}}
           echo "---------- Finished deploy-prod.sh ----------"
       env:
-        APP_NAME: auth
-
-    # - name: Notify
-    #   uses: appleboy/telegram-action@master
-    #   with:
-    #     to: ${{ secrets.TG_CHAT_ID }}
-    #     token: ${{ secrets.TG_BOT_TOKEN }}
-    #     message: "🚨 Deploy failed at ${{ github.sha }}"
-          
-
+        APP_NAME: cat
