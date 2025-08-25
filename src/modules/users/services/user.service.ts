@@ -8,11 +8,11 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreatedUserAuthRequestDto } from '../DTO/user-auth.request.dto';
-import { CreatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
+import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
 import { PostgresUserRepository } from '../repository/user.admin.repository';
 
 @Injectable()
-export class UserService extends BaseService<UserModel> {
+export class UserService extends BaseService<UserModel, CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto> {
   protected entityName: string;
   private users: string[] = [];
   constructor(
@@ -55,10 +55,13 @@ export class UserService extends BaseService<UserModel> {
     console.log('🗑️onModuleDestroy -> users: ', this.users);
   }
 
-  async createImpl(body: CreatedUserAdminRequestDto) {}
+  async createImpl(body: CreatedUserAdminRequestDto) {
+     return {}
+  }
 
   async updateImpl(body: CreatedUserAdminRequestDto) {
     console.log('đây là logic riêng: ');
+     return {}
   }
 
   async restoreUser(id: string): Promise<UpdateCreateResponse<UserModel>> {

@@ -21,7 +21,11 @@ config();
       provide: 'TokenSecretResolver',
       useClass: DefaultTokenSecretResolverStrategy,
     },
+    {
+      provide: 'IBrandCheckService',
+      useClass: BrandService
+    }
   ],
-  exports: [PostgresBrandRepository, BrandService],
+  exports: [PostgresBrandRepository, BrandService, 'IBrandCheckService'],
 })
 export class BrandModule {}

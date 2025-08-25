@@ -8,10 +8,14 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { config } from 'dotenv';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
 import { ProductController } from './controller/product.controller';
+import { CategoryModule } from '../categories/category.module';
+import { CategoryService } from '../categories/services/category.service';
+import { BrandModule } from '../brands/brand.module';
+import { BrandService } from '../brands/services/brand.service';
 
 config();
 @Module({
-  imports: [SequelizeModule.forFeature([ProductModel]), CommonModule],
+  imports: [SequelizeModule.forFeature([ProductModel]), CommonModule, CategoryModule, BrandModule],
   controllers: [ProductController],
   providers: [
     PostgresProductRepository,
@@ -20,6 +24,14 @@ config();
     {
       provide: 'TokenSecretResolver',
       useClass: DefaultTokenSecretResolverStrategy,
+    },
+    {
+      provide: 'ICategoryCheckerService',
+      useClass: CategoryService,
+    },
+    {
+      provide: 'IBrandCheckerService',
+      useClass: BrandService,
     },
   ],
   exports: [PostgresProductRepository, ProductService],

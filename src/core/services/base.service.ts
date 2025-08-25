@@ -17,7 +17,7 @@ import { CacheVersionService } from '@/modules/common/services/cache-version.ser
 import { buildRedisKeyQuery } from '@/shared/redis/helpers/redis-key.helper';
 import { RedisContext } from '@/shared/redis/enums/redis-key.enum';
 
-export abstract class BaseService<T>
+export abstract class BaseService<TEntity,TCreateDto extends Partial<TEntity>, TUpdateDto extends Partial<TEntity>>
   implements
     OnModuleInit,
     OnApplicationBootstrap,
@@ -25,14 +25,14 @@ export abstract class BaseService<T>
     OnModuleDestroy
 {
   protected abstract entityName: string;
-  protected abstract repository: IBaseRepository<T>;
+  protected abstract repository: IBaseRepository<TEntity>;
   protected abstract cacheManage: CacheVersionService;
   protected abstract moduleInit(): Promise<void>;
   protected abstract bootstrapLogic(): Promise<void>;
   protected abstract beforeAppShutDown(signal?: string): Promise<void>;
   protected abstract moduleDestroy(): Promise<void>;
-  protected abstract createImpl(body): any;
-  protected abstract updateImpl(id, body): any;
+  protected abstract createImpl(body: TCreateDto): Promise<UpdateCreateResponse<TEntity>>;
+  protected abstract updateImpl(id, body: TUpdateDto): Promise<UpdateCreateResponse<TEntity>>;
 
   async onModuleInit() {
     await this.moduleInit();
@@ -50,7 +50,7 @@ export abstract class BaseService<T>
     await this.moduleDestroy();
   }
 
-  async getPagination(query): Promise<BaseResponse<T[]>> {
+  async getPagination(query): Promise<BaseResponse<TEntity[]>> {
     const { page = 1, limit = 10 } = query;
     this.validatePaginationParams(page, limit);
 
@@ -79,8 +79,8 @@ export abstract class BaseService<T>
     return response;
   }
 
-  async create(body) {
-    await this.createdCommon(body);
+  async create(body: TCreateDto) {
+    // await this.createdCommon(body);
     await this.createImpl(body);
   }
 
@@ -89,14 +89,14 @@ export abstract class BaseService<T>
     await this.updateImpl(id, body);
   }
 
-  protected async createdCommon(body: T): Promise<UpdateCreateResponse<T>> {
+  protected async createdCommon(body: TCreateDto): Promise<UpdateCreateResponse<TEntity>> {
     const keyCacheList = buildRedisKeyQuery(
       this.entityName.toLocaleLowerCase(),
       RedisContext.LIST,
     );
     await this.cacheManage.delCache(keyCacheList);
     try {
-      const result = await this.repository.created({ ...body });
+      const result = await this.repository.created(body);
       return {
         success: true,
         data: result,
@@ -120,7 +120,7 @@ export abstract class BaseService<T>
     if (page > 1000) throw new BadRequestException('Page must not exceed 1000');
   }
 
-  async getById(id: string): Promise<T | null> {
+  async getById(id: string): Promise<TEntity | null> {
     const entity = await this.repository.findOne(id);
     if (!entity) {
       throw new NotFoundException(`${this.entityName} with id ${id} not found`);
@@ -129,10 +129,7 @@ export abstract class BaseService<T>
     return entity;
   }
 
-  private async updatedCommon(
-    id: string,
-    body: T,
-  ): Promise<UpdateCreateResponse<T>> {
+  private async updatedCommon( id: string, body: TEntity): Promise<UpdateCreateResponse<TEntity>> {
     const keyCacheListByBrand = buildRedisKeyQuery(
       this.entityName.toLocaleLowerCase(),
       RedisContext.LIST,
@@ -149,7 +146,7 @@ export abstract class BaseService<T>
 
     return {
       success: true,
-      data: updated as Partial<T>,
+      data: updated as Partial<TEntity>,
     };
   }
 

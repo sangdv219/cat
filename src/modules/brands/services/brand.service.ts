@@ -1,13 +1,14 @@
 import { BrandModel } from '@/modules/brands/domain/models/brand.model';
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
 import { Injectable } from '@nestjs/common';
-import { CreatedBrandRequestDto } from '../DTO/brand.request.dto';
+import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '../DTO/brand.request.dto';
 import { PostgresBrandRepository } from '../infrastructure/repository/postgres-brand.repository';
 import { BaseService } from '@/core/services/base.service';
 import { BRAND_ENTITY } from '../constants/brand.constant';
+import { IBrandCheckService } from '../domain/interface/brand-checker.interface';
 
 @Injectable()
-export class BrandService extends BaseService<BrandModel> {
+export class BrandService extends BaseService<BrandModel, CreatedBrandRequestDto, UpdatedBrandRequestDto> implements IBrandCheckService {
   protected entityName: string;
   private brands: string[] = [];
   constructor(
@@ -49,9 +50,17 @@ export class BrandService extends BaseService<BrandModel> {
     console.log('🗑️onModuleDestroy -> brands: ', this.brands);
   }
 
-  async createImpl(body: CreatedBrandRequestDto) {}
+  async createImpl(body: CreatedBrandRequestDto) {
+    return {}
+  }
 
   async updateImpl(id, body: CreatedBrandRequestDto) {
     console.log('đây là logic riêng: ');
+    return {}
+  }
+
+  async exists(brandId: string): Promise<boolean> {
+    const brand = await this.repository.findOne(brandId);
+    return !!brand;
   }
 }

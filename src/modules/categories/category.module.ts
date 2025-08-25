@@ -21,7 +21,11 @@ config();
       provide: 'TokenSecretResolver',
       useClass: DefaultTokenSecretResolverStrategy,
     },
+    {
+      provide: 'ICategoryCheckerService',
+      useClass: CategoryService,
+    }
   ],
-  exports: [PostgresCategoryRepository, CategoryService],
+  exports: [PostgresCategoryRepository, CategoryService, 'ICategoryCheckerService'],
 })
 export class CategoryModule {}

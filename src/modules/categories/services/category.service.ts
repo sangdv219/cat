@@ -1,13 +1,14 @@
 import { CategoryModel } from '@/modules/categories/domain/models/category.model';
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
 import { Injectable } from '@nestjs/common';
-import { CreatedCategoryRequestDto } from '../DTO/category.request.dto';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '../DTO/category.request.dto';
 import { PostgresCategoryRepository } from '../infrastructure/repository/postgres-category.repository';
 import { BaseService } from '@/core/services/base.service';
 import { CATEGORY_ENTITY } from '../constants/category.constant';
+import { ICategoryCheckService } from '../domain/interface/category-checker.interface';
 
 @Injectable()
-export class CategoryService extends BaseService<CategoryModel> {
+export class CategoryService extends BaseService<CategoryModel, CreatedCategoryRequestDto, UpdatedCategoryRequestDto> implements ICategoryCheckService  {
   protected entityName: string;
   private categorys: string[] = [];
   constructor(
@@ -49,9 +50,17 @@ export class CategoryService extends BaseService<CategoryModel> {
     console.log('🗑️onModuleDestroy -> categorys: ', this.categorys);
   }
 
-  async createImpl(body: CreatedCategoryRequestDto) {}
+  async createImpl(body: CreatedCategoryRequestDto) {
+    return {}
+  }
 
   async updateImpl(id, body: CreatedCategoryRequestDto) {
     console.log('đây là logic riêng: ');
+    return {}
+  }
+
+  async exists(categoryId: string): Promise<boolean> {
+    const category = await this.repository.findOne(categoryId);
+    return !!category;
   }
 }
