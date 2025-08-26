@@ -8,7 +8,7 @@ import { CATEGORY_ENTITY } from '../constants/category.constant';
 import { ICategoryCheckService } from '../domain/interface/category-checker.interface';
 
 @Injectable()
-export class CategoryService extends BaseService<CategoryModel, CreatedCategoryRequestDto, UpdatedCategoryRequestDto> implements ICategoryCheckService  {
+export class CategoryService extends BaseService<CategoryModel, CreatedCategoryRequestDto, UpdatedCategoryRequestDto> implements ICategoryCheckService {
   protected entityName: string;
   private categorys: string[] = [];
   constructor(
@@ -50,13 +50,20 @@ export class CategoryService extends BaseService<CategoryModel, CreatedCategoryR
     console.log('🗑️onModuleDestroy -> categorys: ', this.categorys);
   }
 
-  async createImpl(body: CreatedCategoryRequestDto) {
-    return {}
+  async create(dto: CreatedCategoryRequestDto) {
+    // const category = await this.categoryChecker.exists(dto.category_id);
+    // const brand = await this.brandChecker.exists(dto.brand_id);
+    // if(!category) throw new NotFoundException('Category not found')
+    // if(!brand) throw new NotFoundException('Category not found')
+    return this.createEntity(dto)
   }
 
-  async updateImpl(id, body: CreatedCategoryRequestDto) {
-    console.log('đây là logic riêng: ');
-    return {}
+  async update(id: string, dto: UpdatedCategoryRequestDto) {
+    // const category = await this.categoryChecker.exists(dto.category_id);
+    // const brand = await this.brandChecker.exists(dto.brand_id);
+    // if(!category) throw new NotFoundException('Category not found')
+    // if(!brand) throw new NotFoundException('Category not found')
+    return this.updateEntity(id, dto)
   }
 
   async exists(categoryId: string): Promise<boolean> {

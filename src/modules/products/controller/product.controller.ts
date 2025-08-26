@@ -16,26 +16,35 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpException,
   HttpStatus,
   Param,
   Patch,
   Post,
   Query,
+  UseFilters,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
+import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
+import { tryCatch } from 'bullmq';
 
+// @UseInterceptors(LoggingInterceptor)
 @ApiBearerAuth('Authorization')
 @Controller('products')
+// @UseFilters(AllExceptionsFilter) every module
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
   @HttpCode(HttpStatus.OK)
   // @Roles('admin')
-  @UseGuards(JWTAuthGuard)
+  // @UseGuards(JWTAuthGuard)
   @CacheTTL(60)
   async getPagination(
     @Query() query: PaginationQueryDto,
@@ -44,28 +53,27 @@ export class ProductController {
   }
 
   @Get(':id')
-  @UseGuards(JWTAuthGuard)
+  // @UseGuards(JWTAuthGuard)
   async getProductById(@Param('id') id: string): Promise<ProductModel | null> {
     return await this.productService.getById(id);
   }
 
+  // @HttpCode(HttpStatus.CREATED)
+  // @UseGuards(JWTAuthGuard)
+  // @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @UseGuards(JWTAuthGuard)
-  @UsePipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  )
   async create(@Body() createProductDto: CreatedProductRequestDto) {
-    return this.productService.create(createProductDto);
+    try {
+      return await this.productService.create(createProductDto);
+    } catch (error) {
+      console.error('Controller log:', error);
+      throw error;
+    }
   }
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JWTAuthGuard)
+  // @UseGuards(JWTAuthGuard)
   @UsePipes(new ForbidPasswordInUpdatePipe())
   async updateProduct(
     @Param('id') id: string,
@@ -75,7 +83,7 @@ export class ProductController {
   }
 
   @Delete(':id')
-  @UseGuards(JWTAuthGuard)
+  // @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteProduct(@Param('id') id: string): Promise<void> {
     return await this.productService.delete(id);

@@ -134,7 +134,7 @@ describe('BaseService', () => {
   });
 
   describe('create', () => {
-    it('gọi createdCommon và createImpl', async () => {
+    it('gọi createEntity và createImpl', async () => {
       repository.created.mockResolvedValue({ id: '1' });
       await service.create({ id: '1' });
       expect(repository.created).toHaveBeenCalled();

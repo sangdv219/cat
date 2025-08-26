@@ -2,12 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
-  IsEmail,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
-  IsString,
-  MinLength,
+  MinLength
 } from 'class-validator';
 
 export class CreatedProductRequestDto {
@@ -24,17 +21,18 @@ export class CreatedProductRequestDto {
   @IsOptional()
   @MinLength(1)
   promotion_price: string;
-
-  @ApiProperty({ description: 'evaluate', example: '' })
+  
+  @ApiProperty({ description: 'evaluate', example: 2 })
   @IsOptional()
-  evaluate: string;
+  @MinLength(0)
+  evaluate: number;
 
-  @ApiProperty({ description: 'categoryId', example: '432498fdgd7' })
+  @ApiProperty({ description: 'category_id', example: 'a129aada-2cef-4f18-a237-5a33598c30e6' })
   @IsNotEmpty()
   category_id: string;
 
   @IsNotEmpty()
-  @ApiProperty({ description: 'brandId', example: '432498fdgd7' })
+  @ApiProperty({ description: 'brandId', example: 'd9bd6100-6f00-45ac-893b-73b7b9f27e77' })
   brand_id: string;
 
   @IsOptional()
@@ -68,17 +66,18 @@ export class UpdatedProductRequestDto {
   @MinLength(1)
   promotion_price: string;
 
-  @ApiProperty({ description: 'evaluate', example: '' })
+  @ApiProperty({ description: 'evaluate', example: 2 })
   @IsOptional()
-  evaluate: string;
+  @MinLength(0)
+  evaluate: number;
 
-  @ApiProperty({ description: 'categoryId', example: '432498fdgd7' })
+  @ApiProperty({ description: 'category_id', example: 'a129aada-2cef-4f18-a237-5a33598c30e6' })
   @IsOptional()
-  categoryId: string;
+  category_id: string;
 
-  @ApiProperty({ description: 'brandId', example: '432498fdgd7' })
+  @ApiProperty({ description: 'brand_id', example: 'd9bd6100-6f00-45ac-893b-73b7b9f27e77' })
   @IsOptional()
-  brandId: string;
+  brand_id: string;
 
   @ApiProperty({ description: 'is_public', example: true })
   @IsOptional()

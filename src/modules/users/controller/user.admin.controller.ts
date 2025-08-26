@@ -60,7 +60,7 @@ export class UserAdminController {
     }),
   )
   async create(@Body() createUserDto: CreatedUserAdminRequestDto) {
-    return this.userService.createImpl(createUserDto);
+    return this.userService.create(createUserDto);
   }
 
   @Patch(':id')

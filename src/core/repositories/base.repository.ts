@@ -4,8 +4,6 @@ import { UUID } from 'crypto';
 import { Op } from 'sequelize';
 
 export class BaseResponse<T = any> {
-  success: boolean;
-  message?: string;
   data?: T;
   totalRecord?: number;
 }
@@ -21,11 +19,16 @@ export class DeleteResponse<T> {
   message?: string;
   id: string | number;
 }
+
+export interface IPaginationDTO {
+  page: number;
+  limit: number;
+  keyword?: string;
+}
+
 export interface IBaseRepository<T> {
   getAll(): Promise<T[]>;
-  findWithPagination(
-    findWithPagination: IPaginationDTO,
-  ): Promise<{ items: any; total: number }>;
+  findWithPagination(findWithPagination: IPaginationDTO): Promise<{ items: any; total: number }>;
   findByField<K extends keyof T>(field: K): Promise<T[K][]>;
   findOne(id: string): Promise<T | null>;
   findOneByRaw(condition: Record<string, any>): Promise<T | null>;
@@ -33,6 +36,7 @@ export interface IBaseRepository<T> {
   updated(id: string, payload: Partial<T>): Promise<T>;
   deleted(id: string): Promise<T>;
 }
+
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
   public readonly _entityName: string;
   constructor(
@@ -46,13 +50,11 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     console.log(`[${this._entityName} Repository] Action: ${action}`);
   }
 
-  getAll(): Promise<T[]> {
-    return this.model.findAll();
+  async getAll(): Promise<T[]> {
+    return await this.model.findAll();
   }
 
-  async findWithPagination(
-    body: IPaginationDTO,
-  ): Promise<{ items: any; total: number }> {
+  async findWithPagination(body: IPaginationDTO): Promise<{ items: any; total: number }> {
     const { page = 1, limit = 10, keyword } = body;
 
     const offset = (page - 1) * limit;
@@ -83,8 +85,8 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return records.map((r) => r.getDataValue(field));
   }
 
-  findOne(id: string): Promise<T | null> {
-    return this.model.findOne({
+  async findOne(id: string): Promise<T | null> {
+    return await this.model.findOne({
       where: { id },
       attributes: { exclude: [] },
     });
@@ -96,22 +98,23 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     });
   }
 
-  created(payload): Promise<any> {
-    return this.model.create(payload);
+  async created(payload): Promise<any> {
+    const result = await this.model.create(payload);
+    return result;
   }
 
-  updated(id: string, payload: any): Promise<any> {
-    return this.model.update(payload, {
+  async updated(id: string, payload: any): Promise<any> {
+    return await this.model.update(payload, {
       where: { id },
       returning: true,
     });
   }
 
-  deleted(id: UUID): Promise<any> {
+  async deleted(id: UUID): Promise<any> {
     if (!isUUID(id)) {
       throw new BadRequestException('Invalid UUID format');
     }
-    const deletedRows = this.model.destroy({
+    const deletedRows = await this.model.destroy({
       where: { id },
     });
     if (deletedRows === 0) {
@@ -120,11 +123,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return Promise.resolve(true);
   }
 
-  async checkDuplicateFieldExcludeId<K extends keyof T>(
-    field: K,
-    value: T[K],
-    excludeId?: string,
-  ): Promise<boolean> {
+  async checkDuplicateFieldExcludeId<K extends keyof T>(field: K, value: T[K], excludeId?: string): Promise<boolean> {
     const condition: any = {
       [field]: value,
       id: { [Op.ne]: excludeId },
@@ -137,13 +136,10 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return !!brand;
   }
 
-  async checkExistsField(
-    fields: Record<string, { value: string; mode?: 'like' | 'equal' }>,
-  ): Promise<boolean> {
-    const orConditions = Object.entries(fields).map(
-      ([key, { value, mode = 'equal' }]) => ({
-        [key]: mode === 'like' ? { [Op.iLike]: `%${value}%` } : value,
-      }),
+  async checkExistsField(fields: Record<string, { value: string; mode?: 'like' | 'equal' }>): Promise<boolean> {
+    const orConditions = Object.entries(fields).map(([key, { value, mode = 'equal' }]) => ({
+      [key]: mode === 'like' ? { [Op.iLike]: `%${value}%` } : value,
+    }),
     );
 
     const exists = await this.model.findOne({
@@ -153,8 +149,4 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return !!exists;
   }
 }
-export interface IPaginationDTO {
-  page: number;
-  limit: number;
-  keyword?: string;
-}
+

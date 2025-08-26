@@ -1,3 +1,6 @@
+import { BrandModel } from '@/modules/brands/domain/models/brand.model';
+import { CategoryModel } from '@/modules/categories/domain/models/category.model';
+import { PRODUCT_ENTITY } from '@/modules/products/constants/product.constant';
 import {
   AllowNull,
   Column,
@@ -6,12 +9,8 @@ import {
   ForeignKey,
   Model,
   PrimaryKey,
-  Table,
-  Unique,
+  Table
 } from 'sequelize-typescript';
-import { PRODUCT_ENTITY } from '@/modules/products/constants/product.constant';
-import { CategoryModel } from '@/modules/categories/domain/models/category.model';
-import { BrandModel } from '@/modules/brands/domain/models/brand.model';
 
 @Table({
   tableName: PRODUCT_ENTITY.TABLE_NAME,
@@ -30,27 +29,26 @@ export class ProductModel extends Model {
   name: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.DECIMAL })
+  @Column({ type: DataType.DECIMAL(10,2) })
   price: string;
 
   @AllowNull(true)
-  @Column({ type: DataType.DECIMAL })
+  @Column({ type: DataType.DECIMAL(10,2) })
   promotion_price: string;
 
   @AllowNull(true)
-  @Unique
-  @Column({ type: DataType.STRING(500) })
-  evaluate: string;
+  @Column({ type: DataType.INTEGER })
+  evaluate: number;
 
   @ForeignKey(() => CategoryModel)
-  @AllowNull(true)
+  @AllowNull(false)
   @Column({ type: DataType.UUIDV4 })
-  categoryId: string;
+  category_id: string;
 
   @ForeignKey(() => BrandModel)
-  @AllowNull(true)
+  @AllowNull(false)
   @Column({ type: DataType.UUIDV4 })
-  brandId: string;
+  brand_id: string;
 
   @AllowNull(false)
   @Default(false)

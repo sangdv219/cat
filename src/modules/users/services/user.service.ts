@@ -55,13 +55,20 @@ export class UserService extends BaseService<UserModel, CreatedUserAdminRequestD
     console.log('🗑️onModuleDestroy -> users: ', this.users);
   }
 
-  async createImpl(body: CreatedUserAdminRequestDto) {
-     return {}
+  async create(dto: CreatedUserAdminRequestDto) {
+    // const category = await this.categoryChecker.exists(dto.category_id);
+    // const brand = await this.brandChecker.exists(dto.brand_id);
+    // if(!category) throw new NotFoundException('Category not found')
+    // if(!brand) throw new NotFoundException('Category not found')
+    return this.createEntity(dto)
   }
 
-  async updateImpl(body: CreatedUserAdminRequestDto) {
-    console.log('đây là logic riêng: ');
-     return {}
+  async update(id: string, dto: UpdatedUserAdminRequestDto) {
+    // const category = await this.categoryChecker.exists(dto.category_id);
+    // const brand = await this.brandChecker.exists(dto.brand_id);
+    // if(!category) throw new NotFoundException('Category not found')
+    // if(!brand) throw new NotFoundException('Category not found')
+    return this.updateEntity(id, dto)
   }
 
   async restoreUser(id: string): Promise<UpdateCreateResponse<UserModel>> {

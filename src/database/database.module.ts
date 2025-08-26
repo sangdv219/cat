@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { config } from 'dotenv';
-import { DatabaseService } from './database.service';
+import { DatabaseService } from '@database/database.service';
 
 config();
 const configService = new ConfigService();

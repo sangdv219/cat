@@ -51,7 +51,7 @@ export class BrandController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(JWTAuthGuard)
+  // @UseGuards(JWTAuthGuard)
   @UsePipes(
     new ValidationPipe({
       whitelist: true,

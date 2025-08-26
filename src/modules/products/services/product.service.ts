@@ -67,16 +67,19 @@ export class ProductService extends BaseService<ProductModel, CreatedProductRequ
         return {}
     }
 
-    async create(body: CreatedProductRequestDto) {
-        const category = await this.categoryChecker.exists(body.category_id);
-        const brand = await this.brandChecker.exists(body.brand_id);
+    async create(dto: CreatedProductRequestDto) {
+        const category = await this.categoryChecker.exists(dto.category_id);
+        const brand = await this.brandChecker.exists(dto.brand_id);
         if(!category) throw new NotFoundException('Category not found')
         if(!brand) throw new NotFoundException('Brand not found')
-        // const categoryExists = await this.categoryRepository.findOne(body.category_id);
-        // console.log("categoryExists: ", categoryExists);
-        // if (!categoryExists) {
-        //     throw new BadRequestException('Invalid categoryId');
-        // }
-        // return await this.createdCommon(body)
+        return this.createEntity(dto)
+    }
+
+    async update(id:string, dto: UpdatedProductRequestDto) {
+        const category = await this.categoryChecker.exists(dto.category_id);
+        const brand = await this.brandChecker.exists(dto.brand_id);
+        if(!category) throw new NotFoundException('Category not found')
+        if(!brand) throw new NotFoundException('Brand not found')
+        return this.createEntity(dto)
     }
 }

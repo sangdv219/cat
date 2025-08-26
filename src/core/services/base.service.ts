@@ -2,6 +2,7 @@ import {
   BadRequestException,
   BeforeApplicationShutdown,
   ConflictException,
+  InternalServerErrorException,
   NotFoundException,
   OnApplicationBootstrap,
   OnModuleDestroy,
@@ -17,13 +18,11 @@ import { CacheVersionService } from '@/modules/common/services/cache-version.ser
 import { buildRedisKeyQuery } from '@/shared/redis/helpers/redis-key.helper';
 import { RedisContext } from '@/shared/redis/enums/redis-key.enum';
 
-export abstract class BaseService<TEntity,TCreateDto extends Partial<TEntity>, TUpdateDto extends Partial<TEntity>>
-  implements
-    OnModuleInit,
-    OnApplicationBootstrap,
-    BeforeApplicationShutdown,
-    OnModuleDestroy
-{
+export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, TUpdateDto extends Partial<TEntity>> implements
+  OnModuleInit,
+  OnApplicationBootstrap,
+  BeforeApplicationShutdown,
+  OnModuleDestroy {
   protected abstract entityName: string;
   protected abstract repository: IBaseRepository<TEntity>;
   protected abstract cacheManage: CacheVersionService;
@@ -31,8 +30,8 @@ export abstract class BaseService<TEntity,TCreateDto extends Partial<TEntity>, T
   protected abstract bootstrapLogic(): Promise<void>;
   protected abstract beforeAppShutDown(signal?: string): Promise<void>;
   protected abstract moduleDestroy(): Promise<void>;
-  protected abstract createImpl(body: TCreateDto): Promise<UpdateCreateResponse<TEntity>>;
-  protected abstract updateImpl(id, body: TUpdateDto): Promise<UpdateCreateResponse<TEntity>>;
+  protected abstract create(dto:TCreateDto): Promise<void>
+  protected abstract update(id: string, dto:TCreateDto): Promise<void>
 
   async onModuleInit() {
     await this.moduleInit();
@@ -79,36 +78,9 @@ export abstract class BaseService<TEntity,TCreateDto extends Partial<TEntity>, T
     return response;
   }
 
-  async create(body: TCreateDto) {
-    // await this.createdCommon(body);
-    await this.createImpl(body);
-  }
-
-  async update(id: string, body: any) {
-    await this.updatedCommon(id, body);
-    await this.updateImpl(id, body);
-  }
-
-  protected async createdCommon(body: TCreateDto): Promise<UpdateCreateResponse<TEntity>> {
-    const keyCacheList = buildRedisKeyQuery(
-      this.entityName.toLocaleLowerCase(),
-      RedisContext.LIST,
-    );
-    await this.cacheManage.delCache(keyCacheList);
-    try {
-      const result = await this.repository.created(body);
-      return {
-        success: true,
-        data: result,
-      };
-    } catch (error) {
-      if (error.name === 'SequelizeUniqueConstraintError') {
-        console.log('error: ', error);
-
-        throw new ConflictException('Value already exists');
-      }
-      throw error;
-    }
+  // protected async createEntity(body: TCreateDto): Promise<TEntity> {
+  protected async createEntity(body: TCreateDto): Promise<any> {
+    return await this.repository.created(body);
   }
 
   private validatePaginationParams(page: number, limit: number) {
@@ -129,7 +101,7 @@ export abstract class BaseService<TEntity,TCreateDto extends Partial<TEntity>, T
     return entity;
   }
 
-  private async updatedCommon( id: string, body: TEntity): Promise<UpdateCreateResponse<TEntity>> {
+  protected async updateEntity(id: string, body: TUpdateDto): Promise<any> {
     const keyCacheListByBrand = buildRedisKeyQuery(
       this.entityName.toLocaleLowerCase(),
       RedisContext.LIST,
@@ -140,14 +112,8 @@ export abstract class BaseService<TEntity,TCreateDto extends Partial<TEntity>, T
     if (!exists)
       throw new NotFoundException(`${this.entityName} with id ${id} not found`);
     const updatedBody = { ...body, updated_at: new Date() };
-    const result = await this.repository.updated(id, updatedBody);
+    return await this.repository.updated(id, updatedBody);
 
-    const updated = result[1][0];
-
-    return {
-      success: true,
-      data: updated as Partial<TEntity>,
-    };
   }
 
   async delete(id: string): Promise<void> {
