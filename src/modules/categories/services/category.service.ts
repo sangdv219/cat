@@ -50,22 +50,6 @@ export class CategoryService extends BaseService<CategoryModel, CreatedCategoryR
     console.log('🗑️onModuleDestroy -> categorys: ', this.categorys);
   }
 
-  async create(dto: CreatedCategoryRequestDto) {
-    // const category = await this.categoryChecker.exists(dto.category_id);
-    // const brand = await this.brandChecker.exists(dto.brand_id);
-    // if(!category) throw new NotFoundException('Category not found')
-    // if(!brand) throw new NotFoundException('Category not found')
-    return this.createEntity(dto)
-  }
-
-  async update(id: string, dto: UpdatedCategoryRequestDto) {
-    // const category = await this.categoryChecker.exists(dto.category_id);
-    // const brand = await this.brandChecker.exists(dto.brand_id);
-    // if(!category) throw new NotFoundException('Category not found')
-    // if(!brand) throw new NotFoundException('Category not found')
-    return this.updateEntity(id, dto)
-  }
-
   async exists(categoryId: string): Promise<boolean> {
     const category = await this.repository.findOne(categoryId);
     return !!category;

@@ -2,10 +2,11 @@ import { LoginDto } from '@/modules/auth/DTO/login.dto';
 import { LoginResponseDto } from '@/modules/auth/interface/login.interface';
 import { RefreshTokenResponseDto } from '@/modules/auth/interface/refreshToken.interface';
 import { PasswordService } from '@/modules/password/services/password.service';
+import { UserModel } from '@/modules/users/domain/models/user.model';
 import { PostgresUserRepository } from '@/modules/users/repository/user.admin.repository';
-import { UserNotActiveException } from '@/shared/exceptions/user-not-active.exception';
 import { RedisContext, RedisModule } from '@/shared/redis/enums/redis-key.enum';
 import { buildRedisKey } from '@/shared/redis/helpers/redis-key.helper';
+import { findCacheByEmail, scanlAlKeys } from '@/shared/utils/common.util';
 import {
   GoneException,
   Injectable,
@@ -13,14 +14,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/sequelize';
 import { config } from 'dotenv';
 import Redis from 'ioredis';
 import { RegisterDto } from '../DTO/register.dto';
 import { EmailService } from './mail.service';
 import { OTPService } from './OTP.service';
-import { findCacheByEmail, scanlAlKeys } from '@/shared/utils/common.util';
-import { UserModel } from '@/modules/users/domain/models/user.model';
-import { InjectModel } from '@nestjs/sequelize';
 
 config();
 @Injectable()
@@ -54,7 +53,7 @@ export class AuthService {
       updatedBody.locked_until = new Date(now.getTime() + logoutDuration);
     }
 
-    await this.userRepository.updated(id, updatedBody);
+    await this.userRepository.update(id, updatedBody);
   }
 
   async findEmail(email: string) {
@@ -62,12 +61,12 @@ export class AuthService {
   }
 
   async resetFailedLogins(id: string): Promise<void> {
-    const updated = {
+    const update = {
       locked_until: null,
       failed_login_attempts: 0,
     };
 
-    await this.userRepository.updated(id, updated);
+    await this.userRepository.update(id, update);
   }
 
   async login(body: LoginDto): Promise<LoginResponseDto> {
@@ -89,11 +88,11 @@ export class AuthService {
       );
     }
     if (userData) {
-      if (!userData.is_active) {
-        throw new UserNotActiveException(email);
-      }
+      // if (!userData.is_active) {
+      //   throw new UserNotActiveException(email);
+      // }
       if (userData.deleted_at) {
-        throw new GoneException('Account has been deleted');
+        throw new GoneException('Account has been delete');
       }
       const isPasswordValid = await this.passwordService.comparePassword(
         password,

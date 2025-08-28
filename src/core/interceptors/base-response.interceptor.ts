@@ -1,12 +1,10 @@
-import { BadGatewayException, CallHandler, ExecutionContext, HttpException, HttpStatus, Injectable, NestInterceptor } from "@nestjs/common";
+import { BaseResponse } from "@/shared/interface/common";
+import { CallHandler, ExecutionContext, HttpException, HttpStatus, Injectable, NestInterceptor } from "@nestjs/common";
 import { Observable, throwError } from "rxjs";
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
+import { PgErrorCode } from "../enum/pg-error-codes.enum";
 
-export interface BaseResponse<T> {
-    statusCode: number;
-    message: string;
-    records: T;
-}
+
 @Injectable()
 export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseResponse<T>> {
     intercept(context: ExecutionContext, next: CallHandler): Observable<BaseResponse<T>> | Promise<Observable<BaseResponse<T>>> {
@@ -15,11 +13,7 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
         return next
             .handle()
             .pipe(
-                map(value => ({
-                    statusCode: response.statusCode,
-                    message: 'success',
-                    records: value.get()
-                })),
+                map(value => value && ({ records: value })),
                 catchError((err) => {
                     if (err instanceof HttpException) {
                         const status = err.getStatus();
@@ -39,26 +33,30 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                         );
                     }
 
-                    if (err?.name === "SequelizeUniqueConstraintError" || err?.code === "23505") {
+                    const errorCode = [PgErrorCode.UNIQUE_VIOLATION, PgErrorCode.UNDEFINED_TABLE, PgErrorCode.UNDEFINED_COLUMN, PgErrorCode.NOT_NULL_VIOLATION, PgErrorCode.FOREIGN_KEY_VIOLATION]
+                    const statusCode = err.parent.code
+                    if (errorCode.includes(statusCode)) {
+                        let detail = err.parent.detail;
+
                         return throwError(() => new HttpException(
                             {
-                                    statusCode: HttpStatus.CONFLICT,
-                                    message: "Duplicate value violates unique constraint",
-                                    timestamp: new Date().toISOString(),
+                                statusCode: HttpStatus.CONFLICT,
+                                message: detail,
+                                timestamp: new Date().toISOString(),
                             },
                             HttpStatus.CONFLICT
-                            )
+                        )
                         );
                     }
 
                     return throwError(() => new HttpException(
-                            {
-                                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-                                message: "Internal Server Error",
-                                timestamp: new Date().toISOString(),
-                            },
-                            HttpStatus.INTERNAL_SERVER_ERROR
-                        )
+                        {
+                            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                            message: "Internal Server Error",
+                            timestamp: new Date().toISOString(),
+                        },
+                        HttpStatus.INTERNAL_SERVER_ERROR
+                    )
                     );
                 })
             )

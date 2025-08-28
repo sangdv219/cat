@@ -1,22 +1,17 @@
+import { CacheVersionService } from '@/modules/common/services/cache-version.service';
+import { RedisContext } from '@/shared/redis/enums/redis-key.enum';
+import { buildRedisKeyQuery } from '@/shared/redis/helpers/redis-key.helper';
 import {
   BadRequestException,
   BeforeApplicationShutdown,
-  ConflictException,
-  InternalServerErrorException,
   NotFoundException,
   OnApplicationBootstrap,
   OnModuleDestroy,
-  OnModuleInit,
+  OnModuleInit
 } from '@nestjs/common';
 import {
-  BaseResponse,
-  DeleteResponse,
-  IBaseRepository,
-  UpdateCreateResponse,
+  IBaseRepository
 } from '../../core/repositories/base.repository';
-import { CacheVersionService } from '@/modules/common/services/cache-version.service';
-import { buildRedisKeyQuery } from '@/shared/redis/helpers/redis-key.helper';
-import { RedisContext } from '@/shared/redis/enums/redis-key.enum';
 
 export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, TUpdateDto extends Partial<TEntity>> implements
   OnModuleInit,
@@ -30,8 +25,6 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
   protected abstract bootstrapLogic(): Promise<void>;
   protected abstract beforeAppShutDown(signal?: string): Promise<void>;
   protected abstract moduleDestroy(): Promise<void>;
-  protected abstract create(dto:TCreateDto): Promise<void>
-  protected abstract update(id: string, dto:TCreateDto): Promise<void>
 
   async onModuleInit() {
     await this.moduleInit();
@@ -49,15 +42,8 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
     await this.moduleDestroy();
   }
 
-  async getPagination(query): Promise<BaseResponse<TEntity[]>> {
-    const { page = 1, limit = 10 } = query;
-    this.validatePaginationParams(page, limit);
-
-    const redisKey = buildRedisKeyQuery(
-      this.entityName.toLocaleLowerCase(),
-      RedisContext.LIST,
-      query,
-    );
+  async getPagination(query) {
+    const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST, query);
 
     const cached = await this.cacheManage.get(redisKey);
 
@@ -67,30 +53,22 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
 
     const { items, total } = await this.repository.findWithPagination(query);
 
-    const response = {
-      success: true,
-      data: items,
-      totalRecord: total,
-    };
+    const response = { data: items, totalRecord: total };
 
     await this.cacheManage.set(redisKey, JSON.stringify(response), 'EX', 300);
 
     return response;
   }
 
-  // protected async createEntity(body: TCreateDto): Promise<TEntity> {
-  protected async createEntity(body: TCreateDto): Promise<any> {
-    return await this.repository.created(body);
+  async create(dto: TCreateDto) {
+    return await this.repository.create(dto);
   }
 
-  private validatePaginationParams(page: number, limit: number) {
-    if (page < 1)
-      throw new BadRequestException('Page number must be greater than 0');
-    if (limit < 1)
-      throw new BadRequestException('Limit must be greater than 0');
-    if (limit > 100) throw new BadRequestException('Limit must not exceed 100');
-    if (page > 1000) throw new BadRequestException('Page must not exceed 1000');
+  async update(id: string, dto: TUpdateDto) {
+    return await this.repository.update(id, dto);
   }
+
+ 
 
   async getById(id: string): Promise<TEntity | null> {
     const entity = await this.repository.findOne(id);
@@ -101,18 +79,15 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
     return entity;
   }
 
-  protected async updateEntity(id: string, body: TUpdateDto): Promise<any> {
-    const keyCacheListByBrand = buildRedisKeyQuery(
-      this.entityName.toLocaleLowerCase(),
-      RedisContext.LIST,
-    );
+  async updateEntity(id: string, dto: TUpdateDto): Promise<any> {
+    const keyCacheListByBrand = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(),RedisContext.LIST);
     await this.cacheManage.delCache(keyCacheListByBrand);
 
     const exists = await this.repository.findOne(id);
     if (!exists)
       throw new NotFoundException(`${this.entityName} with id ${id} not found`);
-    const updatedBody = { ...body, updated_at: new Date() };
-    return await this.repository.updated(id, updatedBody);
+    const updatedBody = { ...dto, updated_at: new Date() };
+    return await this.repository.update(id, updatedBody);
 
   }
 
@@ -122,6 +97,6 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
       RedisContext.LIST,
     );
     await this.cacheManage.delCache(keyCacheList);
-    await this.repository.deleted(id);
+    await this.repository.delete(id);
   }
 }

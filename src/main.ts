@@ -3,15 +3,19 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { LoginDto } from './modules/auth/DTO/login.dto';
 import { CreatedUserAdminRequestDto } from './modules/users/DTO/user.admin.request.dto';
-import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
-import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalInterceptors(new BaseResponseInterceptor());
-  app.useGlobalFilters(new AllExceptionsFilter());
-
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true, // convert string -> number
+    }),
+  );
+  
   const config = new DocumentBuilder()
     .setTitle('Cats example')
     .setDescription('The cats API description')

@@ -50,22 +50,6 @@ export class BrandService extends BaseService<BrandModel, CreatedBrandRequestDto
     console.log('🗑️onModuleDestroy -> brands: ', this.brands);
   }
 
-   async create(dto: CreatedBrandRequestDto) {
-        // const category = await this.categoryChecker.exists(dto.category_id);
-        // const brand = await this.brandChecker.exists(dto.brand_id);
-        // if(!category) throw new NotFoundException('Category not found')
-        // if(!brand) throw new NotFoundException('Brand not found')
-        return this.createEntity(dto)
-    }
-
-    async update(id:string, dto: UpdatedBrandRequestDto) {
-        // const category = await this.categoryChecker.exists(dto.category_id);
-        // const brand = await this.brandChecker.exists(dto.brand_id);
-        // if(!category) throw new NotFoundException('Category not found')
-        // if(!brand) throw new NotFoundException('Brand not found')
-        return this.createEntity(dto)
-    }
-
   async exists(brandId: string): Promise<boolean> {
     const brand = await this.repository.findOne(brandId);
     return !!brand;

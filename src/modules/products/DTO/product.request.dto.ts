@@ -4,27 +4,31 @@ import {
   IsBoolean,
   IsNotEmpty,
   IsOptional,
+  Max,
+  Min,
   MinLength
 } from 'class-validator';
 
 export class CreatedProductRequestDto {
   @ApiProperty({ description: 'user', example: 'user' })
   @IsNotEmpty({ message: 'Name is required' })
+  @MinLength(3)
   name: string;
 
-  @ApiProperty({ description: 'price', example: 20.0 })
+  @ApiProperty({ description: 'price', example: 20 })
   @IsNotEmpty()
-  @MinLength(1)
-  price: string;
+  @Min(1)
+  price: number;
 
-  @ApiProperty({ description: 'promotion_price', example: 20.0 })
+  @ApiProperty({ description: 'promotion_price', example: 20 })
   @IsOptional()
-  @MinLength(1)
-  promotion_price: string;
-  
-  @ApiProperty({ description: 'evaluate', example: 2 })
+  @Min(1)
+  promotion_price: number;
+
+  @ApiProperty({ description: 'evaluate', example: 5 })
   @IsOptional()
-  @MinLength(0)
+  @Min(1)
+  @Max(5)
   evaluate: number;
 
   @ApiProperty({ description: 'category_id', example: 'a129aada-2cef-4f18-a237-5a33598c30e6' })
@@ -59,16 +63,17 @@ export class UpdatedProductRequestDto {
   @ApiProperty({ description: 'price', example: 20.0 })
   @IsOptional()
   @MinLength(1)
-  price: string;
+  price: number;
 
   @ApiProperty({ description: 'promotion_price', example: 20.0 })
   @IsOptional()
   @MinLength(1)
-  promotion_price: string;
+  promotion_price: number;
 
   @ApiProperty({ description: 'evaluate', example: 2 })
   @IsOptional()
-  @MinLength(0)
+  @Min(1)
+  @Max(5)
   evaluate: number;
 
   @ApiProperty({ description: 'category_id', example: 'a129aada-2cef-4f18-a237-5a33598c30e6' })

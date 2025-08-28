@@ -1,12 +1,9 @@
-import { BaseResponse } from '@/core/repositories/base.repository';
+import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
+import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
 import { JWTAuthGuard } from '@/modules/auth/guards/jwt.guard';
-import { CategoryModel } from '@/modules/categories/domain/models/category.model';
-import {
-  CreatedCategoryRequestDto,
-  UpdatedCategoryRequestDto,
-} from '@/modules/categories/DTO/category.request.dto';
-import { CategoryService } from '@/modules/categories/services/category.service';
+import { BaseGetResponse } from '@/shared/interface/common';
 import { ForbidPasswordInUpdatePipe } from '@/shared/pipe';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
@@ -20,66 +17,78 @@ import {
   Patch,
   Post,
   Query,
+  UseFilters,
   UseGuards,
+  UseInterceptors,
   UsePipes,
-  ValidationPipe,
+  ValidationPipe
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { CATEGORY_ENTITY } from '../constants/category.constant';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '../DTO/category.request.dto';
+import { CategoryService } from '../services/category.service';
+import { CategoryModel } from '../domain/models/category.model';
 
 @ApiBearerAuth('Authorization')
-@Controller(CATEGORY_ENTITY.TABLE_NAME)
+@Controller('categories')
+@UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
+@UseFilters(new AllExceptionsFilter())
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor(private readonly productService: CategoryService) { }
 
   @Get()
   @HttpCode(HttpStatus.OK)
-  // @Roles('admin')
   @UseGuards(JWTAuthGuard)
   @CacheTTL(60)
-  async getPagination(
-    @Query() query: PaginationQueryDto,
-  ): Promise<BaseResponse<CategoryModel[]>> {
-    return await this.categoryService.getPagination(query);
+  async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<CategoryModel>> {
+    try {
+      return await this.productService.getPagination(query);
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Get(':id')
   @UseGuards(JWTAuthGuard)
-  async getCategoryById(
-    @Param('id') id: string,
-  ): Promise<CategoryModel | null> {
-    return await this.categoryService.getById(id);
+  async getCategoryAdminById(@Param('id') id: string): Promise<CategoryModel | null> {
+    try {
+      return await this.productService.getById(id);
+    } catch (error) {
+      throw error;
+    }
   }
 
-  @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
-  @UsePipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  )
-  async create(@Body() createCategoryDto: CreatedCategoryRequestDto) {
-    return this.categoryService.create(createCategoryDto);
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
+  @Post()
+  async create(@Body() createCategoryAdminDto: CreatedCategoryRequestDto) {
+    try {
+      return await this.productService.create(createCategoryAdminDto);
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTAuthGuard)
   @UsePipes(new ForbidPasswordInUpdatePipe())
-  async updateCategory(
-    @Param('id') id: string,
-    @Body() body: UpdatedCategoryRequestDto,
-  ): Promise<void> {
-    return await this.categoryService.update(id, body);
+  async updateCategoryAdmin(@Param('id') id: string, @Body() dto: UpdatedCategoryRequestDto) {
+    try {
+      return await this.productService.update(id, dto);
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Delete(':id')
   @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteCategory(@Param('id') id: string): Promise<void> {
-    return await this.categoryService.delete(id);
+  async deleteCategoryAdmin(@Param('id') id: string): Promise<void> {
+    try {
+      return await this.productService.delete(id);
+    } catch (error) {
+      throw error;
+    }
   }
 }

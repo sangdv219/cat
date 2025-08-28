@@ -56,30 +56,11 @@ export class ProductService extends BaseService<ProductModel, CreatedProductRequ
         console.log('🗑️onModuleDestroy -> products: ', this.products);
     }
 
-    async createImpl(body: CreatedProductRequestDto) {
-        console.log('body: ', body);
-        console.log('đây là logic riêng: ');
-        return {}
-    }
-    
-    async updateImpl(id, body: UpdatedProductRequestDto) {
-        console.log('đây là logic riêng: ');
-        return {}
-    }
+    // async create(dto: CreatedProductRequestDto) {
+    //     return this.createEntity(dto)
+    // }
 
-    async create(dto: CreatedProductRequestDto) {
-        const category = await this.categoryChecker.exists(dto.category_id);
-        const brand = await this.brandChecker.exists(dto.brand_id);
-        if(!category) throw new NotFoundException('Category not found')
-        if(!brand) throw new NotFoundException('Brand not found')
-        return this.createEntity(dto)
-    }
-
-    async update(id:string, dto: UpdatedProductRequestDto) {
-        const category = await this.categoryChecker.exists(dto.category_id);
-        const brand = await this.brandChecker.exists(dto.brand_id);
-        if(!category) throw new NotFoundException('Category not found')
-        if(!brand) throw new NotFoundException('Brand not found')
-        return this.createEntity(dto)
-    }
+    // async update(id:string, dto: UpdatedProductRequestDto) {
+    //     return this.updateEntity(dto)
+    // }
 }

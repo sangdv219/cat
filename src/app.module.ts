@@ -1,19 +1,16 @@
+import { AuthModule } from '@/modules/auth/auth.module';
+import { BrandModule } from '@/modules/brands/brand.module';
+import { CategoryModule } from '@/modules/categories/category.module';
+import { ProductModule } from '@/modules/products/product.module';
+import { UserModule } from '@/modules/users/user.module';
+import { DatabaseModule } from '@database/database.module';
+import { DatabaseService } from '@database/database.service';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
 import { redisStore } from 'cache-manager-ioredis-yet';
 import { AppController } from './app.controller';
-import { DatabaseModule } from '@database/database.module';
-import { DatabaseService } from '@database/database.service';
-import { AuthModule } from '@/modules/auth/auth.module';
-import { BrandModule } from '@/modules/brands/brand.module';
-import { UserModule } from '@/modules/users/user.module';
-import { CategoryModule } from '@/modules/categories/category.module';
-import { ProductModule } from '@/modules/products/product.module';
-import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
-import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
-import { AllExceptionsFilter } from './core/filters/sequelize-exception.filter';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
 @Module({

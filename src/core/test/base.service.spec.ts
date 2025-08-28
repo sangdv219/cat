@@ -17,10 +17,10 @@ const RedisContext = { LIST: 'list' } as const;
 // Mock repository
 const mockRepository = () => ({
   findWithPagination: jest.fn(),
-  created: jest.fn(),
+  create: jest.fn(),
   findOne: jest.fn(),
-  updated: jest.fn(),
-  deleted: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
   getAll: jest.fn(),
   findByField: jest.fn(),
   findOneByRaw: jest.fn(),
@@ -48,11 +48,11 @@ class TestService extends BaseService<Entity> {
   protected async moduleDestroy() {}
 
   protected async createImpl(body: Entity) {
-    return { ...body, created: true };
+    return { ...body, create: true };
   }
 
   protected async updateImpl(id: string, body: Entity) {
-    return { ...body, id, updated: true };
+    return { ...body, id, update: true };
   }
 }
 
@@ -135,13 +135,13 @@ describe('BaseService', () => {
 
   describe('create', () => {
     it('gọi createEntity và createImpl', async () => {
-      repository.created.mockResolvedValue({ id: '1' });
+      repository.create.mockResolvedValue({ id: '1' });
       await service.create({ id: '1' });
-      expect(repository.created).toHaveBeenCalled();
+      expect(repository.create).toHaveBeenCalled();
     });
 
     it('throw Conflict khi duplicate key', async () => {
-      repository.created.mockRejectedValue({
+      repository.create.mockRejectedValue({
         name: 'SequelizeUniqueConstraintError',
       });
       await expect(service.create({ id: '1' })).rejects.toBeInstanceOf(
@@ -153,9 +153,9 @@ describe('BaseService', () => {
   describe('update', () => {
     it('update thành công khi entity tồn tại', async () => {
       repository.findOne.mockResolvedValue({ id: '1' });
-      repository.updated.mockResolvedValue([1, [{ id: '1', name: 'Updated' }]]);
-      const result = await service.update('1', { name: 'Updated' });
-      expect(repository.updated).toHaveBeenCalled();
+      repository.update.mockResolvedValue([1, [{ id: '1', name: 'update' }]]);
+      const result = await service.update('1', { name: 'update' });
+      expect(repository.update).toHaveBeenCalled();
       expect(result).toHaveProperty('id', '1');
     });
 
@@ -185,10 +185,10 @@ describe('BaseService', () => {
 
   describe('delete', () => {
     it('xóa entity thành công', async () => {
-      repository.deleted.mockResolvedValue(undefined);
+      repository.delete.mockResolvedValue(undefined);
       await service.delete('1');
       expect(cache.delCache).toHaveBeenCalled();
-      expect(repository.deleted).toHaveBeenCalledWith('1');
+      expect(repository.delete).toHaveBeenCalledWith('1');
     });
   });
 });

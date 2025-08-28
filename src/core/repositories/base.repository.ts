@@ -1,12 +1,9 @@
+import { BaseResponse } from '@/shared/interface/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { UUID } from 'crypto';
 import { Op } from 'sequelize';
-
-export class BaseResponse<T = any> {
-  data?: T;
-  totalRecord?: number;
-}
+// import { BaseResponse } from '../interceptors/base-response.interceptor';
 
 export class UpdateCreateResponse<T = any> {
   success?: boolean = false;
@@ -32,9 +29,9 @@ export interface IBaseRepository<T> {
   findByField<K extends keyof T>(field: K): Promise<T[K][]>;
   findOne(id: string): Promise<T | null>;
   findOneByRaw(condition: Record<string, any>): Promise<T | null>;
-  created(payload: Partial<T>): Promise<T>;
-  updated(id: string, payload: Partial<T>): Promise<T>;
-  deleted(id: string): Promise<T>;
+  create(payload: Partial<T>): Promise<BaseResponse<T>>;
+  update(id: string, payload: Partial<T>): Promise<T>;
+  delete(id: string): Promise<T>;
 }
 
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
@@ -98,19 +95,19 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     });
   }
 
-  async created(payload): Promise<any> {
+  async create(payload): Promise<any> {
     const result = await this.model.create(payload);
     return result;
   }
 
-  async updated(id: string, payload: any): Promise<any> {
+  async update(id: string, payload: any): Promise<any> {
     return await this.model.update(payload, {
       where: { id },
       returning: true,
     });
   }
 
-  async deleted(id: UUID): Promise<any> {
+  async delete(id: UUID): Promise<any> {
     if (!isUUID(id)) {
       throw new BadRequestException('Invalid UUID format');
     }

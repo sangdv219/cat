@@ -30,11 +30,11 @@ export class ProductModel extends Model {
 
   @AllowNull(false)
   @Column({ type: DataType.DECIMAL(10,2) })
-  price: string;
+  price: number;
 
   @AllowNull(true)
   @Column({ type: DataType.DECIMAL(10,2) })
-  promotion_price: string;
+  promotion_price: number;
 
   @AllowNull(true)
   @Column({ type: DataType.INTEGER })
