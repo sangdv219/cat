@@ -5,10 +5,9 @@ import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '../DTO/cat
 import { PostgresCategoryRepository } from '../infrastructure/repository/postgres-category.repository';
 import { BaseService } from '@/core/services/base.service';
 import { CATEGORY_ENTITY } from '../constants/category.constant';
-import { ICategoryCheckService } from '../domain/interface/category-checker.interface';
 
 @Injectable()
-export class CategoryService extends BaseService<CategoryModel, CreatedCategoryRequestDto, UpdatedCategoryRequestDto> implements ICategoryCheckService {
+export class CategoryService extends BaseService<CategoryModel, CreatedCategoryRequestDto, UpdatedCategoryRequestDto> {
   protected entityName: string;
   private categorys: string[] = [];
   constructor(
@@ -48,10 +47,5 @@ export class CategoryService extends BaseService<CategoryModel, CreatedCategoryR
   protected async moduleDestroy() {
     this.categorys = [];
     console.log('🗑️onModuleDestroy -> categorys: ', this.categorys);
-  }
-
-  async exists(categoryId: string): Promise<boolean> {
-    const category = await this.repository.findOne(categoryId);
-    return !!category;
   }
 }

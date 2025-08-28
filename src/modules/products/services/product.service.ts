@@ -1,13 +1,10 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { BaseService } from '@/core/services/base.service';
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
-import { ProductModel } from '@/modules/products/domain/models/product.model';
 import { PRODUCT_ENTITY } from '@/modules/products/constants/product.constant';
+import { ProductModel } from '@/modules/products/domain/models/product.model';
 import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@/modules/products/DTO/product.request.dto';
 import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
-import { IBrandCheckService } from '@/modules/brands/domain/interface/brand-checker.interface';
-import { ICategoryCheckService } from '@/modules/categories/domain/interface/category-checker.interface';
-import { NotFoundError } from 'rxjs';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class ProductService extends BaseService<ProductModel, CreatedProductRequestDto, UpdatedProductRequestDto> {
@@ -15,10 +12,6 @@ export class ProductService extends BaseService<ProductModel, CreatedProductRequ
     private products: string[] = [];
     constructor(
         protected repository: PostgresProductRepository,
-        @Inject('ICategoryCheckerService')
-        private readonly categoryChecker: ICategoryCheckService,
-        @Inject('IBrandCheckerService')
-        private readonly brandChecker: IBrandCheckService,
         public cacheManage: CacheVersionService,
     ) {
         super();
@@ -35,8 +28,6 @@ export class ProductService extends BaseService<ProductModel, CreatedProductRequ
         console.log(
             '👉 OnApplicationBootstrap: ProductService bootstrap: preloading cache...',
         );
-        //Bắt đầu chạy cron job đồng bộ tồn kho.
-        //* Gửi log "App ready" cho monitoring system.
     }
 
     protected async beforeAppShutDown(signal): Promise<void> {
@@ -55,12 +46,4 @@ export class ProductService extends BaseService<ProductModel, CreatedProductRequ
         this.products = [];
         console.log('🗑️onModuleDestroy -> products: ', this.products);
     }
-
-    // async create(dto: CreatedProductRequestDto) {
-    //     return this.createEntity(dto)
-    // }
-
-    // async update(id:string, dto: UpdatedProductRequestDto) {
-    //     return this.updateEntity(dto)
-    // }
 }

@@ -7,11 +7,9 @@ import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { config } from 'dotenv';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
-import { ProductController } from './controller/product.controller';
-import { CategoryModule } from '../categories/category.module';
-import { CategoryService } from '../categories/services/category.service';
 import { BrandModule } from '../brands/brand.module';
-import { BrandService } from '../brands/services/brand.service';
+import { CategoryModule } from '../categories/category.module';
+import { ProductController } from './controller/product.controller';
 
 config();
 @Module({
@@ -24,14 +22,6 @@ config();
     {
       provide: 'TokenSecretResolver',
       useClass: DefaultTokenSecretResolverStrategy,
-    },
-    {
-      provide: 'ICategoryCheckerService',
-      useClass: CategoryService,
-    },
-    {
-      provide: 'IBrandCheckerService',
-      useClass: BrandService,
     },
   ],
   exports: [PostgresProductRepository, ProductService],

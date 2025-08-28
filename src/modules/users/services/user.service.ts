@@ -55,15 +55,6 @@ export class UserService extends BaseService<UserModel, CreatedUserAdminRequestD
     console.log('🗑️onModuleDestroy -> users: ', this.users);
   }
 
-
-  async update(id: string, dto: UpdatedUserAdminRequestDto) {
-    // const category = await this.categoryChecker.exists(dto.category_id);
-    // const brand = await this.brandChecker.exists(dto.brand_id);
-    // if(!category) throw new NotFoundException('Category not found')
-    // if(!brand) throw new NotFoundException('Category not found')
-    return this.updateEntity(id, dto)
-  }
-
   async restoreUser(id: string): Promise<UpdateCreateResponse<UserModel>> {
     const user = await this.userRepository.findOneByRaw({
       where: { id, is_active: false },

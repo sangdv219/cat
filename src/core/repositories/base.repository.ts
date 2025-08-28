@@ -25,7 +25,7 @@ export interface IPaginationDTO {
 
 export interface IBaseRepository<T> {
   getAll(): Promise<T[]>;
-  findWithPagination(findWithPagination: IPaginationDTO): Promise<{ items: any; total: number }>;
+  findWithPagination(param: IPaginationDTO, exclude?: string[]): Promise<{ items: any; total: number }>;
   findByField<K extends keyof T>(field: K): Promise<T[K][]>;
   findOne(id: string): Promise<T | null>;
   findOneByRaw(condition: Record<string, any>): Promise<T | null>;
@@ -43,20 +43,16 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     this._entityName = entityName;
   }
 
-  logAction(action: string): void {
-    console.log(`[${this._entityName} Repository] Action: ${action}`);
-  }
-
   async getAll(): Promise<T[]> {
     return await this.model.findAll();
   }
 
-  async findWithPagination(body: IPaginationDTO): Promise<{ items: any; total: number }> {
-    const { page = 1, limit = 10, keyword } = body;
+  async findWithPagination(params: IPaginationDTO, exclude?: string[] ): Promise<{ items: T; total: number }> {
+    const { page = 1, limit = 100, keyword } = params;
 
     const offset = (page - 1) * limit;
 
-    const where: any = {};
+    const where = {};
     if (keyword) {
       where[Op.or] = [
         { name: { [Op.iLike]: `%${keyword}%` } },
@@ -67,9 +63,9 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     const { rows: items, count: total } = await this.model.findAndCountAll({
       limit,
       offset,
-      // where: { is_active: true },
+      where,
       order: [['created_at', 'DESC']],
-      attributes: { exclude: [] },
+      attributes: { exclude },
     });
 
     return { items, total };

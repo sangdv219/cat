@@ -12,6 +12,7 @@ import {
 import {
   IBaseRepository
 } from '../../core/repositories/base.repository';
+import { sensitiveFields } from '@/shared/config/sensitive-fields.config';
 
 export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, TUpdateDto extends Partial<TEntity>> implements
   OnModuleInit,
@@ -51,7 +52,10 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
 
     if (cached) return dataCache;
 
-    const { items, total } = await this.repository.findWithPagination(query);
+    const exclude = sensitiveFields[this.entityName] ?? [];
+    console.log("exclude****: ", exclude);
+
+    const { items, total } = await this.repository.findWithPagination(query, exclude);
 
     const response = { data: items, totalRecord: total };
 
@@ -61,14 +65,16 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
   }
 
   async create(dto: TCreateDto) {
+    this.cleanCacheRedis()
     return await this.repository.create(dto);
   }
 
   async update(id: string, dto: TUpdateDto) {
-    return await this.repository.update(id, dto);
+    this.getById(id)
+    this.cleanCacheRedis()
+    const modifyDto = { ...dto, updated_at: new Date() };
+    return await this.repository.update(id, modifyDto);
   }
-
- 
 
   async getById(id: string): Promise<TEntity | null> {
     const entity = await this.repository.findOne(id);
@@ -79,24 +85,15 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
     return entity;
   }
 
-  async updateEntity(id: string, dto: TUpdateDto): Promise<any> {
-    const keyCacheListByBrand = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(),RedisContext.LIST);
+  async cleanCacheRedis() {
+    const keyCacheListByBrand = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST);
     await this.cacheManage.delCache(keyCacheListByBrand);
-
-    const exists = await this.repository.findOne(id);
-    if (!exists)
-      throw new NotFoundException(`${this.entityName} with id ${id} not found`);
-    const updatedBody = { ...dto, updated_at: new Date() };
-    return await this.repository.update(id, updatedBody);
-
   }
 
   async delete(id: string): Promise<void> {
-    const keyCacheList = buildRedisKeyQuery(
-      this.entityName.toLocaleLowerCase(),
-      RedisContext.LIST,
-    );
-    await this.cacheManage.delCache(keyCacheList);
+    await this.cleanCacheRedis();
+    await this.getById(id);
+
     await this.repository.delete(id);
   }
 }
