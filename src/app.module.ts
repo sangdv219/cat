@@ -46,9 +46,7 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
     ProductModule,
   ],
   controllers: [AppController],
-  providers: [DatabaseService, 
-
-  ],
+  providers: [DatabaseService],
   exports: [DatabaseService],
 })
 export class AppModule {}

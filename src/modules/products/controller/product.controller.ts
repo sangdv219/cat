@@ -66,7 +66,6 @@ export class ProductController {
     try {
       return await this.productService.create(createProductDto);
     } catch (error) {
-      console.error('Controller log:', error);
       throw error;
     }
   }

@@ -9,8 +9,8 @@ import { BaseResponseInterceptor } from '@core/interceptors/base-response.interc
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.useGlobalInterceptors(new BaseResponseInterceptor());
   app.useGlobalFilters(new AllExceptionsFilter());
-  // app.useGlobalInterceptors(new BaseResponseInterceptor());
 
   const config = new DocumentBuilder()
     .setTitle('Cats example')

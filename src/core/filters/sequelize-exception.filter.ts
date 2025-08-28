@@ -1,5 +1,4 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from "@nestjs/common";
-import { BaseError, DatabaseError, ForeignKeyConstraintError, UniqueConstraintError, ValidationError } from "sequelize";
 import { Response } from 'express';
 
 @Catch()
@@ -8,32 +7,22 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const ctx = host.switchToHttp();
         const response = ctx.getResponse<Response>();
 
-        console.log("exception:________________________________________________________________________________ ");
-        console.log("exception: ", exception);
+        let statusCode_ = HttpStatus.INTERNAL_SERVER_ERROR;
+        let message_ = 'Internal server error';
 
-        if ((exception as any).name === 'SequelizeUniqueConstraintError') {
-            return response.status(409).json({
-                statusCode: 409,
-                message: 'Duplicate value violates unique constraint',
-            });
+        if (exception instanceof HttpException) {
+            const errorResponse = exception.getResponse();
+            statusCode_ = exception.getStatus();
+            message_ = typeof errorResponse === 'string' ? errorResponse : (errorResponse as any).message || message_;
+        } else if (exception?.name === 'SequelizeUniqueConstraintError' || exception?.code === '23505') {
+            statusCode_ = HttpStatus.CONFLICT;
+            message_ = 'Duplicate value violates unique constraint';
         }
+
+        response.status(statusCode_).json({
+            statusCode_,
+            message_,
+            timestamp: new Date().toISOString(),
+        });
     }
 }
-
-// if (exception instanceof ValidationError) {
-//     statusCode = HttpStatus.BAD_REQUEST;
-//     message = 'Validation failed';
-//     errorCode = 'VALIDATION_ERROR';
-// } else if (exception instanceof UniqueConstraintError) {
-//     statusCode = HttpStatus.CONFLICT;
-//     message = 'Duplicate entry detected';
-//     errorCode = 'UNIQUE_CONSTRAINT_ERROR';
-// } else if (exception instanceof ForeignKeyConstraintError) {
-//     statusCode = HttpStatus.BAD_REQUEST;
-//     message = 'Foreign key constraint violated';
-//     errorCode = 'FK_CONSTRAINT_ERROR';
-// } else if (exception instanceof DatabaseError) {
-//     statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
-//     message = 'Database query error';
-//     errorCode = 'DB_QUERY_ERROR';
-// }
