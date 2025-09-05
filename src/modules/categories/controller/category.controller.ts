@@ -2,68 +2,62 @@ import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
-import { JWTAuthGuard } from '@/modules/auth/guards/jwt.guard';
 import { BaseGetResponse } from '@/shared/interface/common';
-import { ForbidPasswordInUpdatePipe } from '@/shared/pipe';
+import { CategoryModel } from '@modules/categories/domain/models/category.model';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/DTO/category.request.dto';
+import { CategoryService } from '@modules/categories/services/category.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseFilters,
-  UseGuards,
-  UseInterceptors,
-  UsePipes,
-  ValidationPipe
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Param,
+    Patch,
+    Post,
+    Query,
+    UseFilters,
+    UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '../DTO/category.request.dto';
-import { CategoryService } from '../services/category.service';
-import { CategoryModel } from '../domain/models/category.model';
 
 @ApiBearerAuth('Authorization')
 @Controller('categories')
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class CategoryController {
-  constructor(private readonly productService: CategoryService) { }
+  constructor(private readonly userService: CategoryService) { }
 
   @Get()
+//   @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JWTAuthGuard)
   @CacheTTL(60)
   async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<CategoryModel>> {
     try {
-      return await this.productService.getPagination(query);
+      return await this.userService.getPagination(query);
     } catch (error) {
       throw error;
     }
   }
 
   @Get(':id')
-  @UseGuards(JWTAuthGuard)
-  async getCategoryAdminById(@Param('id') id: string): Promise<CategoryModel | null> {
+  // @UseGuards(JWTAuthGuard)
+  async getCategoryById(@Param('id') id: string): Promise<CategoryModel | null> {
     try {
-      return await this.productService.getById(id);
+      return await this.userService.getById(id);
     } catch (error) {
       throw error;
     }
   }
 
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(JWTAuthGuard)
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
+  // @UseGuards(JWTAuthGuard)
   @Post()
-  async create(@Body() createCategoryAdminDto: CreatedCategoryRequestDto) {
+  async create(@Body() createCategoryDto: CreatedCategoryRequestDto) {
     try {
-      return await this.productService.create(createCategoryAdminDto);
+      return await this.userService.create(createCategoryDto);
     } catch (error) {
       throw error;
     }
@@ -71,24 +65,24 @@ export class CategoryController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JWTAuthGuard)
-  @UsePipes(new ForbidPasswordInUpdatePipe())
-  async updateCategoryAdmin(@Param('id') id: string, @Body() dto: UpdatedCategoryRequestDto) {
+  // @UseGuards(JWTAuthGuard)
+  async updateCategory(@Param('id') id: string, @Body() dto: UpdatedCategoryRequestDto) {
     try {
-      return await this.productService.update(id, dto);
+      return await this.userService.update(id, dto);
     } catch (error) {
       throw error;
     }
   }
 
   @Delete(':id')
-  @UseGuards(JWTAuthGuard)
+  // @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteCategoryAdmin(@Param('id') id: string): Promise<void> {
+  async deleteCategory(@Param('id') id: string): Promise<void> {
     try {
-      return await this.productService.delete(id);
+      return await this.userService.delete(id);
     } catch (error) {
       throw error;
     }
   }
+
 }

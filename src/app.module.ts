@@ -11,6 +11,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
 import { redisStore } from 'cache-manager-ioredis-yet';
 import { AppController } from './app.controller';
+import { BullmqModule } from './shared/bullmq/bullmq.module';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
 @Module({
@@ -41,6 +42,7 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
     BrandModule,
     CategoryModule,
     ProductModule,
+    BullmqModule
   ],
   controllers: [AppController],
   providers: [DatabaseService],

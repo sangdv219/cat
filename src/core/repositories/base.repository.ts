@@ -25,7 +25,7 @@ export interface IPaginationDTO {
 
 export interface IBaseRepository<T> {
   getAll(): Promise<T[]>;
-  findWithPagination(param: IPaginationDTO, exclude?: string[]): Promise<{ items: any; total: number }>;
+  findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>;
   findByField<K extends keyof T>(field: K): Promise<T[K][]>;
   findOne(id: string): Promise<T | null>;
   findOneByRaw(condition: Record<string, any>): Promise<T | null>;
@@ -47,8 +47,8 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return await this.model.findAll();
   }
 
-  async findWithPagination(params: IPaginationDTO, exclude?: string[] ): Promise<{ items: T; total: number }> {
-    const { page = 1, limit = 100, keyword } = params;
+  async findWithPagination(parameter, exclude = [''] ): Promise<{ items: T; total: number }> {
+    const { page = 1, limit = 100, keyword } = parameter;
 
     const offset = (page - 1) * limit;
 
@@ -56,7 +56,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     if (keyword) {
       where[Op.or] = [
         { name: { [Op.iLike]: `%${keyword}%` } },
-        { email: { [Op.iLike]: `%${keyword}%` } },
+        // { email: { [Op.iLike]: `%${keyword}%` } },
       ];
     }
 
@@ -78,14 +78,23 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return records.map((r) => r.getDataValue(field));
   }
 
-  async findOne(id: string): Promise<T | null> {
+  async findOne(id): Promise<T | null> {
     return await this.model.findOne({
       where: { id },
       attributes: { exclude: [] },
+      raw: true,
     });
   }
 
-  findOneByRaw(condition: Record<string, any>) {
+  async findByEmail(email: string): Promise<T | null> {
+    return await this.model.findOne({
+      where: { email },
+      attributes: { exclude: [] },
+      raw: true,
+    });
+  }
+
+  findOneByRaw(condition) {
     return this.model.findOne({
       ...condition,
     });

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
@@ -68,54 +68,4 @@ export class CreatedUserAdminRequestDto {
   deleted_at?: Date;
 }
 
-export class UpdatedUserAdminRequestDto {
-  @IsOptional()
-  @ApiProperty({ description: 'user', example: 'user' })
-  @IsString({ message: 'Name must be a string' })
-  name: string;
-
-  @IsOptional()
-  @ApiProperty({ description: 'email', example: 'sangdva@gmail.com' })
-  @IsEmail()
-  email: string;
-
-  @IsOptional()
-  @ApiProperty({ description: 'gender', example: 'Nam' })
-  @IsString({ message: 'Gender must be a string' })
-  gender: string;
-
-  @IsOptional()
-  @ApiProperty({ description: 'age', example: 22 })
-  @IsNumber({}, { message: 'Age must be a number' })
-  age: number;
-
-  @IsOptional()
-  @ApiProperty({ description: 'phone', example: '0919 528 956' })
-  @IsString({ message: 'Phone must be a string' })
-  phone: string;
-
-  @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === true)
-  @ApiProperty({ description: 'is_root', example: true })
-  @IsBoolean({ message: 'is_root must be a boolean (true/false)' })
-  is_root: boolean;
-
-  @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === true)
-  @ApiProperty({ description: 'is_active', example: true })
-  @IsBoolean({ message: 'is_active must be a boolean (true/false)' })
-  is_active: boolean;
-
-  @IsOptional()
-  @IsString({ message: 'avatar must be a string' })
-  avatar: string;
-
-  @IsOptional()
-  created_at?: Date;
-
-  @IsOptional()
-  updated_at?: Date;
-
-  @IsOptional()
-  deleted_at?: Date;
-}
+export class UpdatedUserAdminRequestDto extends PartialType(OmitType(CreatedUserAdminRequestDto, ['password'] as const)) {}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+  <file path="/Users/sangduong/Developer/BE/cat/src/app.controller.spec.ts">
+  </file>
+  <file path="/Users/sangduong/Developer/BE/cat/src/modules/users/users.controller.spec.ts">
+    <testCase name="UserAdminController / (GET) - should return hello message" duration="5"/>
+  </file>
+  <file path="/Users/sangduong/Developer/BE/cat/src/modules/products/product.controller.spec.ts">
+  </file>
+  <file path="/Users/sangduong/Developer/BE/cat/src/modules/brands/brand.controller.spec.ts">
+  </file>
+  <file path="/Users/sangduong/Developer/BE/cat/src/core/test/base.service.spec.ts">
+  </file>
+  <file path="/Users/sangduong/Developer/BE/cat/src/modules/categories/category.controller.spec.ts">
+  </file>
+</testExecutions>

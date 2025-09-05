@@ -1,8 +1,8 @@
-import { BrandModel } from '@/modules/brands/domain/models/brand.model';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { AbstractBrandRepository } from '../../domain/abstract/abstract-branch.repository';
+import { AbstractBrandRepository } from '../../abstract/abstract-branch.repository';
 import { BRAND_ENTITY } from '../../constants/brand.constant';
+import { BrandModel } from '../../models/brand.model';
 
 @Injectable()
 export class PostgresBrandRepository extends AbstractBrandRepository {

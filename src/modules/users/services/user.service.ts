@@ -55,6 +55,15 @@ export class UserService extends BaseService<UserModel, CreatedUserAdminRequestD
     console.log('🗑️onModuleDestroy -> users: ', this.users);
   }
 
+  async delete(id: string): Promise<void> {
+    try {
+      const user = await this.userRepository.findOne(id)
+      const modifyDto = { ...user, is_active: false };
+      await this.userRepository.update(id, modifyDto)
+    } catch (error) {
+      throw error;
+    }
+  }
   async restoreUser(id: string): Promise<UpdateCreateResponse<UserModel>> {
     const user = await this.userRepository.findOneByRaw({
       where: { id, is_active: false },

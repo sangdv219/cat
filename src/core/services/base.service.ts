@@ -1,19 +1,16 @@
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
+import { sensitiveFields } from '@/shared/config/sensitive-fields.config';
 import { RedisContext } from '@/shared/redis/enums/redis-key.enum';
 import { buildRedisKeyQuery } from '@/shared/redis/helpers/redis-key.helper';
 import {
-  BadRequestException,
   BeforeApplicationShutdown,
+  Logger,
   NotFoundException,
   OnApplicationBootstrap,
   OnModuleDestroy,
   OnModuleInit
 } from '@nestjs/common';
-import {
-  IBaseRepository
-} from '../../core/repositories/base.repository';
-import { sensitiveFields } from '@/shared/config/sensitive-fields.config';
-
+import { IBaseRepository } from '@core/repositories/base.repository';
 export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, TUpdateDto extends Partial<TEntity>> implements
   OnModuleInit,
   OnApplicationBootstrap,
@@ -26,9 +23,10 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
   protected abstract bootstrapLogic(): Promise<void>;
   protected abstract beforeAppShutDown(signal?: string): Promise<void>;
   protected abstract moduleDestroy(): Promise<void>;
-
+  private readonly logger = new Logger(BaseService.name);
   async onModuleInit() {
     await this.moduleInit();
+    this.logger.log(`${this.entityName} Service initialized`);
   }
 
   async onApplicationBootstrap() {
@@ -44,6 +42,7 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
   }
 
   async getPagination(query) {
+
     const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST, query);
 
     const cached = await this.cacheManage.get(redisKey);
@@ -53,7 +52,6 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
     if (cached) return dataCache;
 
     const exclude = sensitiveFields[this.entityName] ?? [];
-    console.log("exclude****: ", exclude);
 
     const { items, total } = await this.repository.findWithPagination(query, exclude);
 
@@ -64,9 +62,9 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
     return response;
   }
 
-  async create(dto: TCreateDto) {
+  create(dto: TCreateDto) {
     this.cleanCacheRedis()
-    return await this.repository.create(dto);
+    return this.repository.create(dto);
   }
 
   async update(id: string, dto: TUpdateDto) {
@@ -81,7 +79,6 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
     if (!entity) {
       throw new NotFoundException(`${this.entityName} with id ${id} not found`);
     }
-
     return entity;
   }
 
@@ -93,7 +90,6 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
   async delete(id: string): Promise<void> {
     await this.cleanCacheRedis();
     await this.getById(id);
-
     await this.repository.delete(id);
   }
 }

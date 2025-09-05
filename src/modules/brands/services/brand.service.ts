@@ -1,14 +1,13 @@
-import { BrandModel } from '@/modules/brands/domain/models/brand.model';
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
 import { Injectable } from '@nestjs/common';
 import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '../DTO/brand.request.dto';
 import { PostgresBrandRepository } from '../infrastructure/repository/postgres-brand.repository';
 import { BaseService } from '@/core/services/base.service';
-import { BRAND_ENTITY } from '../constants/brand.constant';
-import { IBrandCheckService } from '../domain/interface/brand-checker.interface';
+import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant';
+import { BrandModel } from '@modules/brands/models/brand.model';
 
 @Injectable()
-export class BrandService extends BaseService<BrandModel, CreatedBrandRequestDto, UpdatedBrandRequestDto> implements IBrandCheckService {
+export class BrandService extends BaseService<BrandModel, CreatedBrandRequestDto, UpdatedBrandRequestDto> {
   protected entityName: string;
   private brands: string[] = [];
   constructor(
@@ -48,10 +47,5 @@ export class BrandService extends BaseService<BrandModel, CreatedBrandRequestDto
   protected async moduleDestroy() {
     this.brands = [];
     console.log('🗑️onModuleDestroy -> brands: ', this.brands);
-  }
-
-  async exists(brandId: string): Promise<boolean> {
-    const brand = await this.repository.findOne(brandId);
-    return !!brand;
   }
 }

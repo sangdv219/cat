@@ -2,9 +2,7 @@ import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
-import { JWTAuthGuard } from '@/modules/auth/guards/jwt.guard';
 import { BaseGetResponse } from '@/shared/interface/common';
-import { ForbidPasswordInUpdatePipe } from '@/shared/pipe';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
@@ -18,12 +16,9 @@ import {
   Post,
   Query,
   UseFilters,
-  UseGuards,
-  UseInterceptors,
-  UsePipes,
-  ValidationPipe
+  UseInterceptors
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
 import { UserModel } from '../domain/models/user.model';
 import { UserService } from '../services/user.service';
@@ -33,37 +28,37 @@ import { UserService } from '../services/user.service';
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class UserAdminController {
-  constructor(private readonly productService: UserService) { }
+  constructor(private readonly userService: UserService) { }
 
+  @ApiOkResponse({ description: 'Danh sách user phân trang', type: BaseGetResponse<UserModel>})
   @Get()
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JWTAuthGuard)
+  // @UseGuards(JWTAuthGuard)
   @CacheTTL(60)
   async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<UserModel>> {
     try {
-      return await this.productService.getPagination(query);
+      return this.userService.getPagination(query);
     } catch (error) {
       throw error;
     }
   }
 
   @Get(':id')
-  @UseGuards(JWTAuthGuard)
+  // @UseGuards(JWTAuthGuard)
   async getUserAdminById(@Param('id') id: string): Promise<UserModel | null> {
     try {
-      return await this.productService.getById(id);
+      return await this.userService.getById(id);
     } catch (error) {
       throw error;
     }
   }
 
   @HttpCode(HttpStatus.CREATED)
-  @UseGuards(JWTAuthGuard)
-  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
+  // @UseGuards(JWTAuthGuard)
   @Post()
   async create(@Body() createUserAdminDto: CreatedUserAdminRequestDto) {
     try {
-      return await this.productService.create(createUserAdminDto);
+      return await this.userService.create(createUserAdminDto);
     } catch (error) {
       throw error;
     }
@@ -71,24 +66,31 @@ export class UserAdminController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JWTAuthGuard)
-  @UsePipes(new ForbidPasswordInUpdatePipe())
+  // @UseGuards(JWTAuthGuard)
+  // @UsePipes(new ForbidPasswordInUpdatePipe())
   async updateUserAdmin(@Param('id') id: string, @Body() dto: UpdatedUserAdminRequestDto) {
     try {
-      return await this.productService.update(id, dto);
+      return await this.userService.update(id, dto);
     } catch (error) {
       throw error;
     }
   }
 
   @Delete(':id')
-  @UseGuards(JWTAuthGuard)
+  // @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUserAdmin(@Param('id') id: string): Promise<void> {
     try {
-      return await this.productService.delete(id);
+      return await this.userService.delete(id);
     } catch (error) {
       throw error;
     }
   }
+
+  // @Patch(':id')
+  // // @UseGuards(JWTAuthGuard)
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  // async restoreUserAdmin(@Param('id') id: string): Promise<UpdateCreateResponse<UserModel>> {
+  //   return await this.userService.restoreUser(id);
+  // }
 }

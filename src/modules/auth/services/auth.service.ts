@@ -11,28 +11,44 @@ import {
   GoneException,
   Injectable,
   NotFoundException,
+  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 import { config } from 'dotenv';
 import Redis from 'ioredis';
+import { Queue, Worker, Job, SandboxedJob } from 'bullmq';
 import { RegisterDto } from '../DTO/register.dto';
 import { EmailService } from './mail.service';
 import { OTPService } from './OTP.service';
+import { EmailQueueService } from '@/jobs/queues/email.queue';
 
 config();
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   constructor(
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
+    private readonly emailQueueService: EmailQueueService,
     private readonly OTPService: OTPService,
     @InjectModel(UserModel)
     protected readonly userModel: typeof UserModel,
     private readonly userRepository: PostgresUserRepository, // Assuming Redis is injected for cache management
-  ) {}
+  ) { }
+
+  onModuleInit() {
+    // this.addJobs();
+    // const myQueue = new Queue('foo');
+    // console.log("myQueue: ", myQueue);
+  }
+
+  // async addJobs() {
+  //   const myQueue = new Queue('foo');
+  //   await myQueue.add('myJobName', { foo: 'bar' });
+  //   await myQueue.add('myJobName', { qux: 'baz' });
+  // }
 
   async incrementFailedLogins(id: string): Promise<void> {
     const user = await this.userRepository.findOne(id);
@@ -57,7 +73,7 @@ export class AuthService {
   }
 
   async findEmail(email: string) {
-    return this.userRepository.findByField('email');
+    return this.userRepository.findByEmail(email);
   }
 
   async resetFailedLogins(id: string): Promise<void> {
@@ -160,17 +176,20 @@ export class AuthService {
     const redis = new Redis();
 
     const existingUser = await this.findEmail(email);
+    console.log("existingUser: ", existingUser);
 
     if (existingUser) {
       throw new UnauthorizedException('Email already exists in system');
     }
     const otp = this.OTPService.gennerateOtp();
+    
     const otpCache = {
       otp,
       sendCount: 1,
       checkCount: 1,
       lastTime: Date.now() + 1 * 60 * 1000,
     };
+
     const TTL_OTP = 86400;
 
     const key = buildRedisKey(RedisModule.AUTH, RedisContext.OTP, email);
@@ -187,6 +206,8 @@ export class AuthService {
       const lastTime = cache.lastTime;
       if (sendCount <= Number(limitSendEmail)) {
         if (now >= lastTime) {
+          console.log('____');
+          this.emailQueueService.addSendMailJob(email, 'Mã OTP xác thực tài khoản');
           // await this.emailService.sendRegistrationEmail(email, otp);
           const updatedOtpCache = Object.assign({}, otpCache, {
             sendCount: sendCount + 1,

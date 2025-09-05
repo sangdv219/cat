@@ -1,4 +1,4 @@
-import { BrandModel } from '@/modules/brands/domain/models/brand.model';
+import { BrandModel } from '@/modules/brands/models/brand.model';
 import { PostgresBrandRepository } from '@/modules/brands/infrastructure/repository/postgres-brand.repository';
 import { BrandService } from '@modules/brands/services/brand.service';
 import { CommonModule } from '@modules/common/common.module';

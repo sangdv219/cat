@@ -1,4 +1,3 @@
-import { OTPService } from '@/modules/auth/services/OTP.service';
 import { Injectable } from '@nestjs/common';
 import { config } from 'dotenv';
 import * as nodemailer from 'nodemailer';

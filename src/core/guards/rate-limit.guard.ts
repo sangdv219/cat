@@ -26,8 +26,7 @@ export class RateLimitGuard implements CanActivate {
     );
     if (!rateLimit) return true;
 
-    const redisKey =
-      this.reflector.get<string>(REDIS_KEY, context.getHandler()) ?? '';
+    const redisKey = this.reflector.get<string>(REDIS_KEY, context.getHandler()) ?? '';
     if (!redisKey) return true;
     const ip = request.ip;
     const key = `${redisKey}:${ip}`;

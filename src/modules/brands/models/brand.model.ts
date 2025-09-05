@@ -7,7 +7,7 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
-import { BRAND_ENTITY } from '../../constants/brand.constant';
+import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant';
 
 @Table({
   tableName: BRAND_ENTITY.TABLE_NAME,

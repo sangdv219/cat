@@ -9,7 +9,6 @@ import { PgErrorCode } from "../enum/pg-error-codes.enum";
 export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseResponse<T>> {
     intercept(context: ExecutionContext, next: CallHandler): Observable<BaseResponse<T>> | Promise<Observable<BaseResponse<T>>> {
 
-        const response = context.switchToHttp().getResponse();
         return next
             .handle()
             .pipe(

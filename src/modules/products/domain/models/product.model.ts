@@ -1,4 +1,4 @@
-import { BrandModel } from '@/modules/brands/domain/models/brand.model';
+import { BrandModel } from '@/modules/brands/models/brand.model';
 import { CategoryModel } from '@/modules/categories/domain/models/category.model';
 import { PRODUCT_ENTITY } from '@/modules/products/constants/product.constant';
 import {
