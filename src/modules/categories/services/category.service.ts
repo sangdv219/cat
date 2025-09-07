@@ -6,9 +6,11 @@ import { Injectable } from '@nestjs/common';
 import { CATEGORY_ENTITY } from '../constants/category.constant';
 import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '../DTO/category.request.dto';
 import { PostgresCategoryRepository } from '../infrastructure/repository/postgres-category.repository';
+import { GetByIdCategoryResponseDto } from '../DTO/category.response.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
-export class CategoryService extends BaseService<CategoryModel, CreatedCategoryRequestDto, UpdatedCategoryRequestDto> {
+export class CategoryService extends BaseService<CategoryModel, CreatedCategoryRequestDto, UpdatedCategoryRequestDto, GetByIdCategoryResponseDto> {
   protected entityName: string;
   private categorys: string[] = [];
   constructor(
@@ -48,5 +50,15 @@ export class CategoryService extends BaseService<CategoryModel, CreatedCategoryR
   protected async moduleDestroy() {
     this.categorys = [];
     console.log('🗑️onModuleDestroy -> categorys: ', this.categorys);
+  }
+
+  async getById(id: string): Promise<GetByIdCategoryResponseDto> {
+    const category = await this.repository.findOne(id);
+    if(!category) throw new Error('Category not found');
+    const categoryId = category.id;
+    const products = await this.postgresProductRepository.findByField('category_id',categoryId);
+    const dto = plainToInstance(GetByIdCategoryResponseDto, category, { excludeExtraneousValues: true });
+    dto.products = products;
+    return dto;
   }
 }

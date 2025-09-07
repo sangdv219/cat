@@ -1,10 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsOptional } from 'class-validator';
 
 export class CreatedUserAuthRequestDto {
   email: string;
 
-  isRoot: boolean;
+  is_root: boolean;
 
   @IsOptional()
   password_hash?: string;

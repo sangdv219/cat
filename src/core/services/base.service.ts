@@ -11,7 +11,7 @@ import {
   OnModuleInit
 } from '@nestjs/common';
 import { IBaseRepository } from '@core/repositories/base.repository';
-export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, TUpdateDto extends Partial<TEntity>> implements
+export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, TUpdateDto extends Partial<TEntity>, GetByIdResponseDto extends Partial<TEntity>> implements
   OnModuleInit,
   OnApplicationBootstrap,
   BeforeApplicationShutdown,
@@ -74,12 +74,12 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
     return await this.repository.update(id, modifyDto);
   }
 
-  async getById(id: string): Promise<TEntity | null> {
+  async getById(id: string): Promise<GetByIdResponseDto | null> {
     const entity = await this.repository.findOne(id);
     if (!entity) {
       throw new NotFoundException(`${this.entityName} with id ${id} not found`);
     }
-    return entity;
+    return entity as GetByIdResponseDto;
   }
 
   async cleanCacheRedis() {

@@ -3,6 +3,7 @@ import { JWTAuthGuard } from '@/core/guards/jwt.guard';
 import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
+import { GetByIdUserAdminResponseDto } from '@/modules/users/DTO/user.admin.response.dto';
 import { BaseGetResponse } from '@/shared/interface/common';
 import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '@modules/brands/DTO/brand.request.dto';
 import { BrandModel } from '@modules/brands/models/brand.model';
@@ -24,6 +25,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { GetByIdBrandResponseDto } from '../DTO/brand.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('admin/brand')
@@ -46,7 +48,7 @@ export class BrandAdminController {
 
   @Get(':id')
   @UseGuards(JWTAuthGuard)
-  async getBrandById(@Param('id') id: string): Promise<BrandModel | null> {
+  async getBrandById(@Param('id') id: string): Promise<GetByIdBrandResponseDto | null> {
     try {
       return await this.userService.getById(id);
     } catch (error) {

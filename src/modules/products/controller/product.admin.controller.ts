@@ -24,6 +24,7 @@ import {
     UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { GetByIdProductResponseDto } from '../DTO/product.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('admin/products')
@@ -46,7 +47,7 @@ export class ProductAdminController {
 
   @Get(':id')
   @UseGuards(JWTAuthGuard)
-  async getProductById(@Param('id') id: string): Promise<ProductModel | null> {
+  async getProductById(@Param('id') id: string): Promise<GetByIdProductResponseDto | null> {
     try {
       return await this.userService.getById(id);
     } catch (error) {

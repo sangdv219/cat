@@ -9,6 +9,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const response = ctx.getResponse<Response>();
         let statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
         let message
+        
         if (exception instanceof HttpException) {
             const errorResponse = exception.getResponse();
             statusCode = exception.getStatus();
@@ -16,7 +17,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
         } else if (exception?.name === 'SequelizeUniqueConstraintError' || exception?.code === '23505') {
             statusCode = HttpStatus.CONFLICT;
             message = 'Duplicate value violates unique constraint';
+        } else if (exception instanceof TypeError) {
+            statusCode = HttpStatus.BAD_REQUEST;
+            message = exception.message || 'Bad Request';
+        } else {
+            message = exception?.message || 'Internal server error';
         }
+        // console.error(`Error occurred processing request to ${request.url}:`, exception);
 
         response.status(statusCode).json({
             message,

@@ -22,6 +22,7 @@ import {
     UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { GetByIdCategoryResponseDto } from '../DTO/category.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('app/categories')
@@ -42,7 +43,7 @@ export class CategoryAppController {
   }
 
   @Get(':id')
-  async getCategoryById(@Param('id') id: string): Promise<CategoryModel | null> {
+  async getCategoryById(@Param('id') id: string): Promise<GetByIdCategoryResponseDto | null> {
     try {
       return await this.userService.getById(id);
     } catch (error) {

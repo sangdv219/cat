@@ -27,7 +27,7 @@ export interface IPaginationDTO {
 export interface IBaseRepository<T> {
   getAll(): Promise<T[]>;
   findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>;
-  findByField<K extends keyof T>(field: K, value: T[K]): Promise<T[K][]>;
+  findByField<K extends keyof T>(field: K, value: T[K]): Promise<any>;
   findOne(id: string): Promise<T | null>;
   findOneByRaw(condition: Record<string, any>): Promise<T | null>;
   create(payload: Partial<T>): Promise<BaseResponse<T>>;
@@ -73,8 +73,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return { items, total };
   }
 
-  async findByField<K extends keyof T>(field: K, value: T[K]): Promise<T[K][]> {
-    console.log("field: ", field);
+  async findByField<K extends keyof T>(field: K, value: T[K]): Promise<any> {
     const records = await this.model.findAll({
       where:{
         [field as string]: value
@@ -82,7 +81,6 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       raw: true,
       // attributes: [field as string],
     });
-    console.log("records: ", records);
     return records as unknown as T[K][];
   }
 

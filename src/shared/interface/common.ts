@@ -9,3 +9,10 @@ export interface BaseResponse<T> {
     message: string;
     records: T;
 }
+
+export class BaseAuditTableEntity{
+  createdAt?: Date;
+  updatedAt?: Date;
+  createdBy?: string;
+  updatedBy?: string;
+}

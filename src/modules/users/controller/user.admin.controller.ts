@@ -22,6 +22,7 @@ import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
 import { UserModel } from '../domain/models/user.model';
 import { UserService } from '../services/user.service';
+import { GetByIdUserAdminResponseDto } from '../DTO/user.admin.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('user-admin')
@@ -45,7 +46,7 @@ export class UserAdminController {
 
   @Get(':id')
   // @UseGuards(JWTAuthGuard)
-  async getUserAdminById(@Param('id') id: string): Promise<UserModel | null> {
+  async getUserAdminById(@Param('id') id: string): Promise<GetByIdUserAdminResponseDto | null> {
     try {
       return await this.userService.getById(id);
     } catch (error) {

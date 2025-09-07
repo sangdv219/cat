@@ -22,6 +22,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
+import { GetByIdBrandResponseDto } from '../DTO/brand.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('app/brand')
@@ -44,7 +45,7 @@ export class BrandAppController {
 
   @Get(':id')
   // @UseGuards(JWTAuthGuard)
-  async getBrandById(@Param('id') id: string): Promise<BrandModel | null> {
+  async getBrandById(@Param('id') id: string): Promise<GetByIdBrandResponseDto | null> {
     try {
       return await this.userService.getById(id);
     } catch (error) {

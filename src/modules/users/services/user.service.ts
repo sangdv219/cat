@@ -10,9 +10,10 @@ import {
 import { CreatedUserAuthRequestDto } from '../DTO/user-auth.request.dto';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
 import { PostgresUserRepository } from '../repository/user.admin.repository';
+import { GetByIdUserAdminResponseDto } from '../DTO/user.admin.response.dto';
 
 @Injectable()
-export class UserService extends BaseService<UserModel, CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto> {
+export class UserService extends BaseService<UserModel, CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto, GetByIdUserAdminResponseDto> {
   protected entityName: string;
   private users: string[] = [];
   constructor(
@@ -90,9 +91,7 @@ export class UserService extends BaseService<UserModel, CreatedUserAdminRequestD
     };
   }
 
-  async createUserWithEmailOnly(
-    body: CreatedUserAuthRequestDto,
-  ): Promise<Promise<UpdateCreateResponse<UserModel>>> {
+  async createUserWithEmailOnly(body: CreatedUserAuthRequestDto): Promise<Promise<UpdateCreateResponse<UserModel>>> {
     const existsEmail = await this.userRepository.checkExistsField({
       email: { value: body.email, mode: 'equal' },
     });
@@ -100,6 +99,7 @@ export class UserService extends BaseService<UserModel, CreatedUserAdminRequestD
       throw new ConflictException('Email already exists');
     }
     const result = await this.userRepository.create(body);
+    console.log("body: ", body);
     return {
       success: true,
       data: result.id,
