@@ -1,7 +1,7 @@
 import { UpdateCreateResponse } from '@/core/repositories/base.repository';
 import { BaseService } from '@/core/services/base.service';
-import { UserModel } from '@/modules/users/domain/models/user.model';
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
+import { UserModel } from '@/modules/users/domain/models/user.model';
 import {
   ConflictException,
   Injectable,
@@ -9,11 +9,16 @@ import {
 } from '@nestjs/common';
 import { CreatedUserAuthRequestDto } from '../DTO/user-auth.request.dto';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
+import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../DTO/user.admin.response.dto';
 import { PostgresUserRepository } from '../repository/user.admin.repository';
-import { GetByIdUserAdminResponseDto } from '../DTO/user.admin.response.dto';
 
 @Injectable()
-export class UserService extends BaseService<UserModel, CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto, GetByIdUserAdminResponseDto> {
+export class UserService extends 
+BaseService<UserModel, 
+CreatedUserAdminRequestDto, 
+UpdatedUserAdminRequestDto, 
+GetByIdUserAdminResponseDto, 
+GetAllUserAdminResponseDto> {
   protected entityName: string;
   private users: string[] = [];
   constructor(

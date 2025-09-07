@@ -1,6 +1,6 @@
 import { Expose } from "class-transformer";
 
-export class CreatedUserAdminResponseDto {
+export class UserAdminBaseDto {
   @Expose()
   name: string;
 
@@ -9,18 +9,26 @@ export class CreatedUserAdminResponseDto {
 
   @Expose() 
   is_public: boolean = false;
-
-  @Expose()
-  created_at?: Date;
-
-  @Expose()
-  updated_at?: Date;
 }
 
-export class GetByIdUserAdminResponseDto extends CreatedUserAdminResponseDto {
-//   @Expose()
-//   products: UserAdminModel[]
+export class GetAllUserAdminResponseDto {
+  @Expose()
+  items: UserAdminBaseDto[];
 
-  // @Exclude()
-  // id: string;
+  @Expose()
+  totalRecord: number;
+}
+
+export class CreatedUserAdminReponseDto extends UserAdminBaseDto {
+  @Expose()
+  created_at: Date;
+  
+  @Expose()
+  updated_at: Date;
+}
+
+
+export class GetByIdUserAdminResponseDto extends CreatedUserAdminReponseDto {
+  @Expose()
+  products: UserAdminBaseDto[];
 }

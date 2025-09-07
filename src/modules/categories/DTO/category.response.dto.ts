@@ -1,27 +1,40 @@
-import { ProductModel } from '@/modules/products/domain/models/product.model';
+import { ProductResponseDto } from '@/modules/products/DTO/product.response.dto';
 import { Expose } from 'class-transformer';
 
-export class CreatedCategoryResponseDto {
+export class CategoryBaseDto {
+  @Expose()
+  id: string;
+
   @Expose()
   name: string;
 
   @Expose()
   image: string;
 
-  @Expose() 
-  is_public: boolean = false;
-
   @Expose()
-  created_at?: Date;
+  is_public: boolean;
 
-  @Expose()
-  updated_at?: Date;
 }
 
-export class GetByIdCategoryResponseDto extends CreatedCategoryResponseDto {
+export class GetAllCategoryResponseDto {
   @Expose()
-  products: ProductModel[]
+  items: CategoryBaseDto[];
 
-  // @Exclude()
-  // id: string;
+  @Expose()
+  totalRecord: number;
 }
+
+export class CreatedCategoryReponseDto extends CategoryBaseDto {
+  @Expose()
+  created_at: Date;
+  
+  @Expose()
+  updated_at: Date;
+}
+
+
+export class GetByIdCategoryResponseDto extends CreatedCategoryReponseDto {
+  @Expose()
+  products: ProductResponseDto[];
+}
+

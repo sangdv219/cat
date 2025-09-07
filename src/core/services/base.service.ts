@@ -2,6 +2,7 @@ import { CacheVersionService } from '@/modules/common/services/cache-version.ser
 import { sensitiveFields } from '@/shared/config/sensitive-fields.config';
 import { RedisContext } from '@/shared/redis/enums/redis-key.enum';
 import { buildRedisKeyQuery } from '@/shared/redis/helpers/redis-key.helper';
+import { IBaseRepository } from '@core/repositories/base.repository';
 import {
   BeforeApplicationShutdown,
   Logger,
@@ -10,8 +11,14 @@ import {
   OnModuleDestroy,
   OnModuleInit
 } from '@nestjs/common';
-import { IBaseRepository } from '@core/repositories/base.repository';
-export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, TUpdateDto extends Partial<TEntity>, GetByIdResponseDto extends Partial<TEntity>> implements
+export abstract class BaseService<
+TEntity, 
+TCreateDto extends Partial<TEntity>, 
+TUpdateDto extends Partial<TEntity>, 
+GetByIdResponseDto extends Partial<TEntity>,
+GetAllResponseDto 
+> 
+implements
   OnModuleInit,
   OnApplicationBootstrap,
   BeforeApplicationShutdown,
@@ -41,7 +48,7 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
     await this.moduleDestroy();
   }
 
-  async getPagination(query) {
+  async getPagination(query): Promise<GetAllResponseDto> {
 
     const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST, query);
 
@@ -59,7 +66,7 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
 
     await this.cacheManage.set(redisKey, JSON.stringify(response), 'EX', 300);
 
-    return response;
+    return response as GetAllResponseDto;
   }
 
   create(dto: TCreateDto) {
@@ -67,7 +74,7 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
     return this.repository.create(dto);
   }
 
-  async update(id: string, dto: TUpdateDto) {
+  async update(id: string, dto: TUpdateDto): Promise<void> {
     this.getById(id)
     this.cleanCacheRedis()
     const modifyDto = { ...dto, updated_at: new Date() };
@@ -87,7 +94,7 @@ export abstract class BaseService<TEntity, TCreateDto extends Partial<TEntity>, 
     await this.cacheManage.delCache(keyCacheListByBrand);
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(id: string){
     await this.cleanCacheRedis();
     await this.getById(id);
     await this.repository.delete(id);

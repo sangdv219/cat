@@ -5,10 +5,15 @@ import { PostgresBrandRepository } from '../infrastructure/repository/postgres-b
 import { BaseService } from '@/core/services/base.service';
 import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant';
 import { BrandModel } from '@modules/brands/models/brand.model';
-import { GetByIdBrandResponseDto } from '../DTO/brand.response.dto';
+import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '../DTO/brand.response.dto';
 
 @Injectable()
-export class BrandService extends BaseService<BrandModel, CreatedBrandRequestDto, UpdatedBrandRequestDto, GetByIdBrandResponseDto> {
+export class BrandService extends 
+BaseService<BrandModel, 
+CreatedBrandRequestDto, 
+UpdatedBrandRequestDto, 
+GetByIdBrandResponseDto,
+GetAllBrandResponseDto> {
   protected entityName: string;
   private brands: string[] = [];
   constructor(

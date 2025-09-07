@@ -8,12 +8,14 @@ import { PgErrorCode } from "../enum/pg-error-codes.enum";
 @Injectable()
 export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseResponse<T>> {
     intercept(context: ExecutionContext, next: CallHandler): Observable<BaseResponse<T>> | Promise<Observable<BaseResponse<T>>> {
+        // console.log("context: ", context);
 
         return next
             .handle()
             .pipe(
                 map(value => value && ({ records: value })),
                 catchError((err) => {
+                    console.log("err: ", err);
                     if (err instanceof HttpException) {
                         const status = err.getStatus();
                         const errorResponse = err.getResponse();
@@ -28,6 +30,17 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                                     timestamp: new Date().toISOString(),
                                 },
                                 status
+                            )
+                        );
+                    }else if (err instanceof TypeError) {
+                        return throwError(() =>
+                            new HttpException(
+                                {
+                                    statusCode: HttpStatus.BAD_REQUEST,
+                                    message: err.message || 'Bad Request',
+                                    timestamp: new Date().toISOString(),
+                                },
+                                HttpStatus.BAD_REQUEST
                             )
                         );
                     }

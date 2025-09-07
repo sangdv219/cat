@@ -22,7 +22,7 @@ import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
 import { UserModel } from '../domain/models/user.model';
 import { UserService } from '../services/user.service';
-import { GetByIdUserAdminResponseDto } from '../DTO/user.admin.response.dto';
+import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../DTO/user.admin.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('user-admin')
@@ -36,7 +36,7 @@ export class UserAdminController {
   @HttpCode(HttpStatus.OK)
   // @UseGuards(JWTAuthGuard)
   @CacheTTL(60)
-  async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<UserModel>> {
+  async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllUserAdminResponseDto> {
     try {
       return this.userService.getPagination(query);
     } catch (error) {

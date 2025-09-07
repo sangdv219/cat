@@ -2,27 +2,25 @@ import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
-import { BaseGetResponse } from '@/shared/interface/common';
-import { ProductModel } from '@modules/products/domain/models/product.model';
 import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@modules/products/DTO/product.request.dto';
 import { ProductService } from '@modules/products/services/product.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Param,
-    Patch,
-    Post,
-    Query,
-    UseFilters,
-    UseInterceptors
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseFilters,
+  UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetByIdProductResponseDto } from '../DTO/product.response.dto';
+import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../DTO/product.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('app/products')
@@ -34,7 +32,7 @@ export class ProductAppController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
-  async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<ProductModel>> {
+  async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllProductResponseDto> {
     try {
       return await this.userService.getPagination(query);
     } catch (error) {

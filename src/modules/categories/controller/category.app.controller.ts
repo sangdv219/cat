@@ -2,41 +2,39 @@ import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
-import { BaseGetResponse } from '@/shared/interface/common';
-import { CategoryModel } from '@modules/categories/domain/models/category.model';
-import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/DTO/category.request.dto';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@/modules/categories/dto/category.request.dto';
 import { CategoryService } from '@modules/categories/services/category.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Param,
-    Patch,
-    Post,
-    Query,
-    UseFilters,
-    UseInterceptors
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseFilters,
+  UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetByIdCategoryResponseDto } from '../DTO/category.response.dto';
+import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '../dto/category.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('app/categories')
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class CategoryAppController {
-  constructor(private readonly userService: CategoryService) { }
+  constructor(private readonly categoryService: CategoryService) { }
 
   @Get()
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
-  async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<CategoryModel>> {
+  async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllCategoryResponseDto> {
     try {
-      return await this.userService.getPagination(query);
+      return await this.categoryService.getPagination(query);
     } catch (error) {
       throw error;
     }
@@ -45,7 +43,7 @@ export class CategoryAppController {
   @Get(':id')
   async getCategoryById(@Param('id') id: string): Promise<GetByIdCategoryResponseDto | null> {
     try {
-      return await this.userService.getById(id);
+      return await this.categoryService.getById(id);
     } catch (error) {
       throw error;
     }
@@ -55,7 +53,7 @@ export class CategoryAppController {
   @Post()
   async create(@Body() createCategoryDto: CreatedCategoryRequestDto) {
     try {
-      return await this.userService.create(createCategoryDto);
+      return await this.categoryService.create(createCategoryDto);
     } catch (error) {
       throw error;
     }
@@ -65,7 +63,7 @@ export class CategoryAppController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateCategory(@Param('id') id: string, @Body() dto: UpdatedCategoryRequestDto) {
     try {
-      return await this.userService.update(id, dto);
+      return await this.categoryService.update(id, dto);
     } catch (error) {
       throw error;
     }
@@ -75,7 +73,7 @@ export class CategoryAppController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteCategory(@Param('id') id: string): Promise<void> {
     try {
-      return await this.userService.delete(id);
+      return await this.categoryService.delete(id);
     } catch (error) {
       throw error;
     }

@@ -4,13 +4,18 @@ import { CacheVersionService } from '@/modules/common/services/cache-version.ser
 import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable } from '@nestjs/common';
 import { CATEGORY_ENTITY } from '../constants/category.constant';
-import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '../DTO/category.request.dto';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '../dto/category.request.dto';
 import { PostgresCategoryRepository } from '../infrastructure/repository/postgres-category.repository';
-import { GetByIdCategoryResponseDto } from '../DTO/category.response.dto';
 import { plainToInstance } from 'class-transformer';
+import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '../dto/category.response.dto';
 
 @Injectable()
-export class CategoryService extends BaseService<CategoryModel, CreatedCategoryRequestDto, UpdatedCategoryRequestDto, GetByIdCategoryResponseDto> {
+export class CategoryService extends 
+BaseService<CategoryModel, 
+CreatedCategoryRequestDto, 
+UpdatedCategoryRequestDto, 
+GetByIdCategoryResponseDto, 
+GetAllCategoryResponseDto> {
   protected entityName: string;
   private categorys: string[] = [];
   constructor(
@@ -54,7 +59,7 @@ export class CategoryService extends BaseService<CategoryModel, CreatedCategoryR
 
   async getById(id: string): Promise<GetByIdCategoryResponseDto> {
     const category = await this.repository.findOne(id);
-    if(!category) throw new Error('Category not found');
+    if(!category) throw new TypeError('Category not found');
     const categoryId = category.id;
     const products = await this.postgresProductRepository.findByField('category_id',categoryId);
     const dto = plainToInstance(GetByIdCategoryResponseDto, category, { excludeExtraneousValues: true });

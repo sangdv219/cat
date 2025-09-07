@@ -1,5 +1,5 @@
 export class BaseGetResponse<T = any> {
-  data?: T;
+  items?: T;
   totalRecord?: number;
 }
 

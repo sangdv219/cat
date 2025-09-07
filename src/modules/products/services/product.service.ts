@@ -5,10 +5,15 @@ import { ProductModel } from '@/modules/products/domain/models/product.model';
 import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@/modules/products/DTO/product.request.dto';
 import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable } from '@nestjs/common';
-import { GetByIdProductResponseDto } from '../DTO/product.response.dto';
+import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../DTO/product.response.dto';
 
 @Injectable()
-export class ProductService extends BaseService<ProductModel, CreatedProductRequestDto, UpdatedProductRequestDto, GetByIdProductResponseDto> {
+export class ProductService extends 
+BaseService<ProductModel, 
+CreatedProductRequestDto, 
+UpdatedProductRequestDto, 
+GetByIdProductResponseDto,
+GetAllProductResponseDto> {
     protected entityName: string;
     private products: string[] = [];
     constructor(

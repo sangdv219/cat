@@ -5,7 +5,7 @@ import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
 import { BaseGetResponse } from '@/shared/interface/common';
 import { CategoryModel } from '@modules/categories/domain/models/category.model';
-import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/DTO/category.request.dto';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@/modules/categories/dto/category.request.dto';
 import { CategoryService } from '@modules/categories/services/category.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
@@ -24,7 +24,7 @@ import {
     UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetByIdCategoryResponseDto } from '../DTO/category.response.dto';
+import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '../dto/category.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('admin/categories')
@@ -37,7 +37,7 @@ export class CategoryAdminController {
   @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
-  async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<CategoryModel>> {
+  async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllCategoryResponseDto> {
     try {
       return await this.userService.getPagination(query);
     } catch (error) {

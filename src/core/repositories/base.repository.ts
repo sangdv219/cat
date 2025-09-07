@@ -31,7 +31,7 @@ export interface IBaseRepository<T> {
   findOne(id: string): Promise<T | null>;
   findOneByRaw(condition: Record<string, any>): Promise<T | null>;
   create(payload: Partial<T>): Promise<BaseResponse<T>>;
-  update(id: string, payload: Partial<T>): Promise<T>;
+  update(id: string, payload: Partial<T>): Promise<any>;
   delete(id: string): Promise<T>;
 }
 

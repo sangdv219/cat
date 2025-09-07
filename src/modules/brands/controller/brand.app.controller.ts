@@ -22,7 +22,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetByIdBrandResponseDto } from '../DTO/brand.response.dto';
+import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '../DTO/brand.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('app/brand')
@@ -35,7 +35,7 @@ export class BrandAppController {
 //   @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
-  async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<BrandModel>> {
+  async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllBrandResponseDto> {
     try {
       return await this.userService.getPagination(query);
     } catch (error) {

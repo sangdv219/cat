@@ -1,7 +1,9 @@
 import { Expose } from 'class-transformer';
-import { BrandModel } from '../models/brand.model';
 
-export class CreatedBrandResponseDto {
+export class BrandBaseDto {
+  @Expose()
+  id: string;
+
   @Expose()
   name: string;
 
@@ -10,18 +12,26 @@ export class CreatedBrandResponseDto {
 
   @Expose() 
   is_public: boolean = false;
-
-  @Expose()
-  created_at?: Date;
-
-  @Expose()
-  updated_at?: Date;
 }
 
-export class GetByIdBrandResponseDto extends CreatedBrandResponseDto {
+export class GetAllBrandResponseDto {
   @Expose()
-  products: BrandModel[]
+  items: BrandBaseDto[];
 
-  // @Exclude()
-  // id: string;
+  @Expose()
+  totalRecord: number;
+}
+
+export class CreatedBrandReponseDto extends BrandBaseDto {
+  @Expose()
+  created_at: Date;
+  
+  @Expose()
+  updated_at: Date;
+}
+
+
+export class GetByIdBrandResponseDto extends CreatedBrandReponseDto {
+  @Expose()
+  products: BrandBaseDto[];
 }

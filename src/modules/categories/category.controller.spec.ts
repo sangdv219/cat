@@ -5,7 +5,7 @@ import { CategoryController } from './controller/category.app.controller';
 import {
   CreatedCategoryRequestDto,
   UpdatedCategoryRequestDto,
-} from './DTO/category.request.dto';
+} from './dto/category.request.dto';
 import { CategoryService } from './services/category.service';
 
 // DTO và model giả định (thay theo dự án thật)
