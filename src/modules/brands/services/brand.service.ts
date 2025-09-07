@@ -19,15 +19,15 @@ export class BrandService extends BaseService<BrandModel, CreatedBrandRequestDto
   }
 
   protected async moduleInit() {
-    console.log('✅ Init brand cache...');
+    // console.log('✅ Init brand cache...');
     this.brands = ['Iphone', 'Galaxy'];
-    console.log('brand: ', this.brands);
+    // console.log('brand: ', this.brands);
   }
 
   protected async bootstrapLogic(): Promise<void> {
-    console.log(
-      '👉 OnApplicationBootstrap: BrandService bootstrap: preloading cache...',
-    );
+    // console.log(
+    //   '👉 OnApplicationBootstrap: BrandService bootstrap: preloading cache...',
+    // );
     //Bắt đầu chạy cron job đồng bộ tồn kho.
     //* Gửi log "App ready" cho monitoring system.
   }

@@ -1,10 +1,11 @@
+import { BaseService } from '@/core/services/base.service';
 import { CategoryModel } from '@/modules/categories/domain/models/category.model';
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
+import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable } from '@nestjs/common';
+import { CATEGORY_ENTITY } from '../constants/category.constant';
 import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '../DTO/category.request.dto';
 import { PostgresCategoryRepository } from '../infrastructure/repository/postgres-category.repository';
-import { BaseService } from '@/core/services/base.service';
-import { CATEGORY_ENTITY } from '../constants/category.constant';
 
 @Injectable()
 export class CategoryService extends BaseService<CategoryModel, CreatedCategoryRequestDto, UpdatedCategoryRequestDto> {
@@ -12,6 +13,7 @@ export class CategoryService extends BaseService<CategoryModel, CreatedCategoryR
   private categorys: string[] = [];
   constructor(
     protected repository: PostgresCategoryRepository,
+    protected postgresProductRepository: PostgresProductRepository,
     public cacheManage: CacheVersionService,
   ) {
     super();
@@ -19,15 +21,14 @@ export class CategoryService extends BaseService<CategoryModel, CreatedCategoryR
   }
 
   protected async moduleInit() {
-    console.log('✅ Init Category cache...');
+    // console.log('✅ Init Category cache...');
     this.categorys = ['Iphone', 'Galaxy'];
-    console.log('Category: ', this.categorys);
   }
 
   protected async bootstrapLogic(): Promise<void> {
-    console.log(
-      '👉 OnApplicationBootstrap: CategoryService bootstrap: preloading cache...',
-    );
+    // console.log(
+    //   '👉 OnApplicationBootstrap: CategoryService bootstrap: preloading cache...',
+    // );
     //Bắt đầu chạy cron job đồng bộ tồn kho.
     //* Gửi log "App ready" cho monitoring system.
   }

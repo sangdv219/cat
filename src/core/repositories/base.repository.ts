@@ -2,7 +2,8 @@ import { BaseResponse } from '@/shared/interface/common';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { UUID } from 'crypto';
-import { Op } from 'sequelize';
+import { raw } from 'express';
+import { Op, where } from 'sequelize';
 // import { BaseResponse } from '../interceptors/base-response.interceptor';
 
 export class UpdateCreateResponse<T = any> {
@@ -26,7 +27,7 @@ export interface IPaginationDTO {
 export interface IBaseRepository<T> {
   getAll(): Promise<T[]>;
   findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>;
-  findByField<K extends keyof T>(field: K): Promise<T[K][]>;
+  findByField<K extends keyof T>(field: K, value: T[K]): Promise<T[K][]>;
   findOne(id: string): Promise<T | null>;
   findOneByRaw(condition: Record<string, any>): Promise<T | null>;
   create(payload: Partial<T>): Promise<BaseResponse<T>>;
@@ -66,16 +67,23 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       where,
       order: [['created_at', 'DESC']],
       attributes: { exclude },
+      raw: true,
     });
 
     return { items, total };
   }
 
-  async findByField<K extends keyof T>(field: K): Promise<T[K][]> {
+  async findByField<K extends keyof T>(field: K, value: T[K]): Promise<T[K][]> {
+    console.log("field: ", field);
     const records = await this.model.findAll({
-      attributes: [field as string],
+      where:{
+        [field as string]: value
+      },
+      raw: true,
+      // attributes: [field as string],
     });
-    return records.map((r) => r.getDataValue(field));
+    console.log("records: ", records);
+    return records as unknown as T[K][];
   }
 
   async findOne(id): Promise<T | null> {
@@ -151,4 +159,3 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return !!exists;
   }
 }
-

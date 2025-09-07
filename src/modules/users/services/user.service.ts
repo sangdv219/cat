@@ -27,13 +27,13 @@ export class UserService extends BaseService<UserModel, CreatedUserAdminRequestD
   protected async moduleInit() {
     console.log('✅ Init user cache...');
     this.users = ['Iphone', 'Galaxy'];
-    console.log('user: ', this.users);
+    // console.log('user: ', this.users);
   }
 
   protected async bootstrapLogic(): Promise<void> {
-    console.log(
-      '👉 OnApplicationBootstrap: UserService bootstrap: preloading cache...',
-    );
+    // console.log(
+    //   '👉 OnApplicationBootstrap: UserService bootstrap: preloading cache...',
+    // );
     //Bắt đầu chạy cron job đồng bộ tồn kho.
     //* Gửi log "App ready" cho monitoring system.
   }

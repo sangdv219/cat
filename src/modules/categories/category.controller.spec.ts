@@ -1,7 +1,7 @@
 import { PaginationQueryDto } from '@/dto/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { CategoryController } from './controller/category.controller';
+import { CategoryController } from './controller/category.app.controller';
 import {
   CreatedCategoryRequestDto,
   UpdatedCategoryRequestDto,

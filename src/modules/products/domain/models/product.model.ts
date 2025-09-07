@@ -9,7 +9,8 @@ import {
   ForeignKey,
   Model,
   PrimaryKey,
-  Table
+  Table,
+  Unique,
 } from 'sequelize-typescript';
 
 @Table({
@@ -27,6 +28,11 @@ export class ProductModel extends Model {
   @Default('')
   @Column({ type: DataType.STRING(500) })
   name: string;
+  
+  @AllowNull(false)
+  @Unique(true)
+  @Column({ type: DataType.STRING(500) })
+  sku: string;
 
   @AllowNull(false)
   @Column({ type: DataType.DECIMAL(10,2) })

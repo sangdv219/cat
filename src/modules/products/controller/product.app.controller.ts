@@ -3,9 +3,9 @@ import { BaseResponseInterceptor } from '@/core/interceptors/base-response.inter
 import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
 import { BaseGetResponse } from '@/shared/interface/common';
-import { CategoryModel } from '@modules/categories/domain/models/category.model';
-import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/DTO/category.request.dto';
-import { CategoryService } from '@modules/categories/services/category.service';
+import { ProductModel } from '@modules/products/domain/models/product.model';
+import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@modules/products/DTO/product.request.dto';
+import { ProductService } from '@modules/products/services/product.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
     Body,
@@ -24,49 +24,46 @@ import {
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiBearerAuth('Authorization')
-@Controller('categories')
+@Controller('app/products')
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
-export class CategoryController {
-  constructor(private readonly userService: CategoryService) { }
+export class ProductAppController {
+  constructor(private readonly userService: ProductService) { }
 
   @Get()
-//   @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
-  async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<CategoryModel>> {
+  async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<ProductModel>> {
     try {
       return await this.userService.getPagination(query);
     } catch (error) {
       throw error;
     }
   }
-
+  
   @Get(':id')
-  // @UseGuards(JWTAuthGuard)
-  async getCategoryById(@Param('id') id: string): Promise<CategoryModel | null> {
+  async getProductById(@Param('id') id: string): Promise<ProductModel | null> {
     try {
       return await this.userService.getById(id);
     } catch (error) {
       throw error;
     }
   }
-
+  
   @HttpCode(HttpStatus.CREATED)
-  // @UseGuards(JWTAuthGuard)
   @Post()
-  async create(@Body() createCategoryDto: CreatedCategoryRequestDto) {
+  async create(@Body() createProductDto: CreatedProductRequestDto) {
     try {
-      return await this.userService.create(createCategoryDto);
+      return await this.userService.create(createProductDto);
     } catch (error) {
+      console.log("error: ", error);
       throw error;
     }
   }
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JWTAuthGuard)
-  async updateCategory(@Param('id') id: string, @Body() dto: UpdatedCategoryRequestDto) {
+  async updateProduct(@Param('id') id: string, @Body() dto: UpdatedProductRequestDto) {
     try {
       return await this.userService.update(id, dto);
     } catch (error) {
@@ -75,9 +72,8 @@ export class CategoryController {
   }
 
   @Delete(':id')
-  // @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteCategory(@Param('id') id: string): Promise<void> {
+  async deleteProduct(@Param('id') id: string): Promise<void> {
     try {
       return await this.userService.delete(id);
     } catch (error) {

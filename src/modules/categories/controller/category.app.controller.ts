@@ -3,38 +3,37 @@ import { BaseResponseInterceptor } from '@/core/interceptors/base-response.inter
 import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
 import { BaseGetResponse } from '@/shared/interface/common';
-import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '@modules/brands/DTO/brand.request.dto';
-import { BrandModel } from '@modules/brands/models/brand.model';
-import { BrandService } from '@modules/brands/services/brand.service';
+import { CategoryModel } from '@modules/categories/domain/models/category.model';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/DTO/category.request.dto';
+import { CategoryService } from '@modules/categories/services/category.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Param,
-  Patch,
-  Post,
-  Query,
-  UseFilters,
-  UseInterceptors
+    Body,
+    Controller,
+    Delete,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Param,
+    Patch,
+    Post,
+    Query,
+    UseFilters,
+    UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiBearerAuth('Authorization')
-@Controller('brand')
+@Controller('app/categories')
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
-export class BrandController {
-  constructor(private readonly userService: BrandService) { }
+export class CategoryAppController {
+  constructor(private readonly userService: CategoryService) { }
 
   @Get()
-//   @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
-  async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<BrandModel>> {
+  async getPagination(@Query() query: PaginationQueryDto): Promise<BaseGetResponse<CategoryModel>> {
     try {
       return await this.userService.getPagination(query);
     } catch (error) {
@@ -43,8 +42,7 @@ export class BrandController {
   }
 
   @Get(':id')
-  // @UseGuards(JWTAuthGuard)
-  async getBrandById(@Param('id') id: string): Promise<BrandModel | null> {
+  async getCategoryById(@Param('id') id: string): Promise<CategoryModel | null> {
     try {
       return await this.userService.getById(id);
     } catch (error) {
@@ -53,11 +51,10 @@ export class BrandController {
   }
 
   @HttpCode(HttpStatus.CREATED)
-  // @UseGuards(JWTAuthGuard)
   @Post()
-  async create(@Body() createBrandDto: CreatedBrandRequestDto) {
+  async create(@Body() createCategoryDto: CreatedCategoryRequestDto) {
     try {
-      return await this.userService.create(createBrandDto);
+      return await this.userService.create(createCategoryDto);
     } catch (error) {
       throw error;
     }
@@ -65,8 +62,7 @@ export class BrandController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JWTAuthGuard)
-  async updateBrand(@Param('id') id: string, @Body() dto: UpdatedBrandRequestDto) {
+  async updateCategory(@Param('id') id: string, @Body() dto: UpdatedCategoryRequestDto) {
     try {
       return await this.userService.update(id, dto);
     } catch (error) {
@@ -75,9 +71,8 @@ export class BrandController {
   }
 
   @Delete(':id')
-  // @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteBrand(@Param('id') id: string): Promise<void> {
+  async deleteCategory(@Param('id') id: string): Promise<void> {
     try {
       return await this.userService.delete(id);
     } catch (error) {

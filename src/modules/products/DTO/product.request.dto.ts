@@ -10,7 +10,12 @@ import {
 } from 'class-validator';
 
 export class CreatedProductRequestDto {
-  @ApiProperty({ description: 'user', example: 'user' })
+  @ApiProperty({ description: 'sku', example: 'sku123' })
+  @IsNotEmpty({ message: 'sku is required' })
+  @MinLength(3)
+  sku: string;
+
+  @ApiProperty({ description: 'Name', example: 'Product Name' })
   @IsNotEmpty({ message: 'Name is required' })
   @MinLength(3)
   name: string;
@@ -31,7 +36,7 @@ export class CreatedProductRequestDto {
   @Max(5)
   evaluate: number;
 
-  @ApiProperty({ description: 'category_id', example: 'a129aada-2cef-4f18-a237-5a33598c30e6' })
+  @ApiProperty({ description: 'category_id', example: 'a6bfb629-2e5d-46c4-80a4-f6a338b0187a' })
   @IsNotEmpty()
   category_id: string;
 

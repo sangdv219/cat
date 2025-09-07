@@ -18,6 +18,7 @@ export class EmailService {
       rejectUnauthorized: false, // tránh lỗi SSL trong dev
     },
   });
+  
   async sendRegistrationEmail(email: string, otp: number): Promise<void> {
     await this.transporter.sendMail({
       from: `"Fintech App" <${process.env.SMTP_USER}>`,

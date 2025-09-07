@@ -1,7 +1,7 @@
 import { PaginationQueryDto } from '@/dto/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { BrandController } from './controller/brand.controller';
+import { BrandController } from './controller/brand.app.controller';
 import {
   CreatedBrandRequestDto,
   UpdatedBrandRequestDto,

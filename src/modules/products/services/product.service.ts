@@ -19,15 +19,15 @@ export class ProductService extends BaseService<ProductModel, CreatedProductRequ
     }
 
     protected async moduleInit() {
-        console.log('✅ Init product cache...');
+        // console.log('✅ Init product cache...');
         this.products = ['Iphone', 'Galaxy'];
-        console.log('product: ', this.products);
+        // console.log('product: ', this.products);
     }
 
     protected async bootstrapLogic(): Promise<void> {
-        console.log(
-            '👉 OnApplicationBootstrap: ProductService bootstrap: preloading cache...',
-        );
+        // console.log(
+        //     '👉 OnApplicationBootstrap: ProductService bootstrap: preloading cache...',
+        // );
     }
 
     protected async beforeAppShutDown(signal): Promise<void> {

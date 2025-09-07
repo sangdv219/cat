@@ -7,8 +7,8 @@ export const emailWorker = new Worker(
     'email-queue',
     async (job: Job) => {
         if (job.name === 'sendMail') {
-            const { to, subject } = job.data;
-            await emailService.sendRegistrationEmail(to, subject);
+            const { to, otp } = job.data;
+            await emailService.sendRegistrationEmail(to, otp);
             console.log(`📧 Sending email to ${job.data.to} with subject: ${job.data.subject}`);
             // TODO: gọi service gửi email thật
         }

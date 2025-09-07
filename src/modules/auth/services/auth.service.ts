@@ -206,8 +206,8 @@ export class AuthService implements OnModuleInit {
       const lastTime = cache.lastTime;
       if (sendCount <= Number(limitSendEmail)) {
         if (now >= lastTime) {
-          console.log('____');
-          this.emailQueueService.addSendMailJob(email, 'Mã OTP xác thực tài khoản');
+          console.log("otp: ", otp);
+          this.emailQueueService.addSendMailJob(email, otp);
           // await this.emailService.sendRegistrationEmail(email, otp);
           const updatedOtpCache = Object.assign({}, otpCache, {
             sendCount: sendCount + 1,

@@ -9,12 +9,13 @@ import { config } from 'dotenv';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
 import { BrandModule } from '../brands/brand.module';
 import { CategoryModule } from '../categories/category.module';
-import { ProductController } from './controller/product.controller';
+import { ProductAppController } from './controller/product.app.controller';
+import { ProductAdminController } from './controller/product.admin.controller';
 
 config();
 @Module({
-  imports: [SequelizeModule.forFeature([ProductModel]), CommonModule, CategoryModule, BrandModule],
-  controllers: [ProductController],
+  imports: [SequelizeModule.forFeature([ProductModel]), CommonModule, BrandModule],
+  controllers: [ProductAppController, ProductAdminController],
   providers: [
     PostgresProductRepository,
     ProductService,

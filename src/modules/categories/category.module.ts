@@ -4,15 +4,18 @@ import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { config } from 'dotenv';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
-import { CategoryController } from './controller/category.controller';
 import { CategoryModel } from './domain/models/category.model';
 import { PostgresCategoryRepository } from './infrastructure/repository/postgres-category.repository';
 import { CategoryService } from './services/category.service';
+import { CategoryAppController } from './controller/category.app.controller';
+import { CategoryAdminController } from './controller/category.admin.controller';
+import { ProductModule } from '../products/product.module';
+import { PostgresProductRepository } from '../products/infrastructure/repository/postgres-product.repository';
 
 config();
 @Module({
-  imports: [SequelizeModule.forFeature([CategoryModel]), CommonModule],
-  controllers: [CategoryController],
+  imports: [SequelizeModule.forFeature([CategoryModel]), CommonModule, ProductModule ],
+  controllers: [CategoryAppController, CategoryAdminController],
   providers: [
     PostgresCategoryRepository,
     CategoryService,
