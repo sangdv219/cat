@@ -12,6 +12,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { redisStore } from 'cache-manager-ioredis-yet';
 import { AppController } from './app.controller';
 import { BullmqModule } from './shared/bullmq/bullmq.module';
+import { CartModule } from './modules/cart/cart.module';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
 @Module({
@@ -42,6 +43,7 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
     BrandModule,
     CategoryModule,
     ProductModule,
+    CartModule,
     BullmqModule
   ],
   controllers: [AppController],
