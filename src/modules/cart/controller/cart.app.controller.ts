@@ -23,7 +23,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetAllCartResponseDto, GetByIdCartResponseDto } from '../dto/cart.response.dto';
 
 @ApiBearerAuth('Authorization')
-@Controller('app/categories')
+@Controller('app/cart')
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class CartAppController {

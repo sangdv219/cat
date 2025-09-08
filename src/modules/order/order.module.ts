@@ -3,30 +3,23 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { config } from 'dotenv';
-import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
+import { OrderItemsModel } from '../brands/models/order_items.model';
+import { OrdersModel } from '../brands/models/orders.model';
 import { ProductModule } from '../products/product.module';
 import { OrderAppController } from './controller/order.app.controller';
-import { CartsModel } from './domain/models/order.model';
 import { PostgresOrderRepository } from './infrastructure/repository/postgres-order.repository';
-import { CartItemsModel } from '../brands/models/cart_items.model';
 import { OrderService } from './services/order.service';
+import { PaymentsModel } from '../brands/models/payment.model';
 
 config();
 @Module({
-  imports: [SequelizeModule.forFeature([CartsModel, CartItemsModel]), CommonModule, ProductModule ],
+  imports: [SequelizeModule.forFeature([OrdersModel, PaymentsModel, OrderItemsModel]), CommonModule, ProductModule ],
   controllers: [OrderAppController],
   providers: [
     OrderService,
     JwtModule,
-    {
-      provide: 'TokenSecretResolver',
-      useClass: DefaultTokenSecretResolverStrategy,
-    },
-    {
-      provide: 'ICartCheckerService',
-      useClass: OrderService,
-    }
+    PostgresOrderRepository
   ],
-  exports: [PostgresOrderRepository, OrderService, 'ICartCheckerService'],
+  exports: [PostgresOrderRepository, OrderService],
 })
-export class CartModule {}
+export class OrderModule {}

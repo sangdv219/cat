@@ -1,20 +1,16 @@
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import {
-  IsBoolean,
   IsNotEmpty,
   IsOptional
 } from 'class-validator';
 
 export class CreatedCartRequestDto {
-  @ApiProperty({ description: 'Cart', example: 'Cart' })
-  @IsNotEmpty({ message: 'Name is required' })
-  name: string;
-  
-  @ApiProperty({ description: 'user_id', example: 'user-123' })
+  @ApiProperty({ description: 'user_id', example: 'b4e9f330-4665-4973-a30b-66d22ee7e07b' })
   @IsNotEmpty({ message: 'user_id is required' })
   user_id: string;
 
   @ApiProperty({ description: 'status', example: 'active' })
+  @IsOptional()
   status: string;
 
   @IsOptional()

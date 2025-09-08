@@ -8,9 +8,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { config } from 'dotenv';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
 import { BrandModule } from '../brands/brand.module';
-import { CategoryModule } from '../categories/category.module';
-import { ProductAppController } from './controller/product.app.controller';
 import { ProductAdminController } from './controller/product.admin.controller';
+import { ProductAppController } from './controller/product.app.controller';
 
 config();
 @Module({
