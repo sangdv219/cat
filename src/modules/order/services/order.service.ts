@@ -8,6 +8,8 @@ import { CreatedOrderRequestDto, UpdatedOrderRequestDto } from '../dto/order.req
 import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '../dto/order.response.dto';
 import { PostgresOrderRepository } from '../infrastructure/repository/postgres-order.repository';
 import { OrderQueue } from '../queues/order.queue';
+import { Worker } from 'bullmq';
+import { connection } from '@/shared/bullmq/bullmq.config';
 
 @Injectable()
 export class OrderService extends 
@@ -18,6 +20,8 @@ GetByIdOrderResponseDto,
 GetAllOrderResponseDto> {
   protected entityName: string;
   private Orders: string[] = [];
+  private worker: Worker;
+
   constructor(
     protected repository: PostgresOrderRepository,
     protected postgresProductRepository: PostgresProductRepository,
@@ -27,9 +31,12 @@ GetAllOrderResponseDto> {
     super();
     this.entityName = ORDER_ENTITY.NAME;
   }
-
+  
   protected async moduleInit() {
-    // console.log('✅ Init Order cache...');
+    this.worker = new Worker('order-queue', async (job) => {
+      console.log('Processing job', job.id);
+    }, connection);
+    console.log('✅ Init Order cache...');
     this.Orders = ['Iphone', 'Galaxy'];
   }
 
@@ -51,6 +58,7 @@ GetAllOrderResponseDto> {
   private async stopJob() {
     console.log('logic dừng cron job: ');
     console.log('* Ngắt kết nối queue worker: ');
+    await this.worker.close(); //nếu không đóng kết nối, process có thể treo (pending connections).
   }
 
   protected async moduleDestroy() {
@@ -61,10 +69,12 @@ GetAllOrderResponseDto> {
   async create(dto: CreatedOrderRequestDto) {
     this.cleanCacheRedis();
     this.orderQueue.addOrderJob(dto);
-    // const order = plainToInstance(OrdersModel, dto);
-    // return await this.repository.create(order);
   }
 
+  async persistOrder(dto: CreatedOrderRequestDto){
+    const order = this.repository.create(dto);
+    return order;
+  }
   // async getById(id: string): Promise<GetByIdOrderResponseDto> {
   //   const Order = await this.repository.findOne(id);
   //   if(!Order) throw new TypeError('Order not found');

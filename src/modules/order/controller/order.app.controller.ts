@@ -59,6 +59,18 @@ export class OrderAppController {
     }
   }
 
+  @HttpCode(HttpStatus.CREATED)
+  @Post('persist')
+  async persist(@Body() createOrderDto: CreatedOrderRequestDto) {
+    try {
+      return await this.orderService.persistOrder(createOrderDto);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  
+
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateOrder(@Param('id') id: string, @Body() dto: UpdatedOrderRequestDto) {
