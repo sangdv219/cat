@@ -13,12 +13,12 @@ export class CreatedOrderRequestDto {
   @IsNotEmpty({ message: 'user_id is required' })
   user_id: string;
 
-  @IsNotEmpty({ message: 'user_id is required' })
-  @ApiProperty({ description: 'status', example: true })
-  status: string
+  @IsNotEmpty({ message: 'status is required', always: true })
+  @ApiProperty({ description: 'status', example: 'pending' })
+  status: string;
 
   @IsNotEmpty({ message: 'user_id is required' })
-  @ApiProperty({ description: 'total_amount', example: '100.00' })
+  @ApiProperty({ description: 'total_amount', example: 100.00 })
   total_amount: number;
 
   @IsOptional()

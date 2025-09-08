@@ -1,3 +1,4 @@
+import { EmailQueueService } from '@/modules/auth/queues/email.queue';
 import { LoginDto } from '@/modules/auth/DTO/login.dto';
 import { LoginResponseDto } from '@/modules/auth/interface/login.interface';
 import { RefreshTokenResponseDto } from '@/modules/auth/interface/refreshToken.interface';
@@ -18,11 +19,9 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 import { config } from 'dotenv';
 import Redis from 'ioredis';
-import { Queue, Worker, Job, SandboxedJob } from 'bullmq';
 import { RegisterDto } from '../DTO/register.dto';
 import { EmailService } from './mail.service';
 import { OTPService } from './OTP.service';
-import { EmailQueueService } from '@/jobs/queues/email.queue';
 
 config();
 @Injectable()
@@ -30,7 +29,6 @@ export class AuthService implements OnModuleInit {
   constructor(
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
-    private readonly emailService: EmailService,
     private readonly emailQueueService: EmailQueueService,
     private readonly OTPService: OTPService,
     @InjectModel(UserModel)
@@ -176,7 +174,6 @@ export class AuthService implements OnModuleInit {
     const redis = new Redis();
 
     const existingUser = await this.findEmail(email);
-    console.log("existingUser: ", existingUser);
 
     if (existingUser) {
       throw new UnauthorizedException('Email already exists in system');
@@ -206,6 +203,7 @@ export class AuthService implements OnModuleInit {
       const lastTime = cache.lastTime;
       if (sendCount <= Number(limitSendEmail)) {
         if (now >= lastTime) {
+          console.log("Gửi email: ", email, otp);
           this.emailQueueService.addSendMailJob(email, otp);
           const updatedOtpCache = Object.assign({}, otpCache, {
             sendCount: sendCount + 1,

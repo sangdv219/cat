@@ -74,7 +74,7 @@ implements
     return this.repository.create(dto);
   }
 
-  async update(id: string, dto: TUpdateDto): Promise<void> {
+  async update(id: string, dto: TUpdateDto){
     this.getById(id)
     this.cleanCacheRedis()
     const modifyDto = { ...dto, updated_at: new Date() };

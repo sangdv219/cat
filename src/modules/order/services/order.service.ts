@@ -1,13 +1,13 @@
 import { BaseService } from '@/core/services/base.service';
+import { OrdersModel } from '@/modules/brands/models/orders.model';
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
 import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable } from '@nestjs/common';
 import { ORDER_ENTITY } from '../constants/order.constant';
 import { CreatedOrderRequestDto, UpdatedOrderRequestDto } from '../dto/order.request.dto';
-import { plainToInstance } from 'class-transformer';
 import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '../dto/order.response.dto';
-import { OrdersModel } from '@/modules/brands/models/orders.model';
 import { PostgresOrderRepository } from '../infrastructure/repository/postgres-order.repository';
+import { OrderQueue } from '../queues/order.queue';
 
 @Injectable()
 export class OrderService extends 
@@ -22,6 +22,7 @@ GetAllOrderResponseDto> {
     protected repository: PostgresOrderRepository,
     protected postgresProductRepository: PostgresProductRepository,
     public cacheManage: CacheVersionService,
+    public orderQueue: OrderQueue,
   ) {
     super();
     this.entityName = ORDER_ENTITY.NAME;
@@ -55,6 +56,13 @@ GetAllOrderResponseDto> {
   protected async moduleDestroy() {
     this.Orders = [];
     console.log('🗑️onModuleDestroy -> Orders: ', this.Orders);
+  }
+
+  async create(dto: CreatedOrderRequestDto) {
+    this.cleanCacheRedis();
+    this.orderQueue.addOrderJob(dto);
+    // const order = plainToInstance(OrdersModel, dto);
+    // return await this.repository.create(order);
   }
 
   // async getById(id: string): Promise<GetByIdOrderResponseDto> {

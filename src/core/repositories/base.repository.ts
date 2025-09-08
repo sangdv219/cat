@@ -30,9 +30,9 @@ export interface IBaseRepository<T> {
   findByField<K extends keyof T>(field: K, value: T[K]): Promise<any>;
   findOne(id: string): Promise<T | null>;
   findOneByRaw(condition: Record<string, any>): Promise<T | null>;
-  create(payload: Partial<T>): Promise<BaseResponse<T>>;
-  update(id: string, payload: Partial<T>): Promise<any>;
-  delete(id: string): Promise<T>;
+  create(payload: Partial<T>): Promise<void>;
+  update(id: string, payload: Partial<T>): Promise<void>;
+  delete(id: string): Promise<void>;
 }
 
 export abstract class BaseRepository<T> implements IBaseRepository<T> {

@@ -9,7 +9,7 @@ export const queueConfig: QueueOptions = {
     connection: redisConnection,
 };
 
-export const workerConfig: WorkerOptions = {
+export const connection: WorkerOptions = {
     connection: redisConnection,
     concurrency: 5, // số job xử lý song song
 };

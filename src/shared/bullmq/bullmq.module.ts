@@ -9,7 +9,11 @@ import { queueConfig } from './bullmq.config';
             provide: 'EMAIL_QUEUE',
             useFactory: () => new Queue('email-queue', queueConfig),
         },
+        {
+            provide: 'ORDER_QUEUE',
+            useFactory: () => new Queue('order-queue', queueConfig),
+        },
     ],
-    exports: ['EMAIL_QUEUE'],
+    exports: ['EMAIL_QUEUE', 'ORDER_QUEUE'],
 })
 export class BullmqModule { }

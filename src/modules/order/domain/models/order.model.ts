@@ -14,17 +14,8 @@ import {
   UpdatedAt
 } from 'sequelize-typescript';
 
-interface Carts extends Model {
-  id: string;
-  user_id: string;
-  status: string;
-  created_at: Date;
-  updated_at: Date;
-  items?: CartItemsModel[];
-}
-
-@Table({ tableName: 'carts' })
-export class CartsModel extends Model<Carts> {
+@Table({ tableName: 'orders' })
+export class OrdersModel extends Model<OrdersModel> {
   @PrimaryKey
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
