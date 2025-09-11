@@ -1,63 +1,97 @@
+import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
+import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
-import { JWTAuthGuard } from '@/modules/auth/guards/jwt.guard';
-import { PermissionAuthGuard } from '@/modules/auth/guards/permission.guard';
-import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@/modules/users/DTO/user.admin.request.dto';
-import { UserService } from '@/modules/users/services/user.service';
-import { BaseResponse } from '@/core/repositories/base.repository';
-import { ForbidPasswordInUpdatePipe } from '@/shared/pipe';
-import { UserModel } from '@/modules/users/domain/models/user.model';
+import { BaseGetResponse } from '@/shared/interface/common';
 import { CacheTTL } from '@nestjs/cache-manager';
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseFilters,
+  UseInterceptors
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
+import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
+import { UserModel } from '../domain/models/user.model';
+import { UserService } from '../services/user.service';
+import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../DTO/user.admin.response.dto';
 
 @ApiBearerAuth('Authorization')
-@Controller('admin/users')
+@Controller('user-admin')
+@UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
+@UseFilters(new AllExceptionsFilter())
 export class UserAdminController {
-    constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) { }
 
-    @Get(':id')
-    @UseGuards(JWTAuthGuard)
-    async getUserById(@Param('id') id: string): Promise<UserModel | null> {
-        return await this.userService.getById(id);
+  @ApiOkResponse({ description: 'Danh sách user phân trang', type: BaseGetResponse<UserModel>})
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  // @UseGuards(JWTAuthGuard)
+  @CacheTTL(60)
+  async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllUserAdminResponseDto> {
+    try {
+      return this.userService.getPagination(query);
+    } catch (error) {
+      throw error;
     }
+  }
 
-    @Get()
-    @HttpCode(HttpStatus.OK)
-    // @Roles('admin')
-    @UseGuards(JWTAuthGuard,PermissionAuthGuard)
-    @CacheTTL(60)
-    async getPagination(@Query() query:PaginationQueryDto): Promise<BaseResponse<UserModel[]>> {
-        return await this.userService.getPagination(query);
+  @Get(':id')
+  // @UseGuards(JWTAuthGuard)
+  async getUserAdminById(@Param('id') id: string): Promise<GetByIdUserAdminResponseDto | null> {
+    try {
+      return await this.userService.getById(id);
+    } catch (error) {
+      throw error;
     }
-    
-    
-    @Post()
-    @HttpCode(HttpStatus.CREATED)
-    @UseGuards(JWTAuthGuard)
-    @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
-    async create(@Body() createUserDto: CreatedUserAdminRequestDto) {
-        return this.userService.createImpl(createUserDto);
+  }
+
+  @HttpCode(HttpStatus.CREATED)
+  // @UseGuards(JWTAuthGuard)
+  @Post()
+  async create(@Body() createUserAdminDto: CreatedUserAdminRequestDto) {
+    try {
+      return await this.userService.create(createUserAdminDto);
+    } catch (error) {
+      throw error;
     }
-    
-    @Patch(':id')
-    @HttpCode(HttpStatus.NO_CONTENT)
-    @UseGuards(JWTAuthGuard)
-    @UsePipes(new ForbidPasswordInUpdatePipe())
-    async updateUser(@Param('id') id: string, @Body() body: UpdatedUserAdminRequestDto) {
-        return await this.userService.update(id, body);
+  }
+
+  @Patch(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  // @UseGuards(JWTAuthGuard)
+  // @UsePipes(new ForbidPasswordInUpdatePipe())
+  async updateUserAdmin(@Param('id') id: string, @Body() dto: UpdatedUserAdminRequestDto) {
+    try {
+      return await this.userService.update(id, dto);
+    } catch (error) {
+      throw error;
     }
-    
-    @Delete(':id')
-    @UseGuards(JWTAuthGuard)
-    @HttpCode(HttpStatus.NO_CONTENT)
-    async deleteUser(@Param('id') id: string) {
-        return await this.userService.delete(id);
+  }
+
+  @Delete(':id')
+  // @UseGuards(JWTAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUserAdmin(@Param('id') id: string): Promise<void> {
+    try {
+      return await this.userService.delete(id);
+    } catch (error) {
+      throw error;
     }
-    
-    @Patch(':id/restore')
-    @UseGuards(JWTAuthGuard)
-    @HttpCode(HttpStatus.NO_CONTENT)
-    async restoreUser(@Param('id') id: string) {
-        return await this.userService.restoreUser(id);
-    }
+  }
+
+  // @Patch(':id')
+  // // @UseGuards(JWTAuthGuard)
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  // async restoreUserAdmin(@Param('id') id: string): Promise<UpdateCreateResponse<UserModel>> {
+  //   return await this.userService.restoreUser(id);
+  // }
 }

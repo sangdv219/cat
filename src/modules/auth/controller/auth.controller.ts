@@ -1,35 +1,41 @@
-import { LoginDto } from "@/modules/auth/DTO/login.dto";
-import { RefreshTokenDto } from "@/modules/auth/DTO/refreshToken.dto";
-import { RegisterDto } from "@/modules/auth/DTO/register.dto";
-import { VerifyOtpDto } from "@/modules/auth/DTO/verify-otp.dto";
-import { LoginResponseDto, VerifyResponseDto } from "@/modules/auth/interface/login.interface";
-import { AuthService } from "@/modules/auth/services/auth.service";
-import { OTPService } from "@/modules/auth/services/OTP.service";
-import { RedisContext, RedisModule } from "@/shared/redis/enums/redis-key.enum";
-import { buildRedisKey } from "@/shared/redis/helpers/redis-key.helper";
-import { applyDecorators, Body, Controller, HttpCode, HttpStatus, Patch, Post, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth } from "@nestjs/swagger";
-import { RateLimit } from "../decorators/rate-limit";
-import { RedisKey } from "../decorators/redis-key.decorator";
-import { TokenType } from "../decorators/token-type.decorator";
-import { JWTAuthGuard } from "../guards/jwt.guard";
-import { RateLimitGuard } from "../guards/rate-limit.guard";
-import { CreatedUserCompleteRequestDto } from "@/modules/users/DTO/user-auth.request.dto";
+import { LoginDto } from '@/modules/auth/DTO/login.dto';
+import { RefreshTokenDto } from '@/modules/auth/DTO/refreshToken.dto';
+import { RegisterDto } from '@/modules/auth/DTO/register.dto';
+import { VerifyOtpDto } from '@/modules/auth/DTO/verify-otp.dto';
+import { LoginResponseDto,VerifyResponseDto } from '@/modules/auth/interface/login.interface';
+import { AuthService } from '@/modules/auth/services/auth.service';
+import { OTPService } from '@/modules/auth/services/OTP.service';
+import {
+  applyDecorators,
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  UseGuards
+} from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { RateLimit } from '@/core/decorators/rate-limit';
+import { RedisKey } from '@core/decorators/redis-key.decorator';
+import { TokenType } from '@core/decorators/token-type.decorator';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
+import { RateLimitGuard } from '@core/guards/rate-limit.guard';
 // import { SendOTPLimitGuard } from "@/modules/auth/guards/sendOTPLimit.guard";
 
-const OTPGuard = () => applyDecorators(
-  RateLimit(3, 86400), // Limit to 3 requests per day
-  TokenType('otp'),
-  RedisKey('confirm-otp'),
-  UseGuards(JWTAuthGuard, RateLimitGuard),
-)
+const OTPGuard = () =>
+  applyDecorators(
+    RateLimit(3, 86400), // Limit to 3 requests per day
+    TokenType('otp'),
+    RedisKey('confirm-otp'),
+    UseGuards(JWTAuthGuard, RateLimitGuard),
+  );
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly OTPService: OTPService
-  ) { }
+    private readonly OTPService: OTPService,
+  ) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -47,7 +53,7 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   // @RateLimit(3, 300)
   // @RedisKey(buildRedisKey('auth', RedisContext.RATE_LIMIT, 'send'))
-  // @UseGuards(RateLimitGuard)
+  //  // @UseGuards(RateLimitGuard)
   async register(@Body() body: RegisterDto): Promise<void> {
     return await this.authService.register(body);
   }

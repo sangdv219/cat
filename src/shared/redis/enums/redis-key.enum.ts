@@ -6,7 +6,7 @@ export enum RedisContext {
   CACHE = 'cache',
   LOCK = 'lock',
   RATE_LIMIT = 'rate',
-  OTP = 'otp'
+  OTP = 'otp',
 }
 export enum RedisModule {
   USER = 'users',
