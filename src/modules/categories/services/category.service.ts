@@ -1,13 +1,13 @@
-import { BaseService } from '@/core/services/base.service';
-import { CategoryModel } from '@/modules/categories/domain/models/category.model';
-import { CacheVersionService } from '@/modules/common/services/cache-version.service';
-import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
+import { BaseService } from '@core/services/base.service';
+import { CategoryModel } from '@modules/categories/domain/models/category.model';
+import { CacheVersionService } from '@modules/common/services/cache-version.service';
+import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable } from '@nestjs/common';
-import { CATEGORY_ENTITY } from '../constants/category.constant';
-import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '../dto/category.request.dto';
-import { PostgresCategoryRepository } from '../infrastructure/repository/postgres-category.repository';
+import { CATEGORY_ENTITY } from '@modules/categories/constants/category.constant';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/dto/category.request.dto';
+import { PostgresCategoryRepository } from '@modules/categories/infrastructure/repository/postgres-category.repository';
 import { plainToInstance } from 'class-transformer';
-import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '../dto/category.response.dto';
+import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@modules/categories/dto/category.response.dto';
 
 @Injectable()
 export class CategoryService extends 
