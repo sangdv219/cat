@@ -22,7 +22,9 @@
       "@/*": ["src/*"],
       "@modules/*": ["src/modules/*"],
       "@models/*": ["src/models/*"],
-      "@config/*": ["src/config/*"]
+      "@config/*": ["src/config/*"],
+      "@core/*": ["src/core/*"],
+      "@database/*": ["src/database/*"],
     }
   }
 }

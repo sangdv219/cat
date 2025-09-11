@@ -6,11 +6,11 @@ import { PRODUCT_ENTITY } from '@/modules/products/constants/product.constant';
 
 @Injectable()
 export class PostgresProductRepository extends AbstractProductRepository {
-    private static readonly ENTITY_NAME = PRODUCT_ENTITY.NAME;
-    constructor(
-        @InjectModel(ProductModel)
-        protected readonly productModel: typeof ProductModel,
-    ) {
-        super(PostgresProductRepository.ENTITY_NAME, productModel);
-    }
+  private static readonly ENTITY_NAME = PRODUCT_ENTITY.NAME;
+  constructor(
+    @InjectModel(ProductModel)
+    protected readonly productModel: typeof ProductModel,
+  ) {
+    super(PostgresProductRepository.ENTITY_NAME, productModel);
+  }
 }

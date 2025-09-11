@@ -1,24 +1,27 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class PaginationQueryDto {
-    @IsOptional()
-    @ApiPropertyOptional({ description: 'page', example: 1 })
-    @Type(() => Number)
-    @IsNumber()
-    @Min(1)
-    page?: number = 1;
+  @IsOptional()
+  @ApiPropertyOptional({ example: 1, description: 'Page number (1–10)' })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1, { message: 'Page must be at least 1'})
+  @Max(10, { message: 'Page cannot exceed 10'})
+  page: number;
 
-    @IsOptional()
-    @ApiPropertyOptional({ description: 'limit', example: 10 })
-    @Type(() => Number)
-    @IsNumber()
-    @Min(1)
-    limit?: number = 10;
+  @IsOptional()
+  @ApiPropertyOptional({ example: 100, description: 'Limit per page (1–100)' })
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1, { message: 'Limit must be at least 1'})
+  @Max(100, { message: 'Limit cannot exceed 100'})
+  limit: number;
 
-    @IsOptional()
-    @ApiPropertyOptional({ description: 'keyword', example: '' })
-    @IsString()
-    keyword?: string;
+  @IsOptional()
+  @ApiPropertyOptional({ example: '', description: 'Find' })
+  @Type(() => String)
+  @IsString()
+  keyword: string;
 }

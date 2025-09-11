@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('productss', {
+    await queryInterface.createTable('products', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -76,12 +76,10 @@ module.exports = {
       include: ['is_public', 'price']
     });
      await queryInterface.addIndex('products', ['brand_id'], {
-      unique: true,
       name: 'idx_products_name_brand_id',
       include: ['is_public', 'price']
     });
      await queryInterface.addIndex('products', ['category_id'], {
-      unique: true,
       name: 'idx_products_name_category_id',
       include: ['is_public', 'price']
     });

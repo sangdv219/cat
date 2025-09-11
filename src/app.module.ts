@@ -1,16 +1,20 @@
+import { AuthModule } from '@/modules/auth/auth.module';
+import { BrandModule } from '@/modules/brands/brand.module';
+import { CategoryModule } from '@/modules/categories/category.module';
+import { ProductModule } from '@/modules/products/product.module';
+import { UserModule } from '@/modules/users/user.module';
+import { DatabaseModule } from '@database/database.module';
+import { DatabaseService } from '@database/database.service';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
 import { redisStore } from 'cache-manager-ioredis-yet';
 import { AppController } from './app.controller';
-import { DatabaseModule } from './database/database.module';
-import { DatabaseService } from './database/database.service';
-import { AuthModule } from '@/modules/auth/auth.module';
-import { BrandModule } from '@/modules/brands/brand.module';
-import { UserModule } from '@/modules/users/user.module';
-import { CategoryModule } from '@/modules/categories/category.module';
-import { ProductModule } from '@/modules/products/product.module';
+import { ChatGateway } from './gateways/chat.gateway';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { OrderModule } from './modules/order/order.module';
+import { BullmqModule } from './shared/bullmq/bullmq.module';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
 @Module({
@@ -28,7 +32,11 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
     }),
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET ?? (() => { throw new Error('Missing JWT_SECRET') })(),
+      secret:
+        process.env.JWT_SECRET ??
+        (() => {
+          throw new Error('Missing JWT_SECRET');
+        })(),
       signOptions: { expiresIn: '1h' },
     }),
     DatabaseModule,
@@ -37,9 +45,12 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
     BrandModule,
     CategoryModule,
     ProductModule,
+    OrderModule,
+    InventoryModule,
+    BullmqModule,
   ],
   controllers: [AppController],
-  providers: [DatabaseService],
-  exports: [DatabaseService]
+  providers: [ChatGateway, DatabaseService],
+  exports: [DatabaseService],
 })
-export class AppModule { }
+export class AppModule {}
