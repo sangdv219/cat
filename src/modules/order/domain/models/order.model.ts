@@ -1,4 +1,4 @@
-import { CartItemsModel } from '@/modules/brands/models/cart_items.model';
+import { ProductModel } from '@/modules/products/domain/models/product.model';
 import { UserModel } from '@/modules/users/domain/models/user.model';
 import {
   BelongsTo,
@@ -7,7 +7,6 @@ import {
   DataType,
   Default,
   ForeignKey,
-  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -20,6 +19,13 @@ export class OrdersModel extends Model<OrdersModel> {
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
   declare id: string;
+
+  @ForeignKey(() => ProductModel)
+  @Column(DataType.UUID)
+  product_id: string;
+
+  @BelongsTo(() => ProductModel)
+  product: ProductModel;
 
   @ForeignKey(() => UserModel)
   @Column(DataType.UUID)
@@ -37,9 +43,6 @@ export class OrdersModel extends Model<OrdersModel> {
 
   @UpdatedAt
   updated_at: Date;
-
-  @HasMany(() => CartItemsModel)
-  items: CartItemsModel[];
 }
 
 

@@ -1,7 +1,7 @@
 import { ProductResponseDto } from '@/modules/products/DTO/product.response.dto';
 import { Expose } from 'class-transformer';
 
-export class CartBaseDto {
+export class InventoryBaseDto {
   @Expose()
   id: string;
 
@@ -9,22 +9,22 @@ export class CartBaseDto {
   name: string;
 
   @Expose()
-  user_id: string;
+  image: string;
 
   @Expose()
-  status: string;
+  is_public: boolean;
 
 }
 
-export class GetAllCartResponseDto {
+export class GetAllInventoryResponseDto {
   @Expose()
-  items: CartBaseDto[];
+  items: InventoryBaseDto[];
 
   @Expose()
   totalRecord: number;
 }
 
-export class CreatedCartReponseDto extends CartBaseDto {
+export class CreatedInventoryReponseDto extends InventoryBaseDto {
   @Expose()
   created_at: Date;
   
@@ -33,8 +33,8 @@ export class CreatedCartReponseDto extends CartBaseDto {
 }
 
 
-export class GetByIdCartResponseDto extends CreatedCartReponseDto {
-  // @Expose()
-  // users: UserAdminResponseDto[];
+export class GetByIdInventoryResponseDto extends CreatedInventoryReponseDto {
+  @Expose()
+  products: ProductResponseDto[];
 }
 

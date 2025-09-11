@@ -11,9 +11,10 @@ import { JwtModule } from '@nestjs/jwt';
 import { ScheduleModule } from '@nestjs/schedule';
 import { redisStore } from 'cache-manager-ioredis-yet';
 import { AppController } from './app.controller';
-import { BullmqModule } from './shared/bullmq/bullmq.module';
-import { CartModule } from './modules/cart/cart.module';
+import { ChatGateway } from './gateways/chat.gateway';
+import { InventoryModule } from './modules/inventory/inventory.module';
 import { OrderModule } from './modules/order/order.module';
+import { BullmqModule } from './shared/bullmq/bullmq.module';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
 @Module({
@@ -44,12 +45,12 @@ export const REDIS_CLIENT = 'REDIS_CLIENT';
     BrandModule,
     CategoryModule,
     ProductModule,
-    CartModule,
     OrderModule,
-    BullmqModule
+    InventoryModule,
+    BullmqModule,
   ],
   controllers: [AppController],
-  providers: [DatabaseService],
+  providers: [ChatGateway, DatabaseService],
   exports: [DatabaseService],
 })
 export class AppModule {}

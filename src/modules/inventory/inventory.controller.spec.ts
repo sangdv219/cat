@@ -2,23 +2,24 @@ import { PaginationQueryDto } from '@/dto/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
-  CreatedCartRequestDto,
-  UpdatedCartRequestDto,
-} from './dto/cart.request.dto';
-import { CartService } from './services/cart.service';
+  CreatedInventoryRequestDto,
+  UpdatedInventoryRequestDto,
+} from './dto/inventory.request.dto';
+import { InventoryService } from './services/inventory.service';
+import { InventoryAdminController } from './controller/inventory.admin.controller';
 
 // DTO và model giả định (thay theo dự án thật)
 
-describe('CartController', () => {
-  let controller: CartController;
-  let service: jest.Mocked<CartService & { create: jest.Mock<any, any> }>;
+describe('InventoryController', () => {
+  let controller: InventoryAdminController;
+  let service: jest.Mocked<InventoryService & { create: jest.Mock<any, any> }>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [CartController],
+      controllers: [InventoryAdminController],
       providers: [
         {
-          provide: CartService,
+          provide: InventoryService,
           useValue: {
             getPagination: jest.fn(),
             getById: jest.fn(),
@@ -30,8 +31,8 @@ describe('CartController', () => {
       ],
     }).compile();
 
-    controller = module.get<CartController>(CartController);
-    service = module.get(CartService);
+    controller = module.get<InventoryAdminController>(InventoryAdminController);
+    service = module.get(InventoryService);
   });
 
   afterEach(() => {
@@ -40,7 +41,7 @@ describe('CartController', () => {
 
   describe('getPagination', () => {
     it('gọi service.getPagination và trả về kết quả', async () => {
-      const query: PaginationQueryDto = { page: 1, limit: 10 };
+      const query: PaginationQueryDto = { page: 1, limit: 10, keyword: 'test' };
       const expected: any = {
         success: true,
         data: [
@@ -51,7 +52,7 @@ describe('CartController', () => {
             is_public: true,
             created_at: new Date(),
             updated_at: new Date(),
-            // add other required CartModel properties with mock values here
+            // add other required InventoryModel properties with mock values here
           },
         ],
         totalRecord: 1,
@@ -65,29 +66,29 @@ describe('CartController', () => {
     });
   });
 
-  describe('getCartById', () => {
-    it('trả về Cart khi tồn tại', async () => {
-      const Cart: any = {
+  describe('getInventoryById', () => {
+    it('trả về Inventory khi tồn tại', async () => {
+      const Inventory: any = {
         id: '1',
         name: 'Adidas',
         image: '',
         is_public: true,
         created_at: new Date(),
         updated_at: new Date(),
-        // add other required CartModel properties with mock values here
+        // add other required InventoryModel properties with mock values here
       };
-      service.getById.mockResolvedValue(Cart);
+      service.getById.mockResolvedValue(Inventory);
 
-      const result = await controller.getCartById('1');
+      const result = await controller.getInventoryById('1');
 
       expect(service.getById).toHaveBeenCalledWith('1');
-      expect(result).toEqual(Cart);
+      expect(result).toEqual(Inventory);
     });
 
     it('ném NotFound khi service trả về null', async () => {
       service.getById.mockRejectedValue(new NotFoundException('Not found'));
 
-      await expect(controller.getCartById('404')).rejects.toBeInstanceOf(
+      await expect(controller.getInventoryById('404')).rejects.toBeInstanceOf(
         NotFoundException,
       );
     });
@@ -95,7 +96,7 @@ describe('CartController', () => {
 
   describe('create', () => {
     it('gọi service.create và trả về kết quả', async () => {
-      const dto: CreatedCartRequestDto = {
+      const dto: CreatedInventoryRequestDto = {
         name: 'Puma',
         image: '',
         is_public: true,
@@ -110,27 +111,27 @@ describe('CartController', () => {
     });
   });
 
-  describe('updateCart', () => {
+  describe('updateInventory', () => {
     it('gọi service.update và trả về void', async () => {
-      const dto: UpdatedCartRequestDto = {
+      const dto: UpdatedInventoryRequestDto = {
         name: 'Reebok',
         image: 'sd',
         is_public: true,
       };
       service.update.mockResolvedValue(undefined);
 
-      const result = await controller.updateCart('1', dto);
+      const result = await controller.updateInventory('1', dto);
 
       expect(service.update).toHaveBeenCalledWith('1', dto);
       expect(result).toBeUndefined();
     });
   });
 
-  describe('deleteCart', () => {
+  describe('deleteInventory', () => {
     it('gọi service.delete và trả về void', async () => {
       service.delete.mockResolvedValue(undefined);
 
-      const result = await controller.deleteCart('1');
+      const result = await controller.deleteInventory('1');
 
       expect(service.delete).toHaveBeenCalledWith('1');
       expect(result).toBeUndefined();

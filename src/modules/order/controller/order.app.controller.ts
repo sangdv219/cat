@@ -62,9 +62,11 @@ export class OrderAppController {
   @HttpCode(HttpStatus.CREATED)
   @Post('persist')
   async persist(@Body() createOrderDto: CreatedOrderRequestDto) {
+    console.log("createOrderDto: ", createOrderDto);
     try {
       return await this.orderService.persistOrder(createOrderDto);
     } catch (error) {
+      console.log("error: ", error);
       throw error;
     }
   }

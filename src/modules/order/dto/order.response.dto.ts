@@ -1,4 +1,3 @@
-import { CartBaseDto } from '@/modules/cart/dto/cart.response.dto';
 import { Expose } from 'class-transformer';
 
 export class OrderBaseDto {
@@ -9,7 +8,7 @@ export class OrderBaseDto {
   user_id: string;
 
   @Expose()
-  cart_id: string;
+  product_id: string;
 
   @Expose()
   status: string;

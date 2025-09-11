@@ -20,7 +20,6 @@ import { InjectModel } from '@nestjs/sequelize';
 import { config } from 'dotenv';
 import Redis from 'ioredis';
 import { RegisterDto } from '../DTO/register.dto';
-import { EmailService } from './mail.service';
 import { OTPService } from './OTP.service';
 
 config();
@@ -102,9 +101,6 @@ export class AuthService implements OnModuleInit {
       );
     }
     if (userData) {
-      // if (!userData.is_active) {
-      //   throw new UserNotActiveException(email);
-      // }
       if (userData.deleted_at) {
         throw new GoneException('Account has been delete');
       }
@@ -179,7 +175,7 @@ export class AuthService implements OnModuleInit {
       throw new UnauthorizedException('Email already exists in system');
     }
     const otp = this.OTPService.gennerateOtp();
-    
+
     const otpCache = {
       otp,
       sendCount: 1,

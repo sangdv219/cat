@@ -1,6 +1,7 @@
 import { BaseService } from '@/core/services/base.service';
 import { OrdersModel } from '@/modules/brands/models/orders.model';
 import { CacheVersionService } from '@/modules/common/services/cache-version.service';
+import { InventoryService } from '@/modules/inventory/services/inventory.service';
 import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable } from '@nestjs/common';
 import { ORDER_ENTITY } from '../constants/order.constant';
@@ -8,35 +9,30 @@ import { CreatedOrderRequestDto, UpdatedOrderRequestDto } from '../dto/order.req
 import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '../dto/order.response.dto';
 import { PostgresOrderRepository } from '../infrastructure/repository/postgres-order.repository';
 import { OrderQueue } from '../queues/order.queue';
-import { Worker } from 'bullmq';
-import { connection } from '@/shared/bullmq/bullmq.config';
 
 @Injectable()
-export class OrderService extends 
-BaseService<OrdersModel, 
-CreatedOrderRequestDto, 
-UpdatedOrderRequestDto, 
-GetByIdOrderResponseDto, 
-GetAllOrderResponseDto> {
+export class OrderService extends
+  BaseService<OrdersModel,
+    CreatedOrderRequestDto,
+    UpdatedOrderRequestDto,
+    GetByIdOrderResponseDto,
+    GetAllOrderResponseDto> {
   protected entityName: string;
   private Orders: string[] = [];
-  private worker: Worker;
 
   constructor(
     protected repository: PostgresOrderRepository,
     protected postgresProductRepository: PostgresProductRepository,
     public cacheManage: CacheVersionService,
+    public inventoryService: InventoryService,
     public orderQueue: OrderQueue,
   ) {
     super();
     this.entityName = ORDER_ENTITY.NAME;
   }
-  
+
   protected async moduleInit() {
-    this.worker = new Worker('order-queue', async (job) => {
-      console.log('Processing job', job.id);
-    }, connection);
-    console.log('✅ Init Order cache...');
+    // console.log('✅ Init Order cache...');
     this.Orders = ['Iphone', 'Galaxy'];
   }
 
@@ -58,7 +54,6 @@ GetAllOrderResponseDto> {
   private async stopJob() {
     console.log('logic dừng cron job: ');
     console.log('* Ngắt kết nối queue worker: ');
-    await this.worker.close(); //nếu không đóng kết nối, process có thể treo (pending connections).
   }
 
   protected async moduleDestroy() {
@@ -71,7 +66,9 @@ GetAllOrderResponseDto> {
     this.orderQueue.addOrderJob(dto);
   }
 
-  async persistOrder(dto: CreatedOrderRequestDto){
+  async persistOrder(dto: CreatedOrderRequestDto) {
+    console.log("persistOrder: ");
+    // const inventory = this.inventoryService;
     const order = this.repository.create(dto);
     return order;
   }

@@ -2,8 +2,6 @@ import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
-import { CreatedCartRequestDto, UpdatedCartRequestDto } from '@/modules/cart/dto/cart.request.dto';
-import { CartService } from '@modules/cart/services/cart.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
@@ -19,31 +17,31 @@ import {
   UseFilters,
   UseInterceptors
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllCartResponseDto, GetByIdCartResponseDto } from '../dto/cart.response.dto';
+import { CreatedInventoryRequestDto, UpdatedInventoryRequestDto } from '../dto/inventory.request.dto';
+import { GetAllInventoryResponseDto, GetByIdInventoryResponseDto } from '../dto/inventory.response.dto';
+import { InventoryService } from '../services/inventory.service';
 
-@ApiBearerAuth('Authorization')
-@Controller('app/cart')
+@Controller('app/inventory')
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
-export class CartAppController {
-  constructor(private readonly CartService: CartService) { }
+export class InventoryAppController {
+  constructor(private readonly inventoryService: InventoryService) { }
 
   @Get()
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
-  async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllCartResponseDto> {
+  async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllInventoryResponseDto> {
     try {
-      return await this.CartService.getPagination(query);
+      return await this.inventoryService.getPagination(query);
     } catch (error) {
       throw error;
     }
   }
 
   @Get(':id')
-  async getCartById(@Param('id') id: string): Promise<GetByIdCartResponseDto | null> {
+  async getInventoryById(@Param('id') id: string): Promise<GetByIdInventoryResponseDto | null> {
     try {
-      return await this.CartService.getById(id);
+      return await this.inventoryService.getById(id);
     } catch (error) {
       throw error;
     }
@@ -51,9 +49,9 @@ export class CartAppController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() createCartDto: CreatedCartRequestDto) {
+  async create(@Body() createInventoryDto: CreatedInventoryRequestDto) {
     try {
-      return await this.CartService.create(createCartDto);
+      return await this.inventoryService.create(createInventoryDto);
     } catch (error) {
       throw error;
     }
@@ -61,9 +59,9 @@ export class CartAppController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async updateCart(@Param('id') id: string, @Body() dto: UpdatedCartRequestDto) {
+  async updateInventory(@Param('id') id: string, @Body() dto: UpdatedInventoryRequestDto) {
     try {
-      return await this.CartService.update(id, dto);
+      return await this.inventoryService.update(id, dto);
     } catch (error) {
       throw error;
     }
@@ -71,9 +69,9 @@ export class CartAppController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteCart(@Param('id') id: string): Promise<void> {
+  async deleteInventory(@Param('id') id: string): Promise<void> {
     try {
-      return await this.CartService.delete(id);
+      return await this.inventoryService.delete(id);
     } catch (error) {
       throw error;
     }

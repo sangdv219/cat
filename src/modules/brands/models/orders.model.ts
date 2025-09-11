@@ -14,7 +14,6 @@ import {
 } from 'sequelize-typescript';
 import { OrderItemsModel } from './order_items.model';
 import { PaymentsModel } from './payment.model';
-import { CartsModel } from '@/modules/cart/domain/models/cart.model';
 
 @Table({ tableName: 'orders' })
 export class OrdersModel extends Model<OrdersModel> {
@@ -29,13 +28,6 @@ export class OrdersModel extends Model<OrdersModel> {
 
   @BelongsTo(() => UserModel)
   user: UserModel;
-
-  @ForeignKey(() => CartsModel)
-  @Column(DataType.UUID)
-  cart_id: string;
-
-  @BelongsTo(() => CartsModel)
-  cart: CartsModel;
 
   @Default('pending')
   @Column(DataType.STRING(20))

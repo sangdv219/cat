@@ -2,18 +2,18 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('cart_items', {
+    await queryInterface.createTable('orders', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('gen_random_uuid()'),
         allowNull: false,
         primaryKey: true,
       },
-      cart_id: {
+      user_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'carts',
+          model: 'users', // bảng users
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -22,16 +22,17 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'products',
+          model: 'products', // bảng products
           key: 'id',
         },
-        onDelete: 'CASCADE',
+        onDelete: 'SET NULL', // hoặc CASCADE tuỳ business
       },
-      quantity: {
-        type: Sequelize.INTEGER,
+      status: {
+        type: Sequelize.STRING(20),
         allowNull: false,
+        defaultValue: 'pending',
       },
-      price: {
+      total_amount: {
         type: Sequelize.DECIMAL(12, 2),
         allowNull: false,
       },
@@ -45,21 +46,10 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('NOW()'),
       },
-      unique_constraint: {
-        type: Sequelize.UUID,
-        unique: 'cart_product_unique',
-      },
-    });
-
-    // Thêm unique index
-    await queryInterface.addConstraint('cart_items', {
-      fields: ['unique_constraint'],
-      type: 'unique',
-      name: 'cart_product_unique',
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('cart_items');
+    await queryInterface.dropTable('orders');
   },
 };

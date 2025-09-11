@@ -31,7 +31,7 @@ GetAllUserAdminResponseDto> {
   }
 
   protected async moduleInit() {
-    console.log('✅ Init user cache...');
+    // console.log('✅ Init user cache...');
     this.users = ['Iphone', 'Galaxy'];
     // console.log('user: ', this.users);
   }

@@ -49,7 +49,9 @@ implements
   }
 
   async getPagination(query): Promise<GetAllResponseDto> {
-
+    const time = new Date().getTime();
+    console.log("time::::::::: ", time);
+    console.log("repository: ", this.repository);
     const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST, query);
 
     const cached = await this.cacheManage.get(redisKey);
