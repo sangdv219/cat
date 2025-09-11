@@ -23,7 +23,6 @@ config();
     OrderService,
     JwtModule,
     PostgresOrderRepository,
-    // PostgresInventoryRepository,
     OrderQueue,
     PostgresInventoryRepository,
     InventoryModel
