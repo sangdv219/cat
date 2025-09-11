@@ -47,6 +47,15 @@ export class InventoryAppController {
     }
   }
 
+  @Get('/product/:id')
+  async getByProductId(@Param('id') id: string): Promise<GetByIdInventoryResponseDto | null> {
+    try {
+      return await this.inventoryService.getByProductId(id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() createInventoryDto: CreatedInventoryRequestDto) {

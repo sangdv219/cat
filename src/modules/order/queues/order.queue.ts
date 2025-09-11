@@ -11,7 +11,7 @@ export class OrderQueue {
             attempts: 3,
             backoff: { type: 'exponential', delay: 60000 },
             removeOnComplete: true,
-            removeOnFail: false,
+            removeOnFail: true,
         });
     }
 }

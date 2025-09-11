@@ -10,7 +10,7 @@ import {
     Table,
     UpdatedAt
 } from 'sequelize-typescript';
-import { OrdersModel } from './orders.model';
+import { OrdersModel } from '../../order/domain/models/orders.model';
 
 @Table({ tableName: 'payments' })
 export class PaymentsModel extends Model<PaymentsModel> {

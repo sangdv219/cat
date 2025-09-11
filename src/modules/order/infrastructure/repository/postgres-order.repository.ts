@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ORDER_ENTITY } from '@modules/order/constants/order.constant';
-import { OrdersModel } from '@/modules/brands/models/orders.model';
+import { OrdersModel } from '@/modules/order/domain/models/orders.model';
 import { AbstractOrderRepository } from '@modules/order/domain/abstract/abstract-order.repository';
 
 @Injectable()

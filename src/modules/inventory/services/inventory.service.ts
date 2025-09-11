@@ -52,6 +52,20 @@ GetAllInventoryResponseDto> {
     console.log('* Ngắt kết nối queue worker: ');
   }
 
+  async getByProductId(productId: string): Promise<GetByIdInventoryResponseDto> {
+    const inventories = await this.repository.findOneByField('product_id', productId);
+    // inventories.forEach(async inventory => {
+    //   const product_id = inventory.product_id;
+    //   console.log("product_id: ", product_id);
+    //   const product = await this.postgresProductRepository.findOne('id');
+    //   console.log("product: ", product);
+    //   // inventory['productName'] = product.name;
+    // });
+    if(!inventories) throw new TypeError('Inventory not found');
+    const dto = plainToInstance(GetByIdInventoryResponseDto, inventories, { excludeExtraneousValues: true });
+    return dto;
+  }
+
   protected async moduleDestroy() {
     this.inventory = [];
     console.log('🗑️onModuleDestroy -> inventory: ', this.inventory);
@@ -61,10 +75,9 @@ GetAllInventoryResponseDto> {
     const inventory = await this.repository.findOne(id);
     if(!inventory) throw new TypeError('Inventory not found');
     const inventoryId = inventory.id;
-    const products = await this.postgresProductRepository.findByField('category_id',inventoryId);
+    const products = await this.postgresProductRepository.findOneByField('category_id',inventoryId);
     inventory['products'] = products;
     const dto = plainToInstance(GetByIdInventoryResponseDto, inventory, { excludeExtraneousValues: true });
-    // dto.products = products;
     return dto;
   }
 }

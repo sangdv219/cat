@@ -1,8 +1,7 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { UUID } from 'crypto';
-import { Op } from 'sequelize';
-// import { BaseResponse } from '../interceptors/base-response.interceptor';
+import { Op, Transaction } from 'sequelize';
 
 export class UpdateCreateResponse<T = any> {
   success?: boolean = false;
@@ -24,11 +23,12 @@ export interface IPaginationDTO {
 
 export interface IBaseRepository<T> {
   getAll(): Promise<T[]>;
-  findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>;
-  findByField<K extends keyof T>(field: K, value: T[K]): Promise<any>;
+  findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>; 
+  findByFields<K extends keyof T>(field: K, value: T[K]): Promise<any[]>;
+  findOneByField<K extends keyof T>(field: K, value: T[K]): Promise<any>;
   findOne(id: string): Promise<T | null>;
   findOneByRaw(condition: Record<string, any>): Promise<T | null>;
-  create(payload: Partial<T>): Promise<void>;
+  create(payload: Partial<T>, options?: { transaction?: Transaction }): Promise<void>;
   update(id: string, payload: Partial<T>): Promise<void>;
   delete(id: string): Promise<boolean>;
 }
@@ -71,7 +71,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return { items, total };
   }
 
-  async findByField<K extends keyof T>(field: K, value: T[K]): Promise<any> {
+  async findByFields<K extends keyof T>(field: K, value: T[K]): Promise<any[]> {
     const records = await this.model.findAll({
       where:{
         [field as string]: value
@@ -80,6 +80,17 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       // attributes: [field as string],
     });
     return records as unknown as T[K][];
+  }
+
+  async findOneByField<K extends keyof T>(field: K, value: T[K]): Promise<any> {
+    const record = await this.model.findOne({
+      where:{
+        [field as string]: value
+      },
+      raw: true,
+      // attributes: [field as string],
+    });
+    return record as unknown as T[K];
   }
 
   async findOne(id): Promise<T | null> {
@@ -104,9 +115,8 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     });
   }
 
-  async create(payload) {
-    console.log("payload: ", payload);
-    const result = await this.model.create(payload);
+  async create(payload, options?: { transaction?: Transaction }): Promise<any> {
+    const result = await this.model.create(payload, options);
     return result;
   }
 

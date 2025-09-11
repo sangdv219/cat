@@ -6,14 +6,10 @@ export class InventoryBaseDto {
   id: string;
 
   @Expose()
-  name: string;
+  stock: number;
 
   @Expose()
-  image: string;
-
-  @Expose()
-  is_public: boolean;
-
+  productName: number;
 }
 
 export class GetAllInventoryResponseDto {
@@ -33,8 +29,5 @@ export class CreatedInventoryReponseDto extends InventoryBaseDto {
 }
 
 
-export class GetByIdInventoryResponseDto extends CreatedInventoryReponseDto {
-  @Expose()
-  products: ProductResponseDto[];
-}
+export class GetByIdInventoryResponseDto extends CreatedInventoryReponseDto {}
 

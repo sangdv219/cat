@@ -18,7 +18,7 @@ export class CreatedOrderRequestDto {
   status: string;
 
   @IsNotEmpty({ message: 'total_amount is required' })
-  @ApiProperty({ description: 'total_amount', example: 100.00 })
+  @ApiProperty({ description: 'total_amount', example: 100 })
   total_amount: number;
 
   @IsOptional()

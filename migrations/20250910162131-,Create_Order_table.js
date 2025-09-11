@@ -33,7 +33,7 @@ module.exports = {
         defaultValue: 'pending',
       },
       total_amount: {
-        type: Sequelize.DECIMAL(12, 2),
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       created_at: {

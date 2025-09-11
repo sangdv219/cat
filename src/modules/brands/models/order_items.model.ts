@@ -10,7 +10,7 @@ import {
     PrimaryKey,
     Table
 } from 'sequelize-typescript';
-import { OrdersModel } from './orders.model';
+import { OrdersModel } from '../../order/domain/models/orders.model';
 
 @Table({ tableName: 'order_items' })
 export class OrderItemsModel extends Model<OrderItemsModel> {

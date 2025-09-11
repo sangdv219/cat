@@ -15,8 +15,8 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
             .pipe(
                 map(value => value && ({ records: value })),
                 catchError((err) => {
-                    console.log("err: ", err);
                     if (err instanceof HttpException) {
+                        console.log('case 1')
                         const status = err.getStatus();
                         const errorResponse = err.getResponse();
                         return throwError(() =>
@@ -24,15 +24,16 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                                 {
                                     statusCode: status,
                                     message:
-                                        typeof errorResponse === "string"
-                                            ? errorResponse
-                                            : errorResponse["message"],
+                                    typeof errorResponse === "string"
+                                    ? errorResponse
+                                    : errorResponse["message"],
                                     timestamp: new Date().toISOString(),
                                 },
                                 status
                             )
                         );
                     }else if (err instanceof TypeError) {
+                        console.log('case 2')
                         return throwError(() =>
                             new HttpException(
                                 {
@@ -44,6 +45,7 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                             )
                         );
                     }
+                    console.log('case default')
 
                     const errorCode = [PgErrorCode.UNIQUE_VIOLATION, PgErrorCode.UNDEFINED_TABLE, PgErrorCode.UNDEFINED_COLUMN, PgErrorCode.NOT_NULL_VIOLATION, PgErrorCode.FOREIGN_KEY_VIOLATION]
                     const statusCode = err.parent.code

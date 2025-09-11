@@ -1,19 +1,20 @@
 import { UserModel } from '@/modules/users/domain/models/user.model';
 import {
-    BelongsTo,
-    Column,
-    CreatedAt,
-    DataType,
-    Default,
-    ForeignKey,
-    HasMany,
-    Model,
-    PrimaryKey,
-    Table,
-    UpdatedAt
+  BelongsTo,
+  Column,
+  CreatedAt,
+  DataType,
+  Default,
+  ForeignKey,
+  HasMany,
+  Model,
+  PrimaryKey,
+  Table,
+  UpdatedAt
 } from 'sequelize-typescript';
-import { OrderItemsModel } from './order_items.model';
-import { PaymentsModel } from './payment.model';
+import { OrderItemsModel } from '../../../brands/models/order_items.model';
+import { PaymentsModel } from '../../../brands/models/payment.model';
+import { ProductModel } from '@/modules/products/domain/models/product.model';
 
 @Table({ tableName: 'orders' })
 export class OrdersModel extends Model<OrdersModel> {
@@ -21,6 +22,13 @@ export class OrdersModel extends Model<OrdersModel> {
   @Default(DataType.UUIDV4)
   @Column(DataType.UUID)
   declare id: string;
+
+  @ForeignKey(() => ProductModel)
+  @Column(DataType.UUID)
+  product_id: string;
+
+  @BelongsTo(() => ProductModel)
+  product: ProductModel;
 
   @ForeignKey(() => UserModel)
   @Column(DataType.UUID)
@@ -33,7 +41,7 @@ export class OrdersModel extends Model<OrdersModel> {
   @Column(DataType.STRING(20))
   status: string;
 
-  @Column({ type: DataType.DECIMAL(12, 2), allowNull: false })
+  @Column({ type: DataType.INTEGER, allowNull: false })
   total_amount: number;
 
   @CreatedAt

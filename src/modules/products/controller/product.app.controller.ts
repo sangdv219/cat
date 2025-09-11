@@ -55,7 +55,6 @@ export class ProductAppController {
     try {
       return await this.userService.create(createProductDto);
     } catch (error) {
-      console.log("error: ", error);
       throw error;
     }
   }
