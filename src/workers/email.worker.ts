@@ -1,11 +1,13 @@
 // import path from 'path';
 import { EmailService } from '@/modules/auth/services/mail.service';
 import { connection } from '@/shared/bullmq/bullmq.config';
-import { Job, WaitingError, Worker } from 'bullmq';
+import { ConfigService } from '@nestjs/config';
+import { Job, Worker } from 'bullmq';
 
 // const processorFile = path.join(__dirname, 'email-processor.js');
 
-const emailService = new EmailService();
+const configService = new ConfigService();
+const emailService = new EmailService(configService);
 export const emailWorker = new Worker(
     'email-queue',
     async (job: Job, token?: string) => {

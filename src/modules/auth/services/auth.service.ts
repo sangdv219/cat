@@ -1,7 +1,7 @@
-import { EmailQueueService } from '@/modules/auth/queues/email.queue';
 import { LoginDto } from '@/modules/auth/DTO/login.dto';
 import { LoginResponseDto } from '@/modules/auth/interface/login.interface';
 import { RefreshTokenResponseDto } from '@/modules/auth/interface/refreshToken.interface';
+import { EmailQueueService } from '@/modules/auth/queues/email.queue';
 import { PasswordService } from '@/modules/password/services/password.service';
 import { UserModel } from '@/modules/users/domain/models/user.model';
 import { PostgresUserRepository } from '@/modules/users/repository/user.admin.repository';
@@ -15,14 +15,13 @@ import {
   OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
-import { config } from 'dotenv';
 import Redis from 'ioredis';
 import { RegisterDto } from '../DTO/register.dto';
 import { OTPService } from './OTP.service';
 
-config();
 @Injectable()
 export class AuthService implements OnModuleInit {
   constructor(
@@ -33,6 +32,7 @@ export class AuthService implements OnModuleInit {
     @InjectModel(UserModel)
     protected readonly userModel: typeof UserModel,
     private readonly userRepository: PostgresUserRepository, // Assuming Redis is injected for cache management
+    private readonly configService: ConfigService
   ) { }
 
   onModuleInit() {
@@ -83,6 +83,9 @@ export class AuthService implements OnModuleInit {
   }
 
   async login(body: LoginDto): Promise<LoginResponseDto> {
+    const secrse = this.configService.getOrThrow('ACCESS_TOKEN_SECRET') 
+    console.log("secrse: ", secrse);
+  
     const { email, password } = body;
     const user = await this.userRepository.findOneByRaw({
       where: { email },
@@ -112,11 +115,11 @@ export class AuthService implements OnModuleInit {
         await this.resetFailedLogins(userData.id);
         const payload = { email: userData.email, id: userData.id };
         const accessToken = await this.jwtService.signAsync(payload, {
-          secret: process.env.ACCESS_TOKEN_SECRET,
+          secret: this.configService.getOrThrow('ACCESS_TOKEN_SECRET'),
           expiresIn: '24h',
         });
         const refreshToken = await this.jwtService.signAsync(payload, {
-          secret: process.env.REFRESH_TOKEN_SECRET,
+          secret: this.configService.getOrThrow('REFRESH_TOKEN_SECRET'),
           expiresIn: '1y',
         });
 
@@ -138,7 +141,7 @@ export class AuthService implements OnModuleInit {
   async refreshToken(refreshToken: string): Promise<RefreshTokenResponseDto> {
     try {
       const tokenOld = this.jwtService.verify(refreshToken, {
-        secret: process.env.REFRESH_TOKEN_SECRET,
+        secret: this.configService.getOrThrow('REFRESH_TOKEN_SECRET'),
       });
       if (!tokenOld) {
         throw new UnauthorizedException('Invalid refresh token');
@@ -146,18 +149,17 @@ export class AuthService implements OnModuleInit {
 
       const payload = { email: tokenOld.email, id: tokenOld.id };
       const newAccessToken = await this.jwtService.signAsync(payload, {
-        secret: process.env.ACCESS_TOKEN_SECRET,
+        secret: this.configService.getOrThrow('ACCESS_TOKEN_SECRET'),
         expiresIn: '24h',
       });
 
+     
       const response = new RefreshTokenResponseDto();
       response.success = true;
       response.accessToken = newAccessToken;
 
       return response;
     } catch (error) {
-      console.log('error: ', error);
-
       if (error.name === 'TokenExpiredError') {
         throw new UnauthorizedException('Token expired');
       }
@@ -194,12 +196,11 @@ export class AuthService implements OnModuleInit {
     if (cacheByEmail) {
       const cache = JSON.parse((await redis.get(cacheByEmail)) as string);
       const sendCount = cache.sendCount;
-      const limitSendEmail = process.env.LIMIT_SEND_EMAIL;
+      const limitSendEmail = this.configService.getOrThrow('LIMIT_SEND_EMAIL');
       const now = Date.now();
       const lastTime = cache.lastTime;
       if (sendCount <= Number(limitSendEmail)) {
         if (now >= lastTime) {
-          console.log("Gửi email: ", email, otp);
           this.emailQueueService.addSendMailJob(email, otp);
           const updatedOtpCache = Object.assign({}, otpCache, {
             sendCount: sendCount + 1,
