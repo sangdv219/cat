@@ -19,7 +19,7 @@ import { ProductModel } from '@/modules/products/domain/models/product.model';
 @Table({ tableName: 'orders' })
 export class OrdersModel extends Model<OrdersModel> {
   @PrimaryKey
-  @Default(DataType.UUIDV4)
+  @Default(DataType.UUID)
   @Column(DataType.UUID)
   declare id: string;
 

@@ -1,14 +1,11 @@
 import {
-  Column,
-  Model,
-  Table,
-  PrimaryKey,
-  Default,
   AllowNull,
-  Unique,
+  Column,
   DataType,
-  IsUUID,
-  AutoIncrement,
+  Default,
+  Model,
+  PrimaryKey,
+  Table
 } from 'sequelize-typescript';
 
 @Table({
@@ -18,8 +15,8 @@ import {
 })
 export class StockUnitModel extends Model {
   @PrimaryKey
-  @Default(DataType.UUIDV4)
-  @Column(DataType.UUIDV4)
+  @Default(DataType.UUID)
+  @Column(DataType.UUID)
   declare id: string;
 
   @AllowNull(true)

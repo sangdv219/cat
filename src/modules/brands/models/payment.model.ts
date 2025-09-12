@@ -15,7 +15,7 @@ import { OrdersModel } from '../../order/domain/models/orders.model';
 @Table({ tableName: 'payments' })
 export class PaymentsModel extends Model<PaymentsModel> {
   @PrimaryKey
-  @Default(DataType.UUIDV4)
+  @Default(DataType.UUID)
   @Column(DataType.UUID)
   declare id: string;
 

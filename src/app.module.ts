@@ -8,7 +8,7 @@ import { DatabaseService } from '@database/database.service';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { ScheduleModule } from '@nestjs/schedule';
+// import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { ChatGateway } from './gateways/chat.gateway';
 import { InventoryModule } from './modules/inventory/inventory.module';
@@ -19,7 +19,7 @@ import { RedisModule } from './redis/redis.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'] }),
-    ScheduleModule.forRoot(),
+    // ScheduleModule.forRoot(),
     JwtModule.register({
       global: true,
       secret:

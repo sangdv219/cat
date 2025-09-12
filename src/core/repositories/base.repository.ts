@@ -1,6 +1,5 @@
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { isUUID } from 'class-validator';
-import { UUID } from 'crypto';
 import { Op, Transaction } from 'sequelize';
 
 export class UpdateCreateResponse<T = any> {
@@ -127,7 +126,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     });
   }
 
-  async delete(id: UUID) {
+  async delete(id: string) {
     if (!isUUID(id)) {
       throw new BadRequestException('Invalid UUID format');
     }

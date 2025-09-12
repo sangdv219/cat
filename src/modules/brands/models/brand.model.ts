@@ -16,8 +16,8 @@ import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant';
 })
 export class BrandModel extends Model {
   @PrimaryKey
-  @Default(DataType.UUIDV4)
-  @Column(DataType.UUIDV4)
+  @Default(DataType.UUID)
+  @Column(DataType.UUID)
   declare id: string;
 
   @AllowNull(true)

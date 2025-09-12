@@ -20,8 +20,8 @@ import {
 })
 export class ProductModel extends Model {
   @PrimaryKey
-  @Default(DataType.UUIDV4)
-  @Column(DataType.UUIDV4)
+  @Default(DataType.UUID)
+  @Column(DataType.UUID)
   declare id: string;
 
   @AllowNull(false)
@@ -48,12 +48,12 @@ export class ProductModel extends Model {
 
   @ForeignKey(() => CategoryModel)
   @AllowNull(false)
-  @Column({ type: DataType.UUIDV4 })
+  @Column({ type: DataType.UUID })
   category_id: string;
 
   @ForeignKey(() => BrandModel)
   @AllowNull(false)
-  @Column({ type: DataType.UUIDV4 })
+  @Column({ type: DataType.UUID })
   brand_id: string;
 
   @AllowNull(false)

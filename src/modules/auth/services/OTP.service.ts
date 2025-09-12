@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Cron } from '@nestjs/schedule';
+// import { Cron } from '@nestjs/schedule';
 import Redis from 'ioredis';
 import { VerifyOtpDto } from '../DTO/verify-otp.dto';
 import { VerifyResponseDto } from '../interface/login.interface';
@@ -26,7 +26,7 @@ export class OTPService {
     private readonly configService: ConfigService,
   ) {}
 
-  @Cron('00 00 00 * * *') // Every minute
+  // @Cron('00 00 00 * * *') // Every minute
   async resetVerifyOtp() {
     const keyCacheOtpByEmail = await scanlAlKeys(
       `${buildRedisKey(RedisModule.AUTH, RedisContext.OTP)}*`,

@@ -20,7 +20,7 @@ import { UserModel } from '@/modules/users/domain/models/user.model';
 })
 export class UserAuthModel extends Model {
   @PrimaryKey
-  @Default(DataType.UUIDV4)
+  @Default(DataType.UUID)
   @Column(DataType.UUID)
   declare id: string;
 

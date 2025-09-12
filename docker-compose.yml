@@ -3,6 +3,12 @@ networks:
     driver: bridge
     external: true
 services:
+  migrate:
+    build: .
+    command: npx sequelize-cli db:migrate
+    depends_on:
+      - postgres
+  # dùng lệnh ---- docker compose run --rm migrate ----- để migration
   app:
     build: .
     container_name: cat
