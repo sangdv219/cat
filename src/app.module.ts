@@ -15,10 +15,12 @@ import { ChatGateway } from './gateways/chat.gateway';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { OrderModule } from './modules/order/order.module';
 import { BullmqModule } from './shared/bullmq/bullmq.module';
+import { ConfigModule } from '@nestjs/config';
 
 export const REDIS_CLIENT = 'REDIS_CLIENT';
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'] }),
     ScheduleModule.forRoot(),
     CacheModule.registerAsync({
       useFactory: async () => ({

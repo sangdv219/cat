@@ -2,9 +2,7 @@
 import { ConfigService } from '@nestjs/config';
 import { PostgresDialect } from '@sequelize/postgres';
 import { Sequelize } from '@sequelize/core';
-import { config } from 'dotenv';
 
-config();
 const configService = new ConfigService();
 export function createSequelizeInstance() {
   const sequelize = new Sequelize({

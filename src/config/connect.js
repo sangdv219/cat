@@ -25,4 +25,3 @@ function createSequelizeInstance() {
         console.error('Unable to connect to the database:', err);
     });
 }
-//# sourceMappingURL=connect.js.map
