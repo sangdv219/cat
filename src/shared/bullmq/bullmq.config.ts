@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 
 config({ path: `.env.${process.env.NODE_ENV}` });
 export const redisConnection = {
-    host: 'redis',
+    host: process.env.REDIS_HOST,
     port: 6379,
 };
 
@@ -15,8 +15,3 @@ export const connection: WorkerOptions = {
     connection: redisConnection,
     concurrency: 5, // số job xử lý song song
 };
-
-
-
-    // host: process.env.REDIS_HOST || 'localhost',
-    // port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379,
