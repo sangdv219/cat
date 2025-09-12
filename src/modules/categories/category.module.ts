@@ -1,4 +1,3 @@
-import { CommonModule } from '@modules/common/common.module';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -9,14 +8,17 @@ import { CategoryAppController } from './controller/category.app.controller';
 import { CategoryModel } from './domain/models/category.model';
 import { PostgresCategoryRepository } from './infrastructure/repository/postgres-category.repository';
 import { CategoryService } from './services/category.service';
+import { RedisModule } from '@/redis/redis.module';
+import { RedisService } from '@/redis/redis.service';
 
 @Module({
-  imports: [SequelizeModule.forFeature([CategoryModel]), CommonModule, ProductModule ],
+  imports: [SequelizeModule.forFeature([CategoryModel]), ProductModule, RedisModule ],
   controllers: [CategoryAppController, CategoryAdminController],
   providers: [
     PostgresCategoryRepository,
     CategoryService,
     JwtModule,
+    RedisService,
     {
       provide: 'TokenSecretResolver',
       useClass: DefaultTokenSecretResolverStrategy,

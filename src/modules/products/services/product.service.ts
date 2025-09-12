@@ -1,5 +1,5 @@
 import { BaseService } from '@/core/services/base.service';
-import { CacheVersionService } from '@/modules/common/services/cache-version.service';
+import { RedisService } from '@/redis/redis.service';
 import { PRODUCT_ENTITY } from '@/modules/products/constants/product.constant';
 import { ProductModel } from '@/modules/products/domain/models/product.model';
 import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@/modules/products/DTO/product.request.dto';
@@ -18,7 +18,7 @@ GetAllProductResponseDto> {
     private products: string[] = [];
     constructor(
         protected repository: PostgresProductRepository,
-        public cacheManage: CacheVersionService,
+        public cacheManage: RedisService,
     ) {
         super();
         this.entityName = PRODUCT_ENTITY.NAME;

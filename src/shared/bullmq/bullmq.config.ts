@@ -1,7 +1,9 @@
 import { QueueOptions, WorkerOptions } from 'bullmq';
+import { config } from 'dotenv';
 
+config({ path: `.env.${process.env.NODE_ENV}` });
 export const redisConnection = {
-    host: 'localhost',
+    host: 'redis',
     port: 6379,
 };
 
@@ -16,5 +18,5 @@ export const connection: WorkerOptions = {
 
 
 
-//  host: process.env.REDIS_HOST || 'localhost',
+    // host: process.env.REDIS_HOST || 'localhost',
     // port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379,

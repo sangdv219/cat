@@ -1,6 +1,6 @@
 import { BaseService } from '@/core/services/base.service';
 import { InventoryModel } from '@/modules/inventory/domain/models/inventory.model';
-import { CacheVersionService } from '@/modules/common/services/cache-version.service';
+import { RedisService } from '@/redis/redis.service';
 import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable } from '@nestjs/common';
 import { INVENTORY_ENTITY } from '../constants/inventory.constant';
@@ -21,7 +21,7 @@ GetAllInventoryResponseDto> {
   constructor(
     protected repository: PostgresInventoryRepository,
     protected postgresProductRepository: PostgresProductRepository,
-    public cacheManage: CacheVersionService,
+    public cacheManage: RedisService,
   ) {
     super();
     this.entityName = INVENTORY_ENTITY.NAME;

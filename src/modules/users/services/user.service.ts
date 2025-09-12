@@ -1,6 +1,6 @@
 import { UpdateCreateResponse } from '@/core/repositories/base.repository';
 import { BaseService } from '@/core/services/base.service';
-import { CacheVersionService } from '@/modules/common/services/cache-version.service';
+import { RedisService } from '@/redis/redis.service';
 import { UserModel } from '@/modules/users/domain/models/user.model';
 import {
   ConflictException,
@@ -24,7 +24,7 @@ GetAllUserAdminResponseDto> {
   constructor(
     protected repository: PostgresUserRepository,
     private readonly userRepository: PostgresUserRepository,
-    public cacheManage: CacheVersionService,
+    public cacheManage: RedisService,
   ) {
     super();
     this.entityName = 'User';

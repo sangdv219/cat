@@ -10,6 +10,7 @@ import { buildRedisKey } from '@/shared/redis/helpers/redis-key.helper';
 import { findCacheByEmail, scanlAlKeys } from '@/shared/utils/common.util';
 import {
   GoneException,
+  Inject,
   Injectable,
   NotFoundException,
   OnModuleInit,
@@ -21,6 +22,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import Redis from 'ioredis';
 import { RegisterDto } from '../DTO/register.dto';
 import { OTPService } from './OTP.service';
+import { redisConnection } from '@/shared/bullmq/bullmq.config';
+import { REDIS_TOKEN } from '@redis/redis.module';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -32,7 +35,9 @@ export class AuthService implements OnModuleInit {
     @InjectModel(UserModel)
     protected readonly userModel: typeof UserModel,
     private readonly userRepository: PostgresUserRepository, // Assuming Redis is injected for cache management
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    @Inject(REDIS_TOKEN)
+    private readonly redis: Redis,
   ) { }
 
   onModuleInit() {
@@ -84,7 +89,7 @@ export class AuthService implements OnModuleInit {
 
   async login(body: LoginDto): Promise<LoginResponseDto> {
     const secrse = this.configService.getOrThrow('ACCESS_TOKEN_SECRET') 
-    console.log("secrse: ", secrse);
+    console.log("redisConnection: ", redisConnection);
   
     const { email, password } = body;
     const user = await this.userRepository.findOneByRaw({
@@ -169,7 +174,6 @@ export class AuthService implements OnModuleInit {
 
   async register(body: RegisterDto): Promise<void> {
     const { email } = body;
-    const redis = new Redis();
 
     const existingUser = await this.findEmail(email);
 
@@ -194,7 +198,7 @@ export class AuthService implements OnModuleInit {
     const cacheByEmail = findCacheByEmail(keyCacheOtpByEmail, email);
 
     if (cacheByEmail) {
-      const cache = JSON.parse((await redis.get(cacheByEmail)) as string);
+      const cache = JSON.parse((await this.redis.get(cacheByEmail)) as string);
       const sendCount = cache.sendCount;
       const limitSendEmail = this.configService.getOrThrow('LIMIT_SEND_EMAIL');
       const now = Date.now();
@@ -206,7 +210,7 @@ export class AuthService implements OnModuleInit {
             sendCount: sendCount + 1,
             lastTime: Date.now() + 1 * 60 * 1000,
           });
-          await redis.set(key, JSON.stringify(updatedOtpCache), 'EX', TTL_OTP);
+          await this.redis.set(key, JSON.stringify(updatedOtpCache), 'EX', TTL_OTP);
         } else {
           throw new GoneException('Vui lòng đợi khoảng 1p');
         }
@@ -214,7 +218,7 @@ export class AuthService implements OnModuleInit {
         throw new GoneException('Đã vượt quá số lần gửi');
       }
     } else {
-      await redis.set(key, JSON.stringify(otpCache), 'EX', TTL_OTP);
+      await this.redis.set(key, JSON.stringify(otpCache), 'EX', TTL_OTP);
     }
   }
 }

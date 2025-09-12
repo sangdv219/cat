@@ -1,4 +1,3 @@
-import { CommonModule } from '@modules/common/common.module';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -13,9 +12,11 @@ import { OrdersModel } from './domain/models/orders.model';
 import { PostgresOrderRepository } from './infrastructure/repository/postgres-order.repository';
 import { OrderQueue } from './queues/order.queue';
 import { OrderService } from './services/order.service';
+import { RedisModule } from '@/redis/redis.module';
+import { RedisService } from '@/redis/redis.service';
 
 @Module({
-  imports: [SequelizeModule.forFeature([OrdersModel, PaymentsModel, OrderItemsModel, InventoryModel]), CommonModule, ProductModule, InventoryModule],
+  imports: [SequelizeModule.forFeature([OrdersModel, PaymentsModel, OrderItemsModel, InventoryModel]), ProductModule, InventoryModule, RedisModule],
   controllers: [OrderAppController],
   providers: [
     OrderService,
@@ -23,6 +24,7 @@ import { OrderService } from './services/order.service';
     PostgresOrderRepository,
     OrderQueue,
     PostgresInventoryRepository,
+    RedisService
   ],
   exports: [PostgresOrderRepository, OrderService],
 })

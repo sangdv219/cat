@@ -11,7 +11,7 @@ export const findCacheByEmail = (keys: string[], email: string) => {
 export const scanlAlKeys = async (pattern: string) => {
   let cursor = '0';
   const results: string[] = [];
-  const redis = new Redis();
+  const redis = new Redis({ host: 'redis', port: 6379 });;
   do {
     const [nextCursor, keys] = await redis.scan(
       cursor,

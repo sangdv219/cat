@@ -1,24 +1,28 @@
+import { REDIS_TOKEN } from '@redis/redis.module';
 import {
   CanActivate,
   ExecutionContext,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
 } from '@nestjs/common';
 import Redis from 'ioredis';
 
 @Injectable()
 export class SendEmailLimitGuard implements CanActivate {
-  constructor() {}
+  constructor(
+    @Inject(REDIS_TOKEN)
+    private readonly redis: Redis,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const { email } = request.body;
-    const redis = new Redis();
-    const retryCount = (await redis.get('otp:retryCount:' + email)) || 0;
+    const retryCount = (await this.redis.get('otp:retryCount:' + email)) || 0;
 
-    await redis.incr('otp:retryCount:' + email);
-    await redis.expire('otp:retryCount:' + email, 300);
+    await this.redis.incr('otp:retryCount:' + email);
+    await this.redis.expire('otp:retryCount:' + email, 300);
 
     if (Number(retryCount) >= 2) {
       throw new HttpException(

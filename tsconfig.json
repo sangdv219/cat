@@ -25,6 +25,7 @@
       "@config/*": ["src/config/*"],
       "@core/*": ["src/core/*"],
       "@database/*": ["src/database/*"],
+      "@redis/*": ["src/redis/*"],
     }
   }
 }

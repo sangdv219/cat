@@ -1,26 +1,26 @@
+import { REDIS_TOKEN } from '@redis/redis.module';
 import {
   CanActivate,
   ExecutionContext,
-  HttpException,
-  HttpStatus,
+  Inject,
   Injectable,
-  UnauthorizedException,
+  UnauthorizedException
 } from '@nestjs/common';
 import Redis from 'ioredis';
-import { Request } from 'express';
 
 @Injectable()
 export class VerifyOTPLimitGuard implements CanActivate {
-  constructor() {}
+    constructor(
+    @Inject(REDIS_TOKEN)
+    private readonly redis: Redis,
+  ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const { otp } = request.body;
-    console.log('otp guard: ', otp);
-    const redis = new Redis();
-    const retryCount = (await redis.get('otp:checkCount:' + otp)) || 0;
+    const retryCount = (await this.redis.get('otp:checkCount:' + otp)) || 0;
 
-    await redis.incr('otp:checkCount:' + otp);
-    await redis.expire('otp:checkCount:' + otp, 300);
+    await this.redis.incr('otp:checkCount:' + otp);
+    await this.redis.expire('otp:checkCount:' + otp, 300);
 
     if (Number(retryCount) >= 2) {
       throw new UnauthorizedException('OTP clocked');

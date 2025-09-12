@@ -4,6 +4,7 @@ import { buildRedisKey } from '@/shared/redis/helpers/redis-key.helper';
 import { findCacheByEmail, scanlAlKeys } from '@/shared/utils/common.util';
 import {
   GoneException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -13,25 +14,26 @@ import { Cron } from '@nestjs/schedule';
 import Redis from 'ioredis';
 import { VerifyOtpDto } from '../DTO/verify-otp.dto';
 import { VerifyResponseDto } from '../interface/login.interface';
+import { REDIS_TOKEN } from '@redis/redis.module';
 
 @Injectable()
 export class OTPService {
   constructor(
-    private readonly jwtService: JwtService,
+    @Inject(REDIS_TOKEN)
+    private readonly redis: Redis,
     private readonly userService: UserService,
-    private readonly configService: ConfigService
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Cron('00 00 00 * * *') // Every minute
   async resetVerifyOtp() {
-    const redis = new Redis();
     const keyCacheOtpByEmail = await scanlAlKeys(
       `${buildRedisKey(RedisModule.AUTH, RedisContext.OTP)}*`,
     );
-    console.log('keyCacheOtpByEmail: ', keyCacheOtpByEmail);
 
     if (keyCacheOtpByEmail.length > 0) {
-      const pipeline = redis.pipeline();
+      const pipeline = this.redis.pipeline();
       keyCacheOtpByEmail.forEach((key) => {
         pipeline.del(key); // Queue deletion of each key
       });
@@ -46,7 +48,6 @@ export class OTPService {
   }
 
   async verifyOtp(body: VerifyOtpDto): Promise<VerifyResponseDto> {
-    const redis = new Redis();
     const { otp, email } = body;
     const keyCacheOtpByEmail = await scanlAlKeys(
       `${buildRedisKey(RedisModule.AUTH, RedisContext.OTP)}*`,
@@ -54,7 +55,7 @@ export class OTPService {
     const keyByEmailCache = findCacheByEmail(keyCacheOtpByEmail, email);
     const key = buildRedisKey(RedisModule.AUTH, RedisContext.OTP, email);
     if (keyByEmailCache) {
-      const cache = JSON.parse((await redis.get(keyByEmailCache)) as string);
+      const cache = JSON.parse((await this.redis.get(keyByEmailCache)) as string);
       const limitCheckEmail = this.configService.getOrThrow('LIMIT_CHECK_EMAIL');
       const checkCount = cache.checkCount;
       if (Number(checkCount) > Number(limitCheckEmail)) {
@@ -66,7 +67,7 @@ export class OTPService {
           ...cache,
           checkCount: cache.checkCount + 1,
         };
-        await redis.set(key, JSON.stringify(updatedOtpCache));
+        await this.redis.set(key, JSON.stringify(updatedOtpCache));
         throw new GoneException('Sai OTP');
       } else {
         const userAuth = {
@@ -91,7 +92,7 @@ export class OTPService {
           expiresIn: '1y',
         });
 
-        await redis.del(keyByEmailCache);
+        await this.redis.del(keyByEmailCache);
         const response = new VerifyResponseDto();
         response.success = true;
         response.accessToken = accessToken;

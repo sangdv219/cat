@@ -1,4 +1,4 @@
-import { CacheVersionService } from '@/modules/common/services/cache-version.service';
+import { RedisService } from '@/redis/redis.service';
 import { sensitiveFields } from '@/shared/config/sensitive-fields.config';
 import { RedisContext } from '@/shared/redis/enums/redis-key.enum';
 import { buildRedisKeyQuery } from '@/shared/redis/helpers/redis-key.helper';
@@ -25,7 +25,7 @@ implements
   OnModuleDestroy {
   protected abstract entityName: string;
   protected abstract repository: IBaseRepository<TEntity>;
-  protected abstract cacheManage: CacheVersionService;
+  protected abstract cacheManage: RedisService;
   protected abstract moduleInit(): Promise<void>;
   protected abstract bootstrapLogic(): Promise<void>;
   protected abstract beforeAppShutDown(signal?: string): Promise<void>;

@@ -1,5 +1,5 @@
 import { BaseService } from '@/core/services/base.service';
-import { CacheVersionService } from '@/modules/common/services/cache-version.service';
+import { RedisService } from '@/redis/redis.service';
 import { InventoryModel } from '@/modules/inventory/domain/models/inventory.model';
 import { InventoryService } from '@/modules/inventory/services/inventory.service';
 import { OrdersModel } from '@/modules/order/domain/models/orders.model';
@@ -27,7 +27,7 @@ export class OrderService extends
   constructor(
     @InjectModel(InventoryModel)
     protected inventoryModel: typeof InventoryModel,
-    public cacheManage: CacheVersionService,
+    public cacheManage: RedisService,
     public orderQueue: OrderQueue,
     protected repository: PostgresOrderRepository,
     protected postgresProductRepository: PostgresProductRepository,
