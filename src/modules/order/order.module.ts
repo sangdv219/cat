@@ -2,7 +2,7 @@ import { CommonModule } from '@modules/common/common.module';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { config } from 'dotenv';
+import { OrderItemsModel } from '../brands/models/order_items.model';
 import { PaymentsModel } from '../brands/models/payment.model';
 import { InventoryModel } from '../inventory/domain/models/inventory.model';
 import { PostgresInventoryRepository } from '../inventory/infrastructure/repository/postgres-inventory.repository';
@@ -13,9 +13,7 @@ import { OrdersModel } from './domain/models/orders.model';
 import { PostgresOrderRepository } from './infrastructure/repository/postgres-order.repository';
 import { OrderQueue } from './queues/order.queue';
 import { OrderService } from './services/order.service';
-import { OrderItemsModel } from '../brands/models/order_items.model';
 
-config();
 @Module({
   imports: [SequelizeModule.forFeature([OrdersModel, PaymentsModel, OrderItemsModel, InventoryModel]), CommonModule, ProductModule, InventoryModule],
   controllers: [OrderAppController],
@@ -25,7 +23,6 @@ config();
     PostgresOrderRepository,
     OrderQueue,
     PostgresInventoryRepository,
-    InventoryModel
   ],
   exports: [PostgresOrderRepository, OrderService],
 })

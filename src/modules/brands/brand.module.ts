@@ -5,12 +5,10 @@ import { CommonModule } from '@modules/common/common.module';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { config } from 'dotenv';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
 import { BrandAdminController } from './controller/brand.admin.controller';
 import { BrandAppController } from './controller/brand.app.controller';
 
-config();
 @Module({
   imports: [SequelizeModule.forFeature([BrandModel]), CommonModule],
   controllers: [BrandAdminController, BrandAppController],
