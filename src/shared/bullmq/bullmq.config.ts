@@ -14,3 +14,7 @@ export const connection: WorkerOptions = {
     concurrency: 5, // số job xử lý song song
 };
 
+
+
+//  host: process.env.REDIS_HOST || 'localhost',
+    // port: process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379,
