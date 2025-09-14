@@ -18,7 +18,10 @@ import { SequelizeModule } from '@nestjs/sequelize';
         database: config.get<string>('DB_DATABASE'),
         autoLoadModels: true,
         synchronize: true,
-        logging: false,
+        logging: (sql, timing) => {
+          console.log(`[DEBUG SQL] (${timing}ms): ${sql}`);
+        },
+        benchmark: true
       }),
     }),
   ],

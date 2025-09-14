@@ -16,7 +16,6 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                 map(value => value && ({ records: value })),
                 catchError((err) => {
                     if (err instanceof HttpException) {
-                        console.log('case 1')
                         const status = err.getStatus();
                         const errorResponse = err.getResponse();
                         return throwError(() =>
@@ -33,7 +32,6 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                             )
                         );
                     }else if (err instanceof TypeError) {
-                        console.log('case 2')
                         return throwError(() =>
                             new HttpException(
                                 {
@@ -45,7 +43,6 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                             )
                         );
                     }
-                    console.log('case default')
 
                     const errorCode = [PgErrorCode.UNIQUE_VIOLATION, PgErrorCode.UNDEFINED_TABLE, PgErrorCode.UNDEFINED_COLUMN, PgErrorCode.NOT_NULL_VIOLATION, PgErrorCode.FOREIGN_KEY_VIOLATION]
                     const statusCode = err.parent.code

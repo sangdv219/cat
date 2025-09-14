@@ -17,9 +17,9 @@ import {
   UseFilters,
   UseInterceptors
 } from '@nestjs/common';
-import { CreatedInventoryRequestDto, UpdatedInventoryRequestDto } from '../dto/inventory.request.dto';
-import { GetAllInventoryResponseDto, GetByIdInventoryResponseDto } from '../dto/inventory.response.dto';
-import { InventoryService } from '../services/inventory.service';
+import { CreatedInventoryRequestDto, UpdatedInventoryRequestDto } from '@modules/inventory/dto/inventory.request.dto';
+import { GetAllInventoryResponseDto, GetByIdInventoryResponseDto } from '@modules/inventory/dto/inventory.response.dto';
+import { InventoryService } from '@modules/inventory/services/inventory.service';
 
 @Controller('app/inventory')
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
@@ -41,16 +41,16 @@ export class InventoryAppController {
   @Get(':id')
   async getInventoryById(@Param('id') id: string): Promise<GetByIdInventoryResponseDto | null> {
     try {
-      return await this.inventoryService.getById(id);
+      return await this.inventoryService.getByProductId('id', id);
     } catch (error) {
       throw error;
     }
   }
 
   @Get('/product/:id')
-  async getByProductId(@Param('id') id: string): Promise<GetByIdInventoryResponseDto | null> {
+  async getByProductId(@Param('id') product_id: string): Promise<GetByIdInventoryResponseDto | null> {
     try {
-      return await this.inventoryService.getByProductId(id);
+      return await this.inventoryService.getByProductId('product_id', product_id);
     } catch (error) {
       throw error;
     }

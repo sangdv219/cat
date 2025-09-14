@@ -1,6 +1,7 @@
 import { ProductModel } from '@/modules/products/domain/models/product.model';
 import {
   AllowNull,
+  BelongsTo,
   Column,
   DataType,
   Default,
@@ -9,9 +10,10 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
+import { INVENTORY_ENTITY } from '../../constants/inventory.constant';
 
 @Table({
-  tableName: 'inventory',
+  tableName: INVENTORY_ENTITY.TABLE_NAME,
   timestamps: true,
   underscored: true,
 })
@@ -25,6 +27,9 @@ export class InventoryModel extends Model {
   @AllowNull(false)
   @Column(DataType.UUID)
   product_id: string;
+
+  @BelongsTo(() => ProductModel)
+  product: ProductModel;
 
   @AllowNull(false)
   @Default(0)

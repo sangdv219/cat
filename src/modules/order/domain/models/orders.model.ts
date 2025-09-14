@@ -12,8 +12,8 @@ import {
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
-import { OrderItemsModel } from '../../../brands/models/order_items.model';
-import { PaymentsModel } from '../../../brands/models/payment.model';
+import { OrderItemsModel } from '@modules/brands/models/order_items.model';
+import { PaymentsModel } from '@modules/brands/models/payment.model';
 import { ProductModel } from '@/modules/products/domain/models/product.model';
 
 @Table({ tableName: 'orders' })

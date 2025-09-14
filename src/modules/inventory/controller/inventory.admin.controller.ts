@@ -43,15 +43,15 @@ export class InventoryAdminController {
     }
   }
 
-  @Get(':id')
-  @UseGuards(JWTAuthGuard)
-  async getInventoryById(@Param('id') id: string): Promise<GetByIdInventoryResponseDto | null> {
-    try {
-      return await this.inventoryService.getById(id);
-    } catch (error) {
-      throw error;
-    }
-  }
+  // @Get(':id')
+  // @UseGuards(JWTAuthGuard)
+  // async getInventoryById(@Param('id') id: string): Promise<GetByIdInventoryResponseDto | null> {
+  //   try {
+  //     return await this.inventoryService.getById(id);
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)

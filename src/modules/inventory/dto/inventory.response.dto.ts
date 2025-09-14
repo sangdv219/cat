@@ -29,5 +29,8 @@ export class CreatedInventoryReponseDto extends InventoryBaseDto {
 }
 
 
-export class GetByIdInventoryResponseDto extends CreatedInventoryReponseDto {}
+export class GetByIdInventoryResponseDto extends CreatedInventoryReponseDto {
+  @Expose()
+  product: ProductResponseDto
+}
 
