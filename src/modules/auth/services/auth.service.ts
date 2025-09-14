@@ -22,7 +22,6 @@ import { InjectModel } from '@nestjs/sequelize';
 import Redis from 'ioredis';
 import { RegisterDto } from '../DTO/register.dto';
 import { OTPService } from './OTP.service';
-import { redisConnection } from '@/shared/bullmq/bullmq.config';
 import { REDIS_TOKEN } from '@redis/redis.module';
 
 @Injectable()
@@ -88,9 +87,6 @@ export class AuthService implements OnModuleInit {
   }
 
   async login(body: LoginDto): Promise<LoginResponseDto> {
-    const secrse = this.configService.getOrThrow('ACCESS_TOKEN_SECRET') 
-    console.log("redisConnection: ", redisConnection);
-  
     const { email, password } = body;
     const user = await this.userRepository.findOneByRaw({
       where: { email },

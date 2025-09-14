@@ -53,21 +53,6 @@ export class InventoryService extends
     console.log('* Ngắt kết nối queue worker: ');
   }
 
-  // async getByProductId(productId: string): Promise<GetByIdInventoryResponseDto<ProductResponseDto>> {
-  //   const inventories = await this.repository.findOneByField('product_id', productId);
-  //   // inventories.forEach(async inventory => {
-  //   //   const product_id = inventory.product_id;
-  //   //   console.log("product_id: ", product_id);
-  //   //   const product = await this.postgresProductRepository.findOne('id');
-  //   //   console.log("product: ", product);
-  //   //   // inventory['productName'] = product.name;
-  //   // });
-
-  //   if (!inventories) throw new TypeError('Inventory not found');
-  //   const dto = plainToInstance(GetByIdInventoryResponseDto, inventories, { excludeExtraneousValues: true });
-  //   return dto;
-  // }
-
   protected async moduleDestroy() {
     this.inventory = [];
     console.log('🗑️onModuleDestroy -> inventory: ', this.inventory);

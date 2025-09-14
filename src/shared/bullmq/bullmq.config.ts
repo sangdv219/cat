@@ -1,17 +1,20 @@
-import { QueueOptions, WorkerOptions } from 'bullmq';
-import { config } from 'dotenv';
+import { BullModule as NestBullModule } from '@nestjs/bull';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 
-config({ path: `.env.${process.env.NODE_ENV}` });
-export const redisConnection = {
-    host: process.env.REDIS_HOST,
-    port: 6379,
-};
-
-export const queueConfig: QueueOptions = {
-    connection: redisConnection,
-};
-
-export const connection: WorkerOptions = {
-    connection: redisConnection,
-    concurrency: 5, // số job xử lý song song
-};
+@Module({
+    imports: [
+        ConfigModule.forRoot({ isGlobal: true, envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'] }),
+        NestBullModule.forRoot({
+            redis: {
+                host: process.env.REDIS_HOST ?? 'localhost',
+                port: Number(process.env.REDIS_PORT) || 6379,
+            },
+        }),
+        NestBullModule.registerQueue({
+            name: 'order',
+        }),
+    ],
+    exports: [NestBullModule],
+})
+export class BullConfigModule { }

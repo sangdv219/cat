@@ -1,6 +1,5 @@
 // import path from 'path';
 import { EmailService } from '@/modules/auth/services/mail.service';
-import { connection } from '@/shared/bullmq/bullmq.config';
 import { ConfigService } from '@nestjs/config';
 import { Job, Worker } from 'bullmq';
 
@@ -29,7 +28,7 @@ export const emailWorker = new Worker(
     },
     // or
     // __dirname + '/email.processor.ts',
-    connection,
+    // connection,
 );
 // export const emailWorker = new Worker('email-queue', __dirname + '/email-processor.js', workerConfig);
 // process.exit(0);
