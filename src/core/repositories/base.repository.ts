@@ -1,4 +1,4 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { Op, Transaction } from 'sequelize';
 
@@ -34,6 +34,7 @@ export interface IBaseRepository<T> {
 
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
   public readonly _entityName: string;
+  private readonly logger = new Logger(BaseRepository.name);
   constructor(
     readonly entityName: string = 'BaseEntity',
     readonly model,
@@ -116,8 +117,13 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
   }
 
   async create(payload, options?: { transaction?: Transaction }): Promise<any> {
-    const result = await this.model.create(payload, options);
-    return result;
+    // try {
+      const result = await this.model.create(payload, options);
+      return result;
+      
+    // } catch (error) {
+      // this.logger.error('❌ error', error)
+    // }
   }
 
   async update(id: string, payload: any) {

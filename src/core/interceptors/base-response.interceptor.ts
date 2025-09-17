@@ -2,14 +2,24 @@ import { BaseResponse } from "@/shared/interface/common";
 import { CallHandler, ExecutionContext, HttpException, HttpStatus, Injectable, NestInterceptor } from "@nestjs/common";
 import { Observable, throwError } from "rxjs";
 import { catchError, map } from 'rxjs/operators';
-import { PgErrorCode } from "../enum/pg-error-codes.enum";
+import { POSTGRES_ERROR_CODES, POSTGRES_ERROR_HTTP_STATUS } from "../enum/pg-error-codes.enum";
 
+const errorCode = [
+    POSTGRES_ERROR_CODES.INVALID_TEXT_REPRESENTATION,
+    POSTGRES_ERROR_CODES.NUMERIC_VALUE_OUT_OF_RANGE,
+    POSTGRES_ERROR_CODES.STRING_DATA_RIGHT_TRUNCATION,
+    POSTGRES_ERROR_CODES.DIVISION_BY_ZERO,
+    POSTGRES_ERROR_CODES.DATETIME_FIELD_OVERFLOW,
+    POSTGRES_ERROR_CODES.UNIQUE_VIOLATION,
+    POSTGRES_ERROR_CODES.UNDEFINED_TABLE,
+    POSTGRES_ERROR_CODES.UNDEFINED_COLUMN,
+    POSTGRES_ERROR_CODES.NOT_NULL_VIOLATION,
+    POSTGRES_ERROR_CODES.FOREIGN_KEY_VIOLATION
+]
 
 @Injectable()
 export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseResponse<T>> {
     intercept(context: ExecutionContext, next: CallHandler): Observable<BaseResponse<T>> | Promise<Observable<BaseResponse<T>>> {
-        // console.log("context: ", context);
-
         return next
             .handle()
             .pipe(
@@ -23,15 +33,15 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                                 {
                                     statusCode: status,
                                     message:
-                                    typeof errorResponse === "string"
-                                    ? errorResponse
-                                    : errorResponse["message"],
+                                        typeof errorResponse === "string"
+                                            ? errorResponse
+                                            : errorResponse["message"],
                                     timestamp: new Date().toISOString(),
                                 },
                                 status
                             )
                         );
-                    }else if (err instanceof TypeError) {
+                    } else if (err instanceof TypeError) {
                         return throwError(() =>
                             new HttpException(
                                 {
@@ -44,20 +54,18 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                         );
                     }
 
-                    const errorCode = [PgErrorCode.UNIQUE_VIOLATION, PgErrorCode.UNDEFINED_TABLE, PgErrorCode.UNDEFINED_COLUMN, PgErrorCode.NOT_NULL_VIOLATION, PgErrorCode.FOREIGN_KEY_VIOLATION]
-                    const statusCode = err.parent.code
-                    if (errorCode.includes(statusCode)) {
-                        let detail = err.parent.detail;
+                    const pgCode = err.parent.code
+                    const status = POSTGRES_ERROR_HTTP_STATUS[pgCode] ?? HttpStatus.INTERNAL_SERVER_ERROR;
 
+                    if (errorCode.includes(pgCode)) {
                         return throwError(() => new HttpException(
                             {
-                                statusCode: HttpStatus.CONFLICT,
-                                message: detail,
+                                statusCode: status,
+                                message: err.message,
                                 timestamp: new Date().toISOString(),
                             },
                             HttpStatus.CONFLICT
-                        )
-                        );
+                        ));
                     }
 
                     return throwError(() => new HttpException(
