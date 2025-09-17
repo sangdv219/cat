@@ -1,10 +1,15 @@
-import { Module } from '@nestjs/common';
+import { BullConfigModule } from '@/bull/bullmq.config';
+import { Global, Module } from '@nestjs/common';
 import { BullService } from './bull.service';
-import { BullConfigModule } from '@/shared/bullmq/bullmq.config';
 import { OrderProcessor } from './processors/order.processors';
+import { OrderModule } from '@/modules/order/order.module';
 
+@Global()
 @Module({
-  imports: [BullConfigModule],
+  imports: [
+    BullConfigModule, 
+    OrderModule,
+  ],
   providers: [OrderProcessor, BullService],
   exports: [BullService],
 })

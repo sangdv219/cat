@@ -23,10 +23,10 @@ export interface IPaginationDTO {
 export interface IBaseRepository<T> {
   getAll(): Promise<T[]>;
   findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>; 
-  findByFields<K extends keyof T>(field: K, value: T[K]): Promise<any[]>;
-  findOneByField<K extends keyof T>(field: K, value: T[K]): Promise<any>;
-  findOne(id: string): Promise<T | null>;
-  findOneByRaw(condition: Record<string, any>): Promise<T | null>;
+  findByFields<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any[]>;
+  findOneByField<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any>;
+  findOne(id: string, exclude: string[]): Promise<T | null>;
+  findOneByRaw(condition: Record<string, any>, exclude: string[]): Promise<T | null>;
   create(payload: Partial<T>, options?: { transaction?: Transaction }): Promise<void>;
   update(id: string, payload: Partial<T>): Promise<void>;
   delete(id: string): Promise<boolean>;
@@ -70,40 +70,41 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return { items, total };
   }
 
-  async findByFields<K extends keyof T>(field: K, value: T[K]): Promise<any[]> {
+  async findByFields<K extends keyof T>(field: K, value: T[K], exclude = ['']): Promise<any[]> {
     const records = await this.model.findAll({
       where:{
         [field as string]: value
       },
       raw: true,
+      attributes: { exclude },
       // attributes: [field as string],
     });
     return records as unknown as T[K][];
   }
 
-  async findOneByField<K extends keyof T>(field: K, value: T[K]): Promise<any> {
+  async findOneByField<K extends keyof T>(field: K, value: T[K], exclude = ['']): Promise<any> {
     const record = await this.model.findOne({
       where:{
         [field as string]: value
       },
       raw: true,
-      // attributes: [field as string],
+      attributes: { exclude },
     });
     return record as unknown as T[K];
   }
 
-  async findOne(id): Promise<T | null> {
+  async findOne(id, exclude = ['']): Promise<T | null> {
     return await this.model.findOne({
       where: { id },
-      attributes: { exclude: [] },
+      attributes: { exclude },
       raw: true,
     });
   }
 
-  async findByEmail(email: string): Promise<T | null> {
+  async findByEmail(email: string, exclude = ['']): Promise<T | null> {
     return await this.model.findOne({
       where: { email },
-      attributes: { exclude: [] },
+      attributes: { exclude },
       raw: true,
     });
   }

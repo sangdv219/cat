@@ -1,5 +1,5 @@
 import { RedisService } from '@/redis/redis.service';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '../DTO/brand.request.dto';
 import { PostgresBrandRepository } from '../infrastructure/repository/postgres-brand.repository';
 import { BaseService } from '@/core/services/base.service';
@@ -28,13 +28,13 @@ GetAllBrandResponseDto> {
   }
 
   protected async moduleInit() {
-    // console.log('✅ Init brand cache...');
+    // Logger.log('✅ Init brand cache...');
     this.brands = ['Iphone', 'Galaxy'];
-    // console.log('brand: ', this.brands);
+    // Logger.log('brand: ', this.brands);
   }
 
   protected async bootstrapLogic(): Promise<void> {
-    // console.log(
+    // Logger.log(
     //   '👉 OnApplicationBootstrap: BrandService bootstrap: preloading cache...',
     // );
     //Bắt đầu chạy cron job đồng bộ tồn kho.
@@ -43,18 +43,18 @@ GetAllBrandResponseDto> {
 
   protected async beforeAppShutDown(signal): Promise<void> {
     this.stopJob();
-    console.log(
+    Logger.log(
       `🛑 beforeApplicationShutdown: BrandService cleanup before shutdown.`,
     );
   }
 
   private async stopJob() {
-    console.log('logic dừng cron job: ');
-    console.log('* Ngắt kết nối queue worker: ');
+    Logger.log('logic dừng cron job: ');
+    Logger.log('* Ngắt kết nối queue worker: ');
   }
 
   protected async moduleDestroy() {
     this.brands = [];
-    console.log('🗑️onModuleDestroy -> brands: ', this.brands);
+    Logger.log('🗑️onModuleDestroy -> brands: ', this.brands);
   }
 }

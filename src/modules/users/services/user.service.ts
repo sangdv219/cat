@@ -5,6 +5,7 @@ import { UserModel } from '@/modules/users/domain/models/user.model';
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreatedUserAuthRequestDto } from '../DTO/user-auth.request.dto';
@@ -31,13 +32,13 @@ GetAllUserAdminResponseDto> {
   }
 
   protected async moduleInit() {
-    // console.log('✅ Init user cache...');
+    // Logger.log('✅ Init user cache...');
     this.users = ['Iphone', 'Galaxy'];
-    // console.log('user: ', this.users);
+    // Logger.log('user: ', this.users);
   }
 
   protected async bootstrapLogic(): Promise<void> {
-    // console.log(
+    // Logger.log(
     //   '👉 OnApplicationBootstrap: UserService bootstrap: preloading cache...',
     // );
     //Bắt đầu chạy cron job đồng bộ tồn kho.
@@ -46,19 +47,19 @@ GetAllUserAdminResponseDto> {
 
   protected async beforeAppShutDown(signal): Promise<void> {
     this.stopJob();
-    console.log(
+    Logger.log(
       `🛑 beforeApplicationShutdown: UserService cleanup before shutdown.`,
     );
   }
 
   private async stopJob() {
-    console.log('logic dừng cron job: ');
-    console.log('* Ngắt kết nối queue worker: ');
+    Logger.log('logic dừng cron job: ');
+    Logger.log('* Ngắt kết nối queue worker: ');
   }
 
   protected async moduleDestroy() {
     this.users = [];
-    console.log('🗑️onModuleDestroy -> users: ', this.users);
+    Logger.log('🗑️onModuleDestroy -> users: ', this.users);
   }
 
   async delete(id: string): Promise<void> {
@@ -104,7 +105,7 @@ GetAllUserAdminResponseDto> {
       throw new ConflictException('Email already exists');
     }
     const result = await this.userRepository.create(body);
-    console.log("body: ", body);
+    Logger.log("body: ", body);
     return {
       success: true,
       data: result.id,

@@ -9,7 +9,6 @@ import { EmailService } from '@/modules/auth/services/mail.service';
 import { OTPService } from '@/modules/auth/services/OTP.service';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
 import { UserModel } from '@/modules/users/domain/models/user.model';
-import { EmailQueueService } from '@/modules/auth/queues/email.queue';
 
 @Module({
   imports: [
@@ -21,7 +20,6 @@ import { EmailQueueService } from '@/modules/auth/queues/email.queue';
   providers: [
     AuthService,
     EmailService,
-    EmailQueueService,
     OTPService,
     JwtModule,
     {

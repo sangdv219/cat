@@ -1,7 +1,6 @@
 import { LoginDto } from '@/modules/auth/DTO/login.dto';
 import { LoginResponseDto } from '@/modules/auth/interface/login.interface';
 import { RefreshTokenResponseDto } from '@/modules/auth/interface/refreshToken.interface';
-import { EmailQueueService } from '@/modules/auth/queues/email.queue';
 import { PasswordService } from '@/modules/password/services/password.service';
 import { UserModel } from '@/modules/users/domain/models/user.model';
 import { PostgresUserRepository } from '@/modules/users/repository/user.admin.repository';
@@ -23,13 +22,13 @@ import Redis from 'ioredis';
 import { RegisterDto } from '../DTO/register.dto';
 import { OTPService } from './OTP.service';
 import { REDIS_TOKEN } from '@redis/redis.module';
+import { BullService } from '@/bull/bull.service';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
   constructor(
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
-    private readonly emailQueueService: EmailQueueService,
     private readonly OTPService: OTPService,
     @InjectModel(UserModel)
     protected readonly userModel: typeof UserModel,
@@ -201,7 +200,7 @@ export class AuthService implements OnModuleInit {
       const lastTime = cache.lastTime;
       if (sendCount <= Number(limitSendEmail)) {
         if (now >= lastTime) {
-          this.emailQueueService.addSendMailJob(email, otp);
+          // this.emailQueueService.addSendMailJob(email, otp);
           const updatedOtpCache = Object.assign({}, otpCache, {
             sendCount: sendCount + 1,
             lastTime: Date.now() + 1 * 60 * 1000,

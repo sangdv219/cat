@@ -3,7 +3,7 @@ import { InventoryModel } from '@/modules/inventory/domain/models/inventory.mode
 import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
 import { RedisService } from '@/redis/redis.service';
 import { ProductModel } from '@modules/products/domain/models/product.model';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { INVENTORY_ENTITY } from '../constants/inventory.constant';
 import { CreatedInventoryRequestDto, UpdatedInventoryRequestDto } from '../dto/inventory.request.dto';
@@ -29,12 +29,12 @@ export class InventoryService extends
   }
 
   protected async moduleInit() {
-    // console.log('✅ Init Inventory cache...');
+    // Logger.log('✅ Init Inventory cache...');
     this.inventory = ['Iphone', 'Galaxy'];
   }
 
   protected async bootstrapLogic(): Promise<void> {
-    // console.log(
+    // Logger.log(
     //   '👉 OnApplicationBootstrap: InventoryService bootstrap: preloading cache...',
     // );
     //Bắt đầu chạy cron job đồng bộ tồn kho.
@@ -43,19 +43,19 @@ export class InventoryService extends
 
   protected async beforeAppShutDown(signal): Promise<void> {
     this.stopJob();
-    console.log(
+    Logger.log(
       `🛑 beforeApplicationShutdown: InventoryService cleanup before shutdown.`,
     );
   }
 
   private async stopJob() {
-    console.log('logic dừng cron job: ');
-    console.log('* Ngắt kết nối queue worker: ');
+    Logger.log('logic dừng cron job: ');
+    Logger.log('* Ngắt kết nối queue worker: ');
   }
 
   protected async moduleDestroy() {
     this.inventory = [];
-    console.log('🗑️onModuleDestroy -> inventory: ', this.inventory);
+    Logger.log('🗑️onModuleDestroy -> inventory: ', this.inventory);
   }
 
   async getByProductId(field: string, id: string): Promise<GetByIdInventoryResponseDto> {

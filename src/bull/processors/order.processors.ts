@@ -1,18 +1,31 @@
 // src/bull/processors/order.processor.ts
-import { Job } from 'bull';
+import { OrderService } from '@/modules/order/services/order.service';
 import { Process, Processor } from '@nestjs/bull';
-import { OrderQueue } from "../queues/order.queue";
+import { HttpException, Logger } from '@nestjs/common';
+import { Job } from 'bull';
 
 @Processor('order')
 export class OrderProcessor {
-    @Process('place-order')
-    async handlePlaceOrder(job: Job<{ orderId: number; userId: number }>) {
-        console.log(`🚀 Processing order job ${job.id}, data:`, job.data);
+    private readonly logger = new Logger(OrderProcessor.name);
+    constructor(
+        private readonly orderService: OrderService
+    ) { }
+    @Process('place-order') // name job
+    async handlePlaceOrder(job: Job, token?: string) {
+        try {
+            const result = await this.orderService.persistOrder(job.data)
+            this.logger.log("✅ Order success:", result);
 
-        const { orderId, userId } = job.data;
-
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        return { status: 'ok', orderId, userId };
+            return { status: 'ok' };
+        } catch (error) {
+            this.logger.error(`❌ Job ${job.id} failed (attempt ${job.attemptsMade + 1}):`, error.message);
+            if (error instanceof HttpException) {
+                const status = error.getStatus();
+                const response = error.getResponse();
+                this.logger.error(`Order failed: ${status} - ${JSON.stringify(response)}`);
+                throw error; // vẫn throw để Bull đánh dấu job failed
+            }
+            throw new Error('Worker internal error');
+        }
     }
 }

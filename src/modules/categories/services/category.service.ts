@@ -2,7 +2,7 @@ import { BaseService } from '@core/services/base.service';
 import { CategoryModel } from '@modules/categories/domain/models/category.model';
 import { RedisService } from '@/redis/redis.service';
 import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CATEGORY_ENTITY } from '@modules/categories/constants/category.constant';
 import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/dto/category.request.dto';
 import { PostgresCategoryRepository } from '@modules/categories/infrastructure/repository/postgres-category.repository';
@@ -28,12 +28,12 @@ GetAllCategoryResponseDto> {
   }
 
   protected async moduleInit() {
-    // console.log('✅ Init Category cache...');
+    // Logger.log('✅ Init Category cache...');
     this.categorys = ['Iphone', 'Galaxy'];
   }
 
   protected async bootstrapLogic(): Promise<void> {
-    // console.log(
+    // Logger.log(
     //   '👉 OnApplicationBootstrap: CategoryService bootstrap: preloading cache...',
     // );
     //Bắt đầu chạy cron job đồng bộ tồn kho.
@@ -42,19 +42,19 @@ GetAllCategoryResponseDto> {
 
   protected async beforeAppShutDown(signal): Promise<void> {
     this.stopJob();
-    console.log(
+    Logger.log(
       `🛑 beforeApplicationShutdown: CategoryService cleanup before shutdown.`,
     );
   }
 
   private async stopJob() {
-    console.log('logic dừng cron job: ');
-    console.log('* Ngắt kết nối queue worker: ');
+    Logger.log('logic dừng cron job: ');
+    Logger.log('* Ngắt kết nối queue worker: ');
   }
 
   protected async moduleDestroy() {
     this.categorys = [];
-    console.log('🗑️onModuleDestroy -> categorys: ', this.categorys);
+    Logger.log('🗑️onModuleDestroy -> categorys: ', this.categorys);
   }
 
   async getById(id: string): Promise<GetByIdCategoryResponseDto> {

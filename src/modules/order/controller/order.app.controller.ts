@@ -27,7 +27,9 @@ import { OrderService } from '../services/order.service';
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class OrderAppController {
-  constructor(private readonly orderService: OrderService) { }
+  constructor(
+    private readonly orderService: OrderService
+  ) { }
 
   @Get()
   @HttpCode(HttpStatus.OK)
@@ -58,18 +60,6 @@ export class OrderAppController {
       throw error;
     }
   }
-  
-  @HttpCode(HttpStatus.CREATED)
-  @Post('persist')
-  async persistOrder(@Body() createOrderDto: CreatedOrderRequestDto) {
-    try {
-      return await this.orderService.persistOrder(createOrderDto);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

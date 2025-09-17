@@ -9,12 +9,11 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
+import { BullModule } from './bull/bull.module';
 import { ChatGateway } from './gateways/chat.gateway';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { OrderModule } from './modules/order/order.module';
-import { BullmqModule } from './shared/bullmq/bullmq.module';
 import { RedisModule } from './redis/redis.module';
-import { BullModule } from './bull/bull.module';
 
 @Module({
   imports: [
@@ -37,7 +36,6 @@ import { BullModule } from './bull/bull.module';
     ProductModule,
     OrderModule,
     InventoryModule,
-    BullmqModule,
     BullModule
   ],
   controllers: [AppController],
