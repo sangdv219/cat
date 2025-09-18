@@ -8,9 +8,9 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { CreatedUserAuthRequestDto } from '../DTO/user-auth.request.dto';
-import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
-import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../DTO/user.admin.response.dto';
+import { CreatedUserAuthRequestDto } from '../dto/user-auth.request.dto';
+import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../dto/user.admin.request.dto';
+import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../dto/user.admin.response.dto';
 import { PostgresUserRepository } from '../repository/user.admin.repository';
 
 @Injectable()

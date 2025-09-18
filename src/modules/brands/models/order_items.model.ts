@@ -8,6 +8,7 @@ import {
     ForeignKey,
     Model,
     PrimaryKey,
+    Sequelize,
     Table
 } from 'sequelize-typescript';
 import { OrdersModel } from '../../order/domain/models/orders.model';
@@ -15,7 +16,7 @@ import { OrdersModel } from '../../order/domain/models/orders.model';
 @Table({ tableName: 'order_items' })
 export class OrderItemsModel extends Model<OrderItemsModel> {
   @PrimaryKey
-  @Default(DataType.UUID)
+  @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
   declare id: string;
 

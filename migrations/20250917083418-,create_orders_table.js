@@ -5,7 +5,7 @@ module.exports = {
     await queryInterface.createTable('orders', {
       id: {
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('gen_random_uuid()'),
+        defaultValue: Sequelize.literal('gen_random_UUID()'),
         allowNull: false,
         primaryKey: true,
       },
@@ -16,7 +16,8 @@ module.exports = {
           model: 'users', // bảng users
           key: 'id',
         },
-        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       product_id: {
         type: Sequelize.UUID,
@@ -45,6 +46,16 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('NOW()'),
+      },
+      created_by: {
+        allowNull: true,
+        defaultValue: null,
+        type: Sequelize.STRING,
+      },
+      updated_by: {
+        allowNull: true,
+        defaultValue: null,
+        type: Sequelize.STRING,
       },
     });
   },

@@ -6,12 +6,18 @@ module.exports = {
     await queryInterface.createTable('products', {
       id: {
         type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV,
+        defaultValue: Sequelize.literal('gen_random_uuid()'),
         allowNull: false,
         primaryKey: true
       },
       name: {
-        type: Sequelize.STRING(500),
+        type: Sequelize.STRING(100),
+        allowNull: false,
+        defaultValue: Sequelize.name
+      },
+
+      sku: {
+        type: Sequelize.STRING(100),
         allowNull: false,
         defaultValue: Sequelize.name
       },
@@ -58,30 +64,39 @@ module.exports = {
       },
 
       created_at: {
+        allowNull: false,
         type: Sequelize.DATE,
-        allowNull: true,
-        defaultValue: Sequelize.NOW
+        defaultValue: Sequelize.literal('NOW()'),
       },
-
       updated_at: {
+        allowNull: false,
         type: Sequelize.DATE,
-        allowNull: true,
-        defaultValue: Sequelize.NOW
+        defaultValue: Sequelize.literal('NOW()'),
       },
-
+      created_by: {
+        allowNull: true,
+        defaultValue: null,
+        type: Sequelize.STRING,
+      },
+      updated_by: {
+        allowNull: true,
+        defaultValue: null,
+        type: Sequelize.STRING,
+      },
     });
+
      await queryInterface.addIndex('products', ['name'], {
       unique: true,
       name: 'idx_products_name',
-      include: ['is_public', 'price']
+      include: ['is_public', 'price', 'evaluate', 'is_public', 'promotion_price', 'sku', 'created_at', 'updated_at', 'created_by', 'created_by']
     });
      await queryInterface.addIndex('products', ['brand_id'], {
-      name: 'idx_products_name_brand_id',
-      include: ['is_public', 'price']
+      name: 'idx_products_brand_id',
+      include: ['is_public', 'price', 'evaluate', 'is_public', 'promotion_price', 'sku', 'name', 'created_at', 'updated_at', 'created_by', 'created_by']
     });
      await queryInterface.addIndex('products', ['category_id'], {
-      name: 'idx_products_name_category_id',
-      include: ['is_public', 'price']
+      name: 'idx_products_category_id',
+      include: ['is_public', 'price', 'evaluate', 'is_public', 'promotion_price', 'sku', 'name', 'created_at', 'updated_at', 'created_by', 'created_by']
     });
   },
 

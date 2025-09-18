@@ -5,6 +5,7 @@ import {
   Default,
   Model,
   PrimaryKey,
+  Sequelize,
   Table,
   Unique,
 } from 'sequelize-typescript';
@@ -16,7 +17,7 @@ import {
 })
 export class UserModel extends Model {
   @PrimaryKey
-  @Default(DataType.UUID)
+  @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
   declare id: string;
 
@@ -70,6 +71,16 @@ export class UserModel extends Model {
   @Default(DataType.NOW)
   @Column(DataType.DATE)
   updated_at: Date;
+
+  @AllowNull(true)
+  @Default(null)
+  @Column(DataType.STRING)
+  created_by: string;
+
+  @AllowNull(true)
+  @Default(null)
+  @Column(DataType.STRING)
+  updated_by: string;
 
   @AllowNull(true)
   @Default(null)

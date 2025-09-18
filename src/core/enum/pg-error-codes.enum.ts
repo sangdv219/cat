@@ -2,7 +2,7 @@ import { HttpStatus } from "@nestjs/common";
 
 export enum POSTGRES_ERROR_CODES {
 // Class 22 — Data Exception
-  INVALID_TEXT_REPRESENTATION = '22P02', // e.g. invalid input syntax for type uuid
+  INVALID_TEXT_REPRESENTATION = '22P02', // e.g. invalid input syntax for type UUID
   NUMERIC_VALUE_OUT_OF_RANGE = '22003',
   STRING_DATA_RIGHT_TRUNCATION = '22001',
   DIVISION_BY_ZERO = '22012',

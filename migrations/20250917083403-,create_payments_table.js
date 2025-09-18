@@ -5,7 +5,7 @@ module.exports = {
     await queryInterface.createTable('payments', {
       id: {
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('gen_random_uuid()'),
+        defaultValue: Sequelize.literal('gen_random_UUID()'),
         allowNull: false,
         primaryKey: true,
       },
@@ -16,7 +16,8 @@ module.exports = {
           model: 'orders', // bảng orders
           key: 'id',
         },
-        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       amount: {
         type: Sequelize.DECIMAL(12, 2),
@@ -31,10 +32,6 @@ module.exports = {
         allowNull: false,
         defaultValue: 'initiated',
       },
-      transaction_id: {
-        type: Sequelize.STRING(100),
-        allowNull: true,
-      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -45,6 +42,21 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('NOW()'),
       },
+      created_by: {
+        allowNull: true,
+        defaultValue: null,
+        type: Sequelize.STRING,
+      },
+      updated_by: {
+        allowNull: true,
+        defaultValue: null,
+        type: Sequelize.STRING,
+      },
+    });
+
+    await queryInterface.addIndex('payments', ['order_id'], {
+      name: 'idx_payments_order_id',
+      include: ['status', 'method', 'amount', 'created_at', 'updated_at', 'created_by', 'created_by']
     });
   },
 

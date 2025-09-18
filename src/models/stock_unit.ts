@@ -5,6 +5,7 @@ import {
   Default,
   Model,
   PrimaryKey,
+  Sequelize,
   Table
 } from 'sequelize-typescript';
 
@@ -15,7 +16,7 @@ import {
 })
 export class StockUnitModel extends Model {
   @PrimaryKey
-  @Default(DataType.UUID)
+  @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
   declare id: string;
 

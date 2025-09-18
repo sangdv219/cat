@@ -9,6 +9,7 @@ import {
   ForeignKey,
   Model,
   PrimaryKey,
+  Sequelize,
   Table,
   Unique,
 } from 'sequelize-typescript';
@@ -20,7 +21,7 @@ import {
 })
 export class ProductModel extends Model {
   @PrimaryKey
-  @Default(DataType.UUID)
+  @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
   declare id: string;
 
@@ -28,18 +29,18 @@ export class ProductModel extends Model {
   @Default('')
   @Column({ type: DataType.STRING(500) })
   name: string;
-  
+
   @AllowNull(false)
   @Unique(true)
   @Column({ type: DataType.STRING(500) })
   sku: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.DECIMAL(10,2) })
+  @Column({ type: DataType.DECIMAL(10, 2) })
   price: number;
 
   @AllowNull(true)
-  @Column({ type: DataType.DECIMAL(10,2) })
+  @Column({ type: DataType.DECIMAL(10, 2) })
   promotion_price: number;
 
   @AllowNull(true)
@@ -70,4 +71,14 @@ export class ProductModel extends Model {
   @Default(DataType.NOW)
   @Column(DataType.DATE)
   updated_at: Date;
+
+  @AllowNull(true)
+  @Default(null)
+  @Column(DataType.STRING)
+  created_by: string;
+
+  @AllowNull(true)
+  @Default(null)
+  @Column(DataType.STRING)
+  updated_by: string;
 }

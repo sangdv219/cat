@@ -71,7 +71,7 @@ implements
   }
 
   create(dto: TCreateDto) {
-    this.cleanCacheRedis()
+    // this.cleanCacheRedis()
     return this.repository.create(dto);
   }
 

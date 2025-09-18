@@ -6,7 +6,7 @@ module.exports = {
     await queryInterface.createTable('brands', {
       id: {
         type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV,
+        defaultValue: Sequelize.literal('gen_random_uuid()'),
         allowNull: false,
         primaryKey: true
       },
@@ -27,22 +27,31 @@ module.exports = {
       },
 
       created_at: {
+        allowNull: false,
         type: Sequelize.DATE,
-        allowNull: true,
-        defaultValue: Sequelize.NOW
+        defaultValue: Sequelize.literal('NOW()'),
       },
-
       updated_at: {
+        allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()'),
+      },
+      created_by: {
         allowNull: true,
-        defaultValue: Sequelize.NOW
+        defaultValue: null,
+        type: Sequelize.STRING,
+      },
+      updated_by: {
+        allowNull: true,
+        defaultValue: null,
+        type: Sequelize.STRING,
       },
 
     });
     await queryInterface.addIndex('brands', ['name'], {
       unique: true,
       name: 'idx_brands_name',
-      include: ['is_public', 'image']
+      include: ['is_public', 'image', 'created_at', 'updated_at', 'created_by', 'created_by']
     });
 
   },

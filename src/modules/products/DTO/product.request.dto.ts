@@ -36,12 +36,12 @@ export class CreatedProductRequestDto {
   @Max(5)
   evaluate: number;
 
-  @ApiProperty({ description: 'category_id', example: 'a6bfb629-2e5d-46c4-80a4-f6a338b0187a' })
+  @ApiProperty({ description: 'category_id', example: 'cc893570-a8ba-4204-acee-f377bd6206bb' })
   @IsNotEmpty()
   category_id: string;
 
   @IsNotEmpty()
-  @ApiProperty({ description: 'brandId', example: 'd9bd6100-6f00-45ac-893b-73b7b9f27e77' })
+  @ApiProperty({ description: 'brandId', example: '3e7792b9-6411-43a3-abba-41ecefd8de8c' })
   brand_id: string;
 
   @IsOptional()

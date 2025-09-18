@@ -19,10 +19,10 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
-import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../DTO/user.admin.request.dto';
+import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../dto/user.admin.request.dto';
 import { UserModel } from '../domain/models/user.model';
 import { UserService } from '../services/user.service';
-import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../DTO/user.admin.response.dto';
+import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../dto/user.admin.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('user-admin')

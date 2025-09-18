@@ -21,7 +21,7 @@
     "sonar": "sonar-scanner -Dsonar.token=$SONAR_TOKEN",
     "sequelize:generate": "npx sequelize-cli migration:generate --name $npm_config_name",
     "sequelize:run": "npx sequelize-cli db:migrate",
-    "sequelize:revert-file": "npx sequelize-cli db:migrate:undo --name",
+    "sequelize:revert-file": "npx sequelize-cli db:migrate:undo --name --env development",
     "worker:email": "npx ts-node -r tsconfig-paths/register src/workers/email.worker.ts",
     "worker:order": "npx ts-node -r tsconfig-paths/register src/workers/order.worker.ts"
   },

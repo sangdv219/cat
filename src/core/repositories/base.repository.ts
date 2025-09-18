@@ -1,5 +1,4 @@
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
-import { isUUID } from 'class-validator';
 import { Op, Transaction } from 'sequelize';
 
 export class UpdateCreateResponse<T = any> {
@@ -22,7 +21,7 @@ export interface IPaginationDTO {
 
 export interface IBaseRepository<T> {
   getAll(): Promise<T[]>;
-  findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>; 
+  findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>;
   findByFields<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any[]>;
   findOneByField<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any>;
   findOne(id: string, exclude: string[]): Promise<T | null>;
@@ -46,7 +45,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return await this.model.findAll();
   }
 
-  async findWithPagination(parameter, exclude = [''] ): Promise<{ items: T; total: number }> {
+  async findWithPagination(parameter, exclude = ['']): Promise<{ items: T; total: number }> {
     const { page = 1, limit = 100, keyword } = parameter;
 
     const offset = (page - 1) * limit;
@@ -73,19 +72,18 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
 
   async findByFields<K extends keyof T>(field: K, value: T[K], exclude = ['']): Promise<any[]> {
     const records = await this.model.findAll({
-      where:{
+      where: {
         [field as string]: value
       },
       raw: true,
       attributes: { exclude },
-      // attributes: [field as string],
     });
     return records as unknown as T[K][];
   }
 
   async findOneByField<K extends keyof T>(field: K, value: T[K], exclude = ['']): Promise<any> {
     const record = await this.model.findOne({
-      where:{
+      where: {
         [field as string]: value
       },
       raw: true,
@@ -117,13 +115,10 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
   }
 
   async create(payload, options?: { transaction?: Transaction }): Promise<any> {
-    // try {
-      const result = await this.model.create(payload, options);
-      return result;
-      
-    // } catch (error) {
-      // this.logger.error('❌ error', error)
-    // }
+    console.log("payload: ", payload);
+    const result = await this.model.create(payload, options);
+    console.log("result: ", result);
+    return result;
   }
 
   async update(id: string, payload: any) {
@@ -134,9 +129,6 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
   }
 
   async delete(id: string) {
-    if (!isUUID(id)) {
-      throw new BadRequestException('Invalid UUID format');
-    }
     const deletedRows = await this.model.destroy({
       where: { id },
     });

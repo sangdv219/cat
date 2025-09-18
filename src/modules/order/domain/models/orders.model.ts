@@ -1,5 +1,6 @@
 import { UserModel } from '@/modules/users/domain/models/user.model';
 import {
+  AllowNull,
   BelongsTo,
   Column,
   CreatedAt,
@@ -9,6 +10,7 @@ import {
   HasMany,
   Model,
   PrimaryKey,
+  Sequelize,
   Table,
   UpdatedAt
 } from 'sequelize-typescript';
@@ -19,7 +21,7 @@ import { ProductModel } from '@/modules/products/domain/models/product.model';
 @Table({ tableName: 'orders' })
 export class OrdersModel extends Model<OrdersModel> {
   @PrimaryKey
-  @Default(DataType.UUID)
+  @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
   declare id: string;
 
@@ -49,6 +51,16 @@ export class OrdersModel extends Model<OrdersModel> {
 
   @UpdatedAt
   updated_at: Date;
+
+  @AllowNull(true)
+  @Default(null)
+  @Column(DataType.STRING)
+  created_by: string;
+
+  @AllowNull(true)
+  @Default(null)
+  @Column(DataType.STRING)
+  updated_by: string;
 
   @HasMany(() => OrderItemsModel)
   items: OrderItemsModel[];

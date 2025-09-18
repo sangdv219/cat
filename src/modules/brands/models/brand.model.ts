@@ -5,6 +5,7 @@ import {
   Default,
   Model,
   PrimaryKey,
+  Sequelize,
   Table,
 } from 'sequelize-typescript';
 import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant';
@@ -16,7 +17,7 @@ import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant';
 })
 export class BrandModel extends Model {
   @PrimaryKey
-  @Default(DataType.UUID)
+  @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
   declare id: string;
 
@@ -43,4 +44,14 @@ export class BrandModel extends Model {
   @Default(DataType.NOW)
   @Column(DataType.DATE)
   updated_at: Date;
+
+  @AllowNull(true)
+  @Default(null)
+  @Column(DataType.STRING)
+  created_by: string;
+
+  @AllowNull(true)
+  @Default(null)
+  @Column(DataType.STRING)
+  updated_by: string;
 }

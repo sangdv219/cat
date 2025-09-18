@@ -6,7 +6,7 @@ module.exports = {
     await queryInterface.createTable('users', {
       id: {
         type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV,
+        defaultValue: Sequelize.literal('gen_random_uuid()'),
         allowNull: false,
         primaryKey: true
       },
@@ -83,11 +83,49 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: true,
         defaultValue: null
-      }
+      },
+      created_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        require: true,
+        defaultValue: Sequelize.literal('NOW()'),
+      },
+      updated_at: {
+        allowNull: false,
+        require: true,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('NOW()'),
+      },
+      created_by: {
+        allowNull: true,
+        defaultValue: null,
+        type: Sequelize.STRING,
+      },
+      updated_by: {
+        allowNull: true,
+        defaultValue: null,
+        type: Sequelize.STRING,
+      },
+      deleted_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: null,
+      },
+      deleted_by: {
+        allowNull: true,
+        defaultValue: null,
+        type: Sequelize.STRING,
+      },
     });
     await queryInterface.addIndex('users', ['name', 'phone'], {
       unique: true,
-      name: 'users_name_phone'
+      name: 'idx_users_name_phone',
+      include: ['avatar', 'age', 'gender', 'email', 'is_root', 'is_active', 'created_at', 'updated_at', 'created_by', 'created_by']
+    });
+    await queryInterface.addIndex('users', ['email'], {
+      unique: true,
+      name: 'idx_users_email',
+      include: ['name', 'avatar', 'age', 'gender', 'phone', 'is_root', 'is_active', 'created_at', 'updated_at', 'created_by', 'created_by']
     });
   },
 

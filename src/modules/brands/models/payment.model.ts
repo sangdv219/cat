@@ -1,21 +1,23 @@
 import {
-    BelongsTo,
-    Column,
-    CreatedAt,
-    DataType,
-    Default,
-    ForeignKey,
-    Model,
-    PrimaryKey,
-    Table,
-    UpdatedAt
+  AllowNull,
+  BelongsTo,
+  Column,
+  CreatedAt,
+  DataType,
+  Default,
+  ForeignKey,
+  Model,
+  PrimaryKey,
+  Sequelize,
+  Table,
+  UpdatedAt
 } from 'sequelize-typescript';
 import { OrdersModel } from '../../order/domain/models/orders.model';
 
 @Table({ tableName: 'payments' })
 export class PaymentsModel extends Model<PaymentsModel> {
   @PrimaryKey
-  @Default(DataType.UUID)
+  @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
   declare id: string;
 
@@ -44,4 +46,14 @@ export class PaymentsModel extends Model<PaymentsModel> {
 
   @UpdatedAt
   updated_at: Date;
+
+  @AllowNull(true)
+  @Default(null)
+  @Column(DataType.STRING)
+  created_by: string;
+
+  @AllowNull(true)
+  @Default(null)
+  @Column(DataType.STRING)
+  updated_by: string;
 }
