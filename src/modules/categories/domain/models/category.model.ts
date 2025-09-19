@@ -1,12 +1,12 @@
+import { BaseModel } from '@/shared/model/base.model';
 import {
   AllowNull,
   Column,
   DataType,
   Default,
-  Model,
   PrimaryKey,
   Sequelize,
-  Table,
+  Table
 } from 'sequelize-typescript';
 
 @Table({
@@ -14,7 +14,7 @@ import {
   timestamps: true,
   underscored: true,
 })
-export class CategoryModel extends Model {
+export class CategoryModel extends BaseModel<CategoryModel> {
   @PrimaryKey
   @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
@@ -33,24 +33,4 @@ export class CategoryModel extends Model {
   @Default(false)
   @Column(DataType.BOOLEAN)
   is_public: boolean;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  created_at: Date;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  updated_at: Date;
-
-  @AllowNull(true)
-  @Default(null)
-  @Column(DataType.STRING)
-  created_by: string;
-
-  @AllowNull(true)
-  @Default(null)
-  @Column(DataType.STRING)
-  updated_by: string;
 }

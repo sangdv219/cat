@@ -9,13 +9,14 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant';
+import { BaseModel } from '@/shared/model/base.model';
 
 @Table({
   tableName: BRAND_ENTITY.TABLE_NAME,
   timestamps: true,
   underscored: true,
 })
-export class BrandModel extends Model {
+export class BrandModel extends BaseModel<BrandModel>  {
   @PrimaryKey
   @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
@@ -34,24 +35,4 @@ export class BrandModel extends Model {
   @Default(false)
   @Column(DataType.BOOLEAN)
   is_public: boolean;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  created_at: Date;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  updated_at: Date;
-
-  @AllowNull(true)
-  @Default(null)
-  @Column(DataType.STRING)
-  created_by: string;
-
-  @AllowNull(true)
-  @Default(null)
-  @Column(DataType.STRING)
-  updated_by: string;
 }

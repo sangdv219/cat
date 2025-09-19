@@ -115,9 +115,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
   }
 
   async create(payload, options?: { transaction?: Transaction }): Promise<any> {
-    console.log("payload: ", payload);
     const result = await this.model.create(payload, options);
-    console.log("result: ", result);
     return result;
   }
 

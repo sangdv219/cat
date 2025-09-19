@@ -61,7 +61,7 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                         return throwError(() => new HttpException(
                             {
                                 statusCode: status,
-                                message: err.message,
+                                message: err.parent.detail || err.message,
                                 timestamp: new Date().toISOString(),
                             },
                             HttpStatus.CONFLICT

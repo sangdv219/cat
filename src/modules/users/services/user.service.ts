@@ -12,14 +12,17 @@ import { CreatedUserAuthRequestDto } from '../dto/user-auth.request.dto';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../dto/user.admin.request.dto';
 import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../dto/user.admin.response.dto';
 import { PostgresUserRepository } from '../repository/user.admin.repository';
+import { JwtService } from '@nestjs/jwt';
+import { plainToInstance } from 'class-transformer';
+import * as argon2 from 'argon2';
 
 @Injectable()
-export class UserService extends 
-BaseService<UserModel, 
-CreatedUserAdminRequestDto, 
-UpdatedUserAdminRequestDto, 
-GetByIdUserAdminResponseDto, 
-GetAllUserAdminResponseDto> {
+export class UserService extends
+  BaseService<UserModel,
+    CreatedUserAdminRequestDto,
+    UpdatedUserAdminRequestDto,
+    GetByIdUserAdminResponseDto,
+    GetAllUserAdminResponseDto> {
   protected entityName: string;
   private users: string[] = [];
   constructor(
@@ -63,14 +66,18 @@ GetAllUserAdminResponseDto> {
   }
 
   async delete(id: string): Promise<void> {
-    try {
-      const user = await this.userRepository.findOne(id)
-      const modifyDto = { ...user, is_active: false };
-      await this.userRepository.update(id, modifyDto)
-    } catch (error) {
-      throw error;
-    }
+    const user = await this.userRepository.findOne(id)
+    const modifyDto = { ...user, is_active: false };
+    await this.userRepository.update(id, modifyDto)
   }
+  // $argon2id$v=19$m=65536,t=3,p=4$IJNVxnKTrqpO07cfawpPGw$YdqBIL0JB7qY3sSKrplvpR8oDqIOywHMz/9nX4YHNzk
+  async create(dto: CreatedUserAdminRequestDto): Promise<void> {
+    const encode = await argon2.hash(dto.password)
+    const user = { ...dto }
+    user['password_hash'] = encode;
+    await this.userRepository.create(user)
+  }
+
   async restoreUser(id: string): Promise<UpdateCreateResponse<UserModel>> {
     const user = await this.userRepository.findOneByRaw({
       where: { id, is_active: false },
@@ -105,7 +112,6 @@ GetAllUserAdminResponseDto> {
       throw new ConflictException('Email already exists');
     }
     const result = await this.userRepository.create(body);
-    Logger.log("body: ", body);
     return {
       success: true,
       data: result.id,

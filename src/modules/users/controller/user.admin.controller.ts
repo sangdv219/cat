@@ -16,6 +16,7 @@ import {
   Post,
   Query,
   UseFilters,
+  UseGuards,
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
@@ -23,6 +24,8 @@ import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../dto/u
 import { UserModel } from '../domain/models/user.model';
 import { UserService } from '../services/user.service';
 import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../dto/user.admin.response.dto';
+import { JWTAuthGuard } from '@/core/guards/jwt.guard';
+import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
 @Controller('user-admin')
@@ -31,7 +34,7 @@ import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../dto/
 export class UserAdminController {
   constructor(private readonly userService: UserService) { }
 
-  @ApiOkResponse({ description: 'Danh sách user phân trang', type: BaseGetResponse<UserModel>})
+  @ApiOkResponse({ description: 'Danh sách user phân trang', type: BaseGetResponse<UserModel> })
   @Get()
   @HttpCode(HttpStatus.OK)
   // @UseGuards(JWTAuthGuard)
@@ -55,7 +58,8 @@ export class UserAdminController {
   }
 
   @HttpCode(HttpStatus.CREATED)
-  // @UseGuards(JWTAuthGuard)
+  @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @Post()
   async create(@Body() createUserAdminDto: CreatedUserAdminRequestDto) {
     try {
@@ -67,8 +71,8 @@ export class UserAdminController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JWTAuthGuard)
-  // @UsePipes(new ForbidPasswordInUpdatePipe())
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JWTAuthGuard)
   async updateUserAdmin(@Param('id') id: string, @Body() dto: UpdatedUserAdminRequestDto) {
     try {
       return await this.userService.update(id, dto);
@@ -78,12 +82,14 @@ export class UserAdminController {
   }
 
   @Delete(':id')
-  // @UseGuards(JWTAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteUserAdmin(@Param('id') id: string): Promise<void> {
     try {
       return await this.userService.delete(id);
     } catch (error) {
+      console.log("error: ", error);
       throw error;
     }
   }

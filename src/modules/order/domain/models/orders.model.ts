@@ -1,25 +1,22 @@
+import { ProductModel } from '@/modules/products/domain/models/product.model';
 import { UserModel } from '@/modules/users/domain/models/user.model';
+import { BaseModel } from '@/shared/model/base.model';
+import { OrderItemsModel } from '@modules/brands/models/order_items.model';
+import { PaymentsModel } from '@modules/brands/models/payment.model';
 import {
-  AllowNull,
   BelongsTo,
   Column,
-  CreatedAt,
   DataType,
   Default,
   ForeignKey,
   HasMany,
-  Model,
   PrimaryKey,
   Sequelize,
-  Table,
-  UpdatedAt
+  Table
 } from 'sequelize-typescript';
-import { OrderItemsModel } from '@modules/brands/models/order_items.model';
-import { PaymentsModel } from '@modules/brands/models/payment.model';
-import { ProductModel } from '@/modules/products/domain/models/product.model';
 
 @Table({ tableName: 'orders' })
-export class OrdersModel extends Model<OrdersModel> {
+export class OrdersModel extends BaseModel<OrdersModel> {
   @PrimaryKey
   @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
@@ -45,22 +42,6 @@ export class OrdersModel extends Model<OrdersModel> {
 
   @Column({ type: DataType.INTEGER, allowNull: false })
   total_amount: number;
-
-  @CreatedAt
-  created_at: Date;
-
-  @UpdatedAt
-  updated_at: Date;
-
-  @AllowNull(true)
-  @Default(null)
-  @Column(DataType.STRING)
-  created_by: string;
-
-  @AllowNull(true)
-  @Default(null)
-  @Column(DataType.STRING)
-  updated_by: string;
 
   @HasMany(() => OrderItemsModel)
   items: OrderItemsModel[];

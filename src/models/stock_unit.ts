@@ -32,14 +32,4 @@ export class StockUnitModel extends Model {
   @AllowNull(false)
   @Column(DataType.BOOLEAN)
   is_base: boolean;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  created_at: Date;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  updated_at: Date;
 }

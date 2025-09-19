@@ -14,10 +14,15 @@ import { ChatGateway } from './gateways/chat.gateway';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { OrderModule } from './modules/order/order.module';
 import { RedisModule } from './redis/redis.module';
+import { ClsModule } from 'nestjs-cls';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'] }),
+    ClsModule.forRoot({
+      global: true,
+      middleware: { mount: true } // auto bind context cho mỗi request
+    }),
     JwtModule.register({
       global: true,
       secret:

@@ -1,5 +1,8 @@
 import {
   AllowNull,
+  BeforeCreate,
+  BeforeDestroy,
+  BeforeUpdate,
   Column,
   DataType,
   Default,
@@ -9,13 +12,15 @@ import {
   Table,
   Unique,
 } from 'sequelize-typescript';
+import { BaseModel } from '@/shared/model/base.model';
+import { ClsServiceManager } from 'nestjs-cls';
 
 @Table({
   tableName: 'users',
   timestamps: true,
   underscored: true,
 })
-export class UserModel extends Model {
+export class UserModel extends BaseModel<UserModel> {
   @PrimaryKey
   @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
@@ -28,77 +33,79 @@ export class UserModel extends Model {
 
   @AllowNull(true)
   @Column(DataType.TEXT)
-  password_hash: string;
+  declare password_hash: string;
 
   @AllowNull(true)
   @Unique
   @Column({ type: DataType.STRING(500) })
-  email: string;
+  declare email: string;
 
   @AllowNull(false)
   @Default('')
   @Column({ type: DataType.STRING(100) })
-  phone: string;
+  declare phone: string;
 
   @AllowNull(true)
   @Column({ type: DataType.STRING(255) })
-  gender: string;
+  declare gender: string;
 
   @AllowNull(true)
   @Column(DataType.INTEGER)
-  age: number;
+  declare age: number;
 
   @AllowNull(false)
   @Default(false)
   @Column(DataType.BOOLEAN)
-  is_root: boolean;
+  declare is_root: boolean;
 
   @AllowNull(false)
   @Default(false)
   @Column(DataType.BOOLEAN)
-  is_active: boolean;
+  declare is_active: boolean;
 
   @AllowNull(true)
   @Column(DataType.STRING)
-  avatar: string;
+  declare avatar: string;
 
   @AllowNull(true)
   @Default(DataType.NOW)
   @Column(DataType.DATE)
-  created_at: Date;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  updated_at: Date;
+  declare created_at: Date;
 
   @AllowNull(true)
   @Default(null)
   @Column(DataType.STRING)
-  created_by: string;
+  declare updated_by: string;
 
   @AllowNull(true)
   @Default(null)
   @Column(DataType.STRING)
-  updated_by: string;
+  declare deleted_by: string;
+  @BeforeDestroy
+  static setDeteledBy(instance: UserModel) {
+    const userId = ClsServiceManager.getClsService().get('userId');
+    if (userId) {
+      instance.deleted_by = userId;
+    }
+  }
 
   @AllowNull(true)
   @Default(null)
   @Column(DataType.DATE)
-  deleted_at: Date;
+  declare deleted_at: Date;
 
   @AllowNull(true)
   @Default(0)
   @Column(DataType.INTEGER)
-  failed_login_attempts: number;
+  declare failed_login_attempts: number;
 
   @AllowNull(true)
   @Default(null)
   @Column(DataType.DATE)
-  last_failed_login_at: Date;
+  declare last_failed_login_at: Date;
 
   @AllowNull(true)
   @Default(null)
   @Column(DataType.DATE)
-  locked_until: Date; // New field to track when the account is locked until
+  declare locked_until: Date; // New field to track when the account is locked until
 }

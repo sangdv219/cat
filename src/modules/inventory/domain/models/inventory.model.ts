@@ -12,13 +12,14 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { INVENTORY_ENTITY } from '../../constants/inventory.constant';
+import { BaseModel } from '@/shared/model/base.model';
 
 @Table({
   tableName: INVENTORY_ENTITY.TABLE_NAME,
   timestamps: true,
   underscored: true,
 })
-export class InventoryModel extends Model {
+export class InventoryModel extends BaseModel<InventoryModel> {
   @PrimaryKey
   @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
@@ -36,24 +37,4 @@ export class InventoryModel extends Model {
   @Default(0)
   @Column(DataType.INTEGER)
   stock: number;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  created_at: Date;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  updated_at: Date;
-
-  @AllowNull(true)
-  @Default(null)
-  @Column(DataType.STRING)
-  created_by: string;
-
-  @AllowNull(true)
-  @Default(null)
-  @Column(DataType.STRING)
-  updated_by: string;
 }

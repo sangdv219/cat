@@ -34,11 +34,11 @@ export class CreatedUserAdminRequestDto implements CreatedUserAdminRequest {
   name: string;
 
   @IsNotEmpty()
-  @ApiProperty({ description: 'email', example: 'sangdva@gmail.com' })
+  @ApiProperty({ description: 'email', example: 'sangdv219@gmail.com' })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ description: 'password', minLength: 6 })
+  @ApiProperty({ description: 'password', minLength: 6, example: '123456' })
   @IsNotEmpty()
   @MinLength(6)
   password: string;
