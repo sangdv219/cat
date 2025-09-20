@@ -59,7 +59,7 @@ export class InventoryService extends
   }
 
   async getByProductId(field: string, id: string): Promise<GetByIdInventoryResponseDto> {
-    const inventory_ = await this.repository.findOneByRaw({
+    const inventory_ = await this.repository.findByOneByRaw({
       where: { [`${field}`]: id },
       include: [{
         model: ProductModel,

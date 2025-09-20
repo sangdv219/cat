@@ -20,21 +20,21 @@ export class PaymentsModel extends BaseModel<PaymentsModel> {
 
   @ForeignKey(() => OrdersModel)
   @Column(DataType.UUID)
-  order_id: string;
+  declare order_id: string;
 
   @BelongsTo(() => OrdersModel)
-  order: OrdersModel;
+  declare order: OrdersModel;
 
   @Column({ type: DataType.DECIMAL(12, 2), allowNull: false })
-  amount: number;
+  declare amount: number;
 
   @Column({ type: DataType.STRING(50), allowNull: false })
-  method: string;
+  declare method: string;
 
   @Default('initiated')
   @Column(DataType.STRING(20))
-  status: string;
+  declare status: string;
 
   @Column(DataType.STRING(100))
-  transaction_id: string;
+  declare transaction_id: string;
 }

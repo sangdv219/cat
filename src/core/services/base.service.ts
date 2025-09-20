@@ -84,7 +84,7 @@ implements
 
   async getById(id: string): Promise<GetByIdResponseDto | null> {
     const exclude = sensitiveFields[this.entityName] ?? [];
-    const entity = await this.repository.findOne(id, exclude);
+    const entity = await this.repository.findByPk(id, exclude);
     if (!entity) {
       throw new NotFoundException(`${this.entityName} with id ${id} not found`);
     }

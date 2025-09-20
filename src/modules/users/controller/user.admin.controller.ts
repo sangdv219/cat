@@ -68,11 +68,11 @@ export class UserAdminController {
       throw error;
     }
   }
-
+  
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async updateUserAdmin(@Param('id') id: string, @Body() dto: UpdatedUserAdminRequestDto) {
     try {
       return await this.userService.update(id, dto);
@@ -80,11 +80,11 @@ export class UserAdminController {
       throw error;
     }
   }
-
+  
   @Delete(':id')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(UserContextInterceptor)
   async deleteUserAdmin(@Param('id') id: string): Promise<void> {
     try {
       return await this.userService.delete(id);
@@ -93,11 +93,12 @@ export class UserAdminController {
       throw error;
     }
   }
-
-  // @Patch(':id')
-  // // @UseGuards(JWTAuthGuard)
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async restoreUserAdmin(@Param('id') id: string): Promise<UpdateCreateResponse<UserModel>> {
-  //   return await this.userService.restoreUser(id);
-  // }
+  
+  @Patch('/restore/:id')
+  @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async restoreUserAdmin(@Param('id') id: string): Promise<any> {
+    return await this.userService.restoreUser(id);
+  }
 }

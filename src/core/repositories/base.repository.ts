@@ -1,4 +1,4 @@
-import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { Op, Transaction } from 'sequelize';
 
 export class UpdateCreateResponse<T = any> {
@@ -24,10 +24,10 @@ export interface IBaseRepository<T> {
   findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>;
   findByFields<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any[]>;
   findOneByField<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any>;
-  findOne(id: string, exclude: string[]): Promise<T | null>;
-  findOneByRaw(condition: Record<string, any>, exclude: string[]): Promise<T | null>;
+  findByPk(id: string, exclude: string[]): Promise<T | null>;
+  findByOneByRaw(condition: Record<string, any>, exclude: string[]): Promise<T | null>;
   create(payload: Partial<T>, options?: { transaction?: Transaction }): Promise<void>;
-  update(id: string, payload: Partial<T>): Promise<void>;
+  update(id: string, payload: Partial<T>): Promise<any>;
   delete(id: string): Promise<boolean>;
 }
 
@@ -92,23 +92,11 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return record as unknown as T[K];
   }
 
-  async findOne(id, exclude = ['']): Promise<T | null> {
-    return await this.model.findOne({
-      where: { id },
-      attributes: { exclude },
-      raw: true,
-    });
+  async findByPk(id: string, exclude = ['']): Promise<T | null>{
+    return await this.model.findByPk(id)
   }
 
-  async findByEmail(email: string, exclude = ['']): Promise<T | null> {
-    return await this.model.findOne({
-      where: { email },
-      attributes: { exclude },
-      raw: true,
-    });
-  }
-
-  findOneByRaw(condition) {
+  findByOneByRaw(condition) {
     return this.model.findOne({
       ...condition,
     });
@@ -142,7 +130,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       id: { [Op.ne]: excludeId },
     };
 
-    const brand = await this.model.findOne({
+    const brand = await this.model.findByPk({
       where: condition,
     });
 
@@ -155,7 +143,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     }),
     );
 
-    const exists = await this.model.findOne({
+    const exists = await this.model.findByPk({
       where: { [Op.or]: orConditions },
     });
 

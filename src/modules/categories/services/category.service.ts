@@ -58,7 +58,7 @@ GetAllCategoryResponseDto> {
   }
 
   async getById(id: string): Promise<GetByIdCategoryResponseDto> {
-    const category = await this.repository.findOne(id);
+    const category = await this.repository.findByPk(id);
     if(!category) throw new TypeError('Category not found');
     const categoryId = category.id;
     const products = await this.postgresProductRepository.findOneByField('category_id',categoryId);

@@ -5,10 +5,25 @@ export class UserAdminBaseDto {
   name: string;
 
   @Expose()
-  image: string;
+  password: string;
+
+  @Expose()
+  email: string;
+
+  @Expose()
+  phone: string;
+
+  @Expose()
+  gender: string;
+
+  @Expose()
+  age: number;
 
   @Expose() 
-  is_public: boolean = false;
+  is_root: boolean = true;
+
+  @Expose() 
+  is_active: boolean = true;
 }
 
 export class GetAllUserAdminResponseDto {

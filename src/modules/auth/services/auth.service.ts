@@ -51,7 +51,7 @@ export class AuthService implements OnModuleInit {
   // }
 
   async incrementFailedLogins(id: string): Promise<void> {
-    const user = await this.userRepository.findOne(id);
+    const user = await this.userRepository.findByPk(id);
     const userData = user?.get({ plain: true });
     if (!userData) {
       throw new NotFoundException('User not found');
@@ -73,7 +73,7 @@ export class AuthService implements OnModuleInit {
   }
 
   async findEmail(email: string) {
-    return this.userRepository.findByEmail(email);
+    return this.userRepository.findOneByField('email', email);
   }
 
   async resetFailedLogins(id: string): Promise<void> {
@@ -87,7 +87,7 @@ export class AuthService implements OnModuleInit {
 
   async login(body: LoginDto): Promise<LoginResponseDto> {
     const { email, password } = body;
-    const user = await this.userRepository.findOneByRaw({
+    const user = await this.userRepository.findByOneByRaw({
       where: { email },
       returning: true,
     });

@@ -1,6 +1,7 @@
 // base.model.ts
 import { Model, Column, DataType, BeforeCreate, BeforeUpdate, AllowNull, Default, CreatedAt, UpdatedAt } from 'sequelize-typescript';
 import { ClsServiceManager } from 'nestjs-cls';
+
 export abstract class BaseModel<T extends {}> extends Model<T> {
     @AllowNull(true)
     @Default(null)
@@ -19,7 +20,7 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
     @UpdatedAt
     @Column({ field: 'updated_at' })
     declare updated_at: Date;
-    
+
     @BeforeCreate
     static setCreatedBy(instance: BaseModel<any>) {
         const userId = ClsServiceManager.getClsService().get('userId');
@@ -28,9 +29,10 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
             instance.updated_by = userId;
         }
     }
-
+    
     @BeforeUpdate
     static setUpdatedBy(instance: BaseModel<any>) {
+        console.log(">>> BeforeUpdate Hook Triggered, userId:");
         const userId = ClsServiceManager.getClsService().get('userId');
         if (userId) {
             instance.created_by = userId;

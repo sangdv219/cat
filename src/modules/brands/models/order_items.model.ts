@@ -22,24 +22,24 @@ export class OrderItemsModel extends Model<OrderItemsModel> {
 
   @ForeignKey(() => OrdersModel)
   @Column(DataType.UUID)
-  order_id: string;
+  declare order_id: string;
 
   @BelongsTo(() => OrdersModel)
-  order: OrdersModel;
+  declare order: OrdersModel;
 
   @ForeignKey(() => ProductModel)
   @Column(DataType.UUID)
-  product_id: string;
+  declare product_id: string;
 
   @BelongsTo(() => ProductModel)
-  product: ProductModel;
+  declare product: ProductModel;
 
   @Column({ type: DataType.INTEGER, allowNull: false })
-  quantity: number;
+  declare quantity: number;
 
   @Column({ type: DataType.DECIMAL(12, 2), allowNull: false })
-  price: number;
+  declare price: number;
 
   @CreatedAt
-  created_at: Date;
+  declare created_at: Date;
 }

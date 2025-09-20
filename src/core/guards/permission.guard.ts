@@ -12,7 +12,7 @@
 //   async canActivate(context: ExecutionContext): Promise<boolean> {
 //     const request = context.switchToHttp().getRequest();
 //     const userId = request.user.id;
-//     const userData = await this.userModel.findOne({
+//     const userData = await this.userModel.findByPk({
 //       where: { id: userId },
 //     });
 //     const isRoot = userData?.toJSON().is_root;

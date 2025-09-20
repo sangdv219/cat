@@ -24,28 +24,28 @@ export class OrdersModel extends BaseModel<OrdersModel> {
 
   @ForeignKey(() => ProductModel)
   @Column(DataType.UUID)
-  product_id: string;
+  declare product_id: string;
 
   @BelongsTo(() => ProductModel)
-  product: ProductModel;
+  declare product: ProductModel;
 
   @ForeignKey(() => UserModel)
   @Column(DataType.UUID)
-  user_id: string;
+  declare user_id: string;
 
   @BelongsTo(() => UserModel)
-  user: UserModel;
+  declare user: UserModel;
 
   @Default('pending')
   @Column(DataType.STRING(20))
-  status: string;
+  declare status: string;
 
   @Column({ type: DataType.INTEGER, allowNull: false })
-  total_amount: number;
+  declare total_amount: number;
 
   @HasMany(() => OrderItemsModel)
-  items: OrderItemsModel[];
+  declare items: OrderItemsModel[];
 
   @HasMany(() => PaymentsModel)
-  payments: PaymentsModel[];
+  declare payments: PaymentsModel[];
 }

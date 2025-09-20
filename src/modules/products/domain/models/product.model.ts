@@ -28,37 +28,37 @@ export class ProductModel extends BaseModel<ProductModel> {
   @AllowNull(false)
   @Default('')
   @Column({ type: DataType.STRING(500) })
-  name: string;
+  declare name: string;
 
   @AllowNull(false)
   @Unique(true)
   @Column({ type: DataType.STRING(500) })
-  sku: string;
+  declare sku: string;
 
   @AllowNull(false)
   @Column({ type: DataType.DECIMAL(10, 2) })
-  price: number;
+  declare price: number;
 
   @AllowNull(true)
   @Column({ type: DataType.DECIMAL(10, 2) })
-  promotion_price: number;
+  declare promotion_price: number;
 
   @AllowNull(true)
   @Column({ type: DataType.INTEGER })
-  evaluate: number;
+  declare evaluate: number;
 
   @ForeignKey(() => CategoryModel)
   @AllowNull(false)
   @Column({ type: DataType.UUID })
-  category_id: string;
+  declare category_id: string;
 
   @ForeignKey(() => BrandModel)
   @AllowNull(false)
   @Column({ type: DataType.UUID })
-  brand_id: string;
+  declare brand_id: string;
 
   @AllowNull(false)
   @Default(false)
   @Column(DataType.BOOLEAN)
-  is_public: boolean;
+  declare is_public: boolean;
 }

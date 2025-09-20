@@ -123,7 +123,7 @@ export class OrderService extends
   }
 
   async getById(id: string): Promise<GetByIdOrderResponseDto> {
-    const Order = await this.repository.findOne(id);
+    const Order = await this.repository.findByPk(id);
     if (!Order) throw new TypeError('Order not found');
     const OrderId = Order.id;
     const products = await this.postgresProductRepository.findOneByField('id', OrderId);

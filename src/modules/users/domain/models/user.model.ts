@@ -1,25 +1,23 @@
+import { BaseModel } from '@/shared/model/base.model';
+import { ClsServiceManager } from 'nestjs-cls';
 import {
   AllowNull,
-  BeforeCreate,
-  BeforeDestroy,
   BeforeUpdate,
   Column,
   DataType,
   Default,
-  Model,
   PrimaryKey,
   Sequelize,
   Table,
-  Unique,
+  Unique
 } from 'sequelize-typescript';
-import { BaseModel } from '@/shared/model/base.model';
-import { ClsServiceManager } from 'nestjs-cls';
 
 @Table({
   tableName: 'users',
   timestamps: true,
   underscored: true,
 })
+// export class UserModel extends Model {
 export class UserModel extends BaseModel<UserModel> {
   @PrimaryKey
   @Default(Sequelize.literal('gen_random_uuid()'))
@@ -27,9 +25,9 @@ export class UserModel extends BaseModel<UserModel> {
   declare id: string;
 
   @AllowNull(false)
-  @Default('')
   @Column({ type: DataType.STRING(500) })
-  name: string;
+  // @Default('')
+  declare name: string;
 
   @AllowNull(true)
   @Column(DataType.TEXT)
@@ -81,7 +79,8 @@ export class UserModel extends BaseModel<UserModel> {
   @Default(null)
   @Column(DataType.STRING)
   declare deleted_by: string;
-  @BeforeDestroy
+
+  @BeforeUpdate
   static setDeteledBy(instance: UserModel) {
     const userId = ClsServiceManager.getClsService().get('userId');
     if (userId) {

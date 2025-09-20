@@ -66,9 +66,14 @@ export class UserService extends
   }
 
   async delete(id: string): Promise<void> {
-    const user = await this.userRepository.findOne(id)
-    const modifyDto = { ...user, is_active: false };
-    await this.userRepository.update(id, modifyDto)
+    const user = await this.userRepository.findByPk(id)
+    if (user) {
+      user.is_active = false;
+      user.deleted_at = new Date();
+    }
+    if (!user) throw new NotFoundException(`User with id ${id} not found!`)
+    // const modifyDto = { ...user, is_active: false, deleted_at: Date.now() };
+    await user.save();
   }
   // $argon2id$v=19$m=65536,t=3,p=4$IJNVxnKTrqpO07cfawpPGw$YdqBIL0JB7qY3sSKrplvpR8oDqIOywHMz/9nX4YHNzk
   async create(dto: CreatedUserAdminRequestDto): Promise<void> {
@@ -78,8 +83,22 @@ export class UserService extends
     await this.userRepository.create(user)
   }
 
+  async update(id: string, dto: UpdatedUserAdminRequestDto) {
+    this.getById(id)
+    this.cleanCacheRedis()
+    const entity = await this.userRepository.findByPk(id)
+    if (!entity) throw new NotFoundException(`User with id ${id} not found!`)
+    Object.assign(entity, dto)
+    console.log("entity: ", entity);
+    console.log('changed',entity.changed())
+    await entity.save();
+    return entity;
+  }
+  // console.log("entity: ", entity);
+  // console.log("dto: ", dto);
+
   async restoreUser(id: string): Promise<UpdateCreateResponse<UserModel>> {
-    const user = await this.userRepository.findOneByRaw({
+    const user = await this.userRepository.findByOneByRaw({
       where: { id, is_active: false },
       paranoid: false, // Allow fetching soft-delete records
     });

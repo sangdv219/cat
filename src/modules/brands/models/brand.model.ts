@@ -25,14 +25,14 @@ export class BrandModel extends BaseModel<BrandModel>  {
   @AllowNull(true)
   @Default('')
   @Column({ type: DataType.STRING(500) })
-  name: string;
+  declare name: string;
 
   @AllowNull(true)
   @Column({ type: DataType.STRING(500) })
-  image: string;
+  declare image: string;
 
   @AllowNull(false)
   @Default(false)
   @Column(DataType.BOOLEAN)
-  is_public: boolean;
+  declare is_public: boolean;
 }

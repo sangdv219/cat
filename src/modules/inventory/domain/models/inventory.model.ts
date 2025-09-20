@@ -28,13 +28,13 @@ export class InventoryModel extends BaseModel<InventoryModel> {
   @ForeignKey(() => ProductModel)
   @AllowNull(false)
   @Column(DataType.UUID)
-  product_id: string;
+  declare product_id: string;
 
   @BelongsTo(() => ProductModel)
-  product: ProductModel;
+  declare product: ProductModel;
 
   @AllowNull(false)
   @Default(0)
   @Column(DataType.INTEGER)
-  stock: number;
+  declare stock: number;
 }
