@@ -71,29 +71,36 @@ implements
   }
 
   create(dto: TCreateDto) {
-    // this.cleanCacheRedis()
+    this.cleanCacheRedis() 
     return this.repository.create(dto);
   }
 
-  async update(id: string, dto: TUpdateDto){
-    this.getById(id)
+  async update(id: string, dto: TUpdateDto):Promise<any>{
     this.cleanCacheRedis()
-    const modifyDto = { ...dto, updated_at: new Date() };
-    return await this.repository.update(id, modifyDto);
+    const entity = await this.getById(id)
+    if(entity){
+      Object.assign(entity, dto)
+      await entity.save()
+      return entity;
+    }
   }
 
-  async getById(id: string): Promise<GetByIdResponseDto | null> {
+  async getById(id: string):Promise<GetByIdResponseDto | any>{
     const exclude = sensitiveFields[this.entityName] ?? [];
     const entity = await this.repository.findByPk(id, exclude);
     if (!entity) {
       throw new NotFoundException(`${this.entityName} with id ${id} not found`);
     }
-    return entity as GetByIdResponseDto;
+    return entity as TEntity;
   }
 
   async cleanCacheRedis() {
-    const keyCacheListByBrand = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST);
-    await this.cacheManage.delCache(keyCacheListByBrand);
+    try {
+      const keyCacheListByBrand = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST);
+      await this.cacheManage.delCache(keyCacheListByBrand);
+    } catch (error) {
+      this.logger.error(`${error}`); 
+    }
   }
 
   async delete(id: string){

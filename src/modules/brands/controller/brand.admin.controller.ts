@@ -23,6 +23,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '../DTO/brand.response.dto';
+import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
 @Controller('admin/brand')
@@ -55,6 +56,7 @@ export class BrandAdminController {
 
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @Post()
   async create(@Body() createBrandDto: CreatedBrandRequestDto) {
     try {
@@ -67,6 +69,7 @@ export class BrandAdminController {
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async updateBrand(@Param('id') id: string, @Body() dto: UpdatedBrandRequestDto) {
     try {
       return await this.brandService.update(id, dto);
@@ -77,6 +80,7 @@ export class BrandAdminController {
 
   @Delete(':id')
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBrand(@Param('id') id: string): Promise<void> {
     try {

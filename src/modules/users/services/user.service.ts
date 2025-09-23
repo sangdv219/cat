@@ -89,8 +89,6 @@ export class UserService extends
     const entity = await this.userRepository.findByPk(id)
     if (!entity) throw new NotFoundException(`User with id ${id} not found!`)
     Object.assign(entity, dto)
-    console.log("entity: ", entity);
-    console.log('changed',entity.changed())
     await entity.save();
     return entity;
   }

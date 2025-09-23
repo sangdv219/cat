@@ -15,6 +15,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
 import { OrderModule } from './modules/order/order.module';
 import { RedisModule } from './redis/redis.module';
 import { ClsModule } from 'nestjs-cls';
+import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ClsModule } from 'nestjs-cls';
       signOptions: { expiresIn: '1h' },
     }),
     RedisModule.forRootAsync(),
+    AuditModule,
     DatabaseModule,
     AuthModule,
     UserModule,
@@ -41,7 +43,7 @@ import { ClsModule } from 'nestjs-cls';
     ProductModule,
     OrderModule,
     InventoryModule,
-    BullModule
+    BullModule,
   ],
   controllers: [AppController],
   providers: [ChatGateway, DatabaseService],

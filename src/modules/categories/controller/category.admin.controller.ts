@@ -23,6 +23,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@modules/categories/dto/category.response.dto';
+import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
 @Controller('admin/categories')
@@ -55,6 +56,7 @@ export class CategoryAdminController {
 
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @Post()
   async create(@Body() createCategoryDto: CreatedCategoryRequestDto) {
     try {
@@ -67,6 +69,7 @@ export class CategoryAdminController {
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async updateCategory(@Param('id') id: string, @Body() dto: UpdatedCategoryRequestDto) {
     try {
       return await this.categoryService.update(id, dto);
@@ -77,6 +80,7 @@ export class CategoryAdminController {
 
   @Delete(':id')
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteCategory(@Param('id') id: string): Promise<void> {
     try {

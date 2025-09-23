@@ -1,5 +1,5 @@
 // base.model.ts
-import { Model, Column, DataType, BeforeCreate, BeforeUpdate, AllowNull, Default, CreatedAt, UpdatedAt } from 'sequelize-typescript';
+import { Model, Column, DataType, BeforeCreate, BeforeUpdate, AllowNull, Default, CreatedAt, UpdatedAt, AfterCreate, AfterDestroy, AfterUpdate } from 'sequelize-typescript';
 import { ClsServiceManager } from 'nestjs-cls';
 
 export abstract class BaseModel<T extends {}> extends Model<T> {
@@ -22,21 +22,71 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
     declare updated_at: Date;
 
     @BeforeCreate
-    static setCreatedBy(instance: BaseModel<any>) {
+    static async setCreatedBy(instance: BaseModel<any>) {
+        console.log(">>> BeforeCreate Hook Triggered, userId:");
         const userId = ClsServiceManager.getClsService().get('userId');
         if (userId) {
             instance.created_by = userId;
-            instance.updated_by = userId;
         }
     }
-    
+
     @BeforeUpdate
-    static setUpdatedBy(instance: BaseModel<any>) {
+    static async setUpdatedBy(instance: BaseModel<any>) {
         console.log(">>> BeforeUpdate Hook Triggered, userId:");
         const userId = ClsServiceManager.getClsService().get('userId');
         if (userId) {
-            instance.created_by = userId;
             instance.updated_by = userId;
         }
+    }
+
+
+    @AfterCreate
+    static async logCreate(instance: BaseModel<any>, options: any) {
+        console.log(">>> AfterCreate Hook Triggered, userId:");
+        const tableName = (instance.constructor as typeof Model).tableName;
+        const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
+        const recordId = (instance as any).get(primaryKey);
+        const { AuditLogModel } = require('../../audit/audit_logs.model');
+        const modelClass = instance.constructor as typeof Model;
+        if (modelClass.tableName === 'audit_logs') {
+            return;
+        }
+        await AuditLogModel.create({
+            table_name: tableName,
+            record_id: recordId,
+            action: 'CREATE',
+            new_data: instance.toJSON(),
+        } as typeof AuditLogModel);
+    }
+
+    @AfterUpdate
+    static async logUpdate(instance: BaseModel<any>, options: any) {
+        console.log(">>> AfterUpdate Hook Triggered, userId:");
+        const tableName = (instance.constructor as typeof Model).tableName;
+        const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
+        const recordId = (instance as any).get(primaryKey);
+            const { AuditLogModel } = require('../../audit/audit_logs.model');
+            await AuditLogModel.create({
+                table_name: tableName,
+                record_id: recordId,
+                action: 'UPDATE',
+                new_data: instance.toJSON(),
+            } as typeof AuditLogModel);
+    }
+
+    @AfterDestroy
+    static async logDestroy(instance: BaseModel<any>, options: any) {
+        console.log(">>> AfterDestroy Hook Triggered, userId:");
+        const tableName = (instance.constructor as typeof Model).tableName;
+        const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
+        const recordId = (instance as any).get(primaryKey);
+        const { AuditLogModel } = require('../../audit/audit_logs.model');
+        await AuditLogModel.create({
+            table_name: tableName,
+            record_id: recordId,
+            action: 'DELETE',
+            new_data: instance.toJSON(),
+            performed_by: options?.userId
+        } as typeof AuditLogModel);
     }
 }

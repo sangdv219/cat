@@ -14,7 +14,6 @@ import { RedisService } from '@redis/redis.service';
   imports: [
     SequelizeModule.forFeature([UserModel]),
     PasswordModule,
-    // RedisModule
   ],
   controllers: [UserAdminController],
   providers: [

@@ -17,7 +17,7 @@ import {
   timestamps: true,
   underscored: true,
 })
-// export class UserModel extends Model {
+
 export class UserModel extends BaseModel<UserModel> {
   @PrimaryKey
   @Default(Sequelize.literal('gen_random_uuid()'))
@@ -26,7 +26,6 @@ export class UserModel extends BaseModel<UserModel> {
 
   @AllowNull(false)
   @Column({ type: DataType.STRING(500) })
-  // @Default('')
   declare name: string;
 
   @AllowNull(true)

@@ -22,7 +22,8 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllInventoryResponseDto, GetByIdInventoryResponseDto } from '../dto/inventory.response.dto';
+import { GetAllInventoryResponseDto } from '../dto/inventory.response.dto';
+import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
 @Controller('admin/inventory')
@@ -53,9 +54,10 @@ export class InventoryAdminController {
   //   }
   // }
 
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
-  @Post()
+  @UseInterceptors(UserContextInterceptor)
   async create(@Body() createInventoryDto: CreatedInventoryRequestDto) {
     try {
       return await this.inventoryService.create(createInventoryDto);
@@ -67,6 +69,7 @@ export class InventoryAdminController {
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async updateInventory(@Param('id') id: string, @Body() dto: UpdatedInventoryRequestDto) {
     try {
       return await this.inventoryService.update(id, dto);
@@ -77,6 +80,7 @@ export class InventoryAdminController {
 
   @Delete(':id')
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteInventory(@Param('id') id: string): Promise<void> {
     try {
