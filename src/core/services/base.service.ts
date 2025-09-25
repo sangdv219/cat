@@ -12,13 +12,13 @@ import {
   OnModuleInit
 } from '@nestjs/common';
 export abstract class BaseService<
-TEntity, 
-TCreateDto extends Partial<TEntity>, 
-TUpdateDto extends Partial<TEntity>, 
-GetByIdResponseDto extends Partial<TEntity>,
-GetAllResponseDto 
-> 
-implements
+  TEntity,
+  TCreateDto extends Partial<TEntity>,
+  TUpdateDto extends Partial<TEntity>,
+  GetByIdResponseDto extends Partial<TEntity>,
+  GetAllResponseDto
+>
+  implements
   OnModuleInit,
   OnApplicationBootstrap,
   BeforeApplicationShutdown,
@@ -71,21 +71,21 @@ implements
   }
 
   create(dto: TCreateDto) {
-    this.cleanCacheRedis() 
+    this.cleanCacheRedis()
     return this.repository.create(dto);
   }
 
-  async update(id: string, dto: TUpdateDto):Promise<any>{
+  async update(id: string, dto: TUpdateDto): Promise<any> {
     this.cleanCacheRedis()
     const entity = await this.getById(id)
-    if(entity){
+    if (entity) {
       Object.assign(entity, dto)
       await entity.save()
       return entity;
     }
   }
 
-  async getById(id: string):Promise<GetByIdResponseDto | any>{
+  async getById(id: string): Promise<GetByIdResponseDto | any> {
     const exclude = sensitiveFields[this.entityName] ?? [];
     const entity = await this.repository.findByPk(id, exclude);
     if (!entity) {
@@ -99,11 +99,11 @@ implements
       const keyCacheListByBrand = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST);
       await this.cacheManage.delCache(keyCacheListByBrand);
     } catch (error) {
-      this.logger.error(`${error}`); 
+      this.logger.error(`${error}`);
     }
   }
 
-  async delete(id: string){
+  async delete(id: string) {
     await this.cleanCacheRedis();
     await this.getById(id);
     await this.repository.delete(id);

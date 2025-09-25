@@ -21,22 +21,22 @@ export class AuditLogModel extends BaseModel<AuditLogModel> {
   declare id: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.STRING(500) })
+  @Column({ type: DataType.STRING })
   declare table_name: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.STRING(100) })
+  @Column({ type: DataType.UUID })
   declare record_id: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.STRING })
+  @Column({ type: DataType.STRING(20) })
   declare action: string;
 
-  @AllowNull(true)
-  @Column(DataType.JSONB)
+  @AllowNull(false)
+  @Column({ type: DataType.JSONB })
   declare old_data: any;
 
   @AllowNull(true)
-  @Column(DataType.JSONB)
+  @Column({ type: DataType.JSONB })
   declare new_data: any;
 }

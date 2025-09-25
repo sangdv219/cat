@@ -6,12 +6,12 @@ module.exports = {
     await queryInterface.createTable('audit_logs', {
       id: {
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('gen_random_UUID()'),
+        defaultValue: Sequelize.literal('gen_random_uuid()'),
         allowNull: false,
         primaryKey: true,
       },
       table_name: {
-        type: Sequelize.STRING,
+        type: Sequelize.STRING(20),
         allowNull: false,
       },
       record_id: {
@@ -54,7 +54,6 @@ module.exports = {
     await queryInterface.sequelize.query(`
       CREATE INDEX idx_audit_log_recent_created_at
       ON audit_logs (created_at DESC)
-      INCLUDE (table_name, record_id, action, old_data, new_data, created_at, updated_at, created_by, updated_by)
     `);
   },
 

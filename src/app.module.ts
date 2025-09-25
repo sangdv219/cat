@@ -9,13 +9,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
-import { BullModule } from './bull/bull.module';
 import { ChatGateway } from './gateways/chat.gateway';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { OrderModule } from './modules/order/order.module';
+import { BullModule } from './bull/bull.module';
 import { RedisModule } from './redis/redis.module';
-import { ClsModule } from 'nestjs-cls';
 import { AuditModule } from './audit/audit.module';
+import { ClsModule } from 'nestjs-cls';
 
 @Module({
   imports: [
@@ -26,15 +26,10 @@ import { AuditModule } from './audit/audit.module';
     }),
     JwtModule.register({
       global: true,
-      secret:
-      process.env.JWT_SECRET ??
-      (() => {
-        throw new Error('Missing JWT_SECRET');
-      })(),
+      secret: process.env.JWT_SECRET ?? (() => { throw new Error('Missing JWT_SECRET')})(),
       signOptions: { expiresIn: '1h' },
     }),
     RedisModule.forRootAsync(),
-    AuditModule,
     DatabaseModule,
     AuthModule,
     UserModule,
@@ -44,6 +39,7 @@ import { AuditModule } from './audit/audit.module';
     OrderModule,
     InventoryModule,
     BullModule,
+    AuditModule,
   ],
   controllers: [AppController],
   providers: [ChatGateway, DatabaseService],

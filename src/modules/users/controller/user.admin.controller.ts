@@ -56,7 +56,7 @@ export class UserAdminController {
       throw error;
     }
   }
-
+  
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
   @UseInterceptors(UserContextInterceptor)

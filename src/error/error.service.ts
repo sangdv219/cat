@@ -25,7 +25,7 @@ export class ErrorService {
                 : errorResponse["message"],
                 status: status,
                 stack: (error as any).stack,
-                timestamp: new Date().toISOString(),
+              timestamp: new Date().toLocaleString(),
                 context,
             };
         }
@@ -35,14 +35,14 @@ export class ErrorService {
                 code: error.name || 'INTERNAL_ERROR',
                 message: error.message,
                 stack: error.stack,
-                timestamp: new Date().toISOString(),
+              timestamp: new Date().toLocaleString(),
                 context,
             };
         }
         
         return {
             code: 'UNKNOWN_ERROR',
-            timestamp: new Date().toISOString(),
+          timestamp: new Date().toLocaleString(),
             message: String(error),
             context,
         };

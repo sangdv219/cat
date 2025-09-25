@@ -36,7 +36,7 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                                         typeof errorResponse === "string"
                                             ? errorResponse
                                             : errorResponse["message"],
-                                    timestamp: new Date().toISOString(),
+                                    timestamp: new Date().toLocaleString(),
                                 },
                                 status
                             )
@@ -47,7 +47,7 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                                 {
                                     statusCode: HttpStatus.BAD_REQUEST,
                                     message: err.message || 'Bad Request',
-                                    timestamp: new Date().toISOString(),
+                                  timestamp: new Date().toLocaleString(),
                                 },
                                 HttpStatus.BAD_REQUEST
                             )
@@ -62,7 +62,7 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                             {
                                 statusCode: status,
                                 message: err.parent.detail || err.message,
-                                timestamp: new Date().toISOString(),
+                              timestamp: new Date().toLocaleString(),
                             },
                             HttpStatus.CONFLICT
                         ));
@@ -72,7 +72,7 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                         {
                             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                             message: "Internal Server Error",
-                            timestamp: new Date().toISOString(),
+                          timestamp: new Date().toLocaleString(),
                         },
                         HttpStatus.INTERNAL_SERVER_ERROR
                     )
