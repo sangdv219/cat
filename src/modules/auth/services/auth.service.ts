@@ -36,6 +36,7 @@ export class AuthService implements OnModuleInit {
     private readonly configService: ConfigService,
     @Inject(REDIS_TOKEN)
     private readonly redis: Redis,
+    private readonly bullService: BullService,
   ) { }
 
   onModuleInit() {
@@ -43,12 +44,6 @@ export class AuthService implements OnModuleInit {
     // const myQueue = new Queue('foo');
     // console.log("myQueue: ", myQueue);
   }
-
-  // async addJobs() {
-  //   const myQueue = new Queue('foo');
-  //   await myQueue.add('myJobName', { foo: 'bar' });
-  //   await myQueue.add('myJobName', { qux: 'baz' });
-  // }
 
   async incrementFailedLogins(id: string): Promise<void> {
     const user = await this.userRepository.findByPk(id);
@@ -153,7 +148,7 @@ export class AuthService implements OnModuleInit {
         expiresIn: '24h',
       });
 
-     
+
       const response = new RefreshTokenResponseDto();
       response.success = true;
       response.accessToken = newAccessToken;
@@ -187,20 +182,22 @@ export class AuthService implements OnModuleInit {
     const TTL_OTP = 86400;
 
     const key = buildRedisKey(RedisModule.AUTH, RedisContext.OTP, email);
-    const keyCacheOtpByEmail = await scanlAlKeys(
-      `${buildRedisKey(RedisModule.AUTH, RedisContext.OTP)}*`,
-    );
+    const keyCacheOtpByEmail = await scanlAlKeys(`${buildRedisKey(RedisModule.AUTH, RedisContext.OTP)}*`);
+
     const cacheByEmail = findCacheByEmail(keyCacheOtpByEmail, email);
 
-    if (cacheByEmail) {
-      const cache = JSON.parse((await this.redis.get(cacheByEmail)) as string);
+    if (!cacheByEmail) {
+      await this.redis.set(key, JSON.stringify(otpCache), 'EX', TTL_OTP);
+      await this.bullService.addSendMailJob({ email, otp })
+    }else{
+      const cache = JSON.parse((await this.redis.get(cacheByEmail as string)) as string);
       const sendCount = cache.sendCount;
       const limitSendEmail = this.configService.getOrThrow('LIMIT_SEND_EMAIL');
       const now = Date.now();
       const lastTime = cache.lastTime;
       if (sendCount <= Number(limitSendEmail)) {
         if (now >= lastTime) {
-          // this.emailQueueService.addSendMailJob(email, otp);
+          await this.bullService.addSendMailJob({ email, otp })
           const updatedOtpCache = Object.assign({}, otpCache, {
             sendCount: sendCount + 1,
             lastTime: Date.now() + 1 * 60 * 1000,
@@ -212,8 +209,6 @@ export class AuthService implements OnModuleInit {
       } else {
         throw new GoneException('Đã vượt quá số lần gửi');
       }
-    } else {
-      await this.redis.set(key, JSON.stringify(otpCache), 'EX', TTL_OTP);
     }
   }
 }

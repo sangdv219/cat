@@ -1,20 +1,21 @@
 // src/bull/processors/order.processor.ts
-import { OrderService } from '@/modules/order/services/order.service';
+import { EmailService } from '@/modules/auth/services/mail.service';
 import { Process, Processor } from '@nestjs/bull';
 import { HttpException, Logger } from '@nestjs/common';
 import { Job } from 'bull';
 
-@Processor('order-queue')
-export class OrderProcessor {
-    private readonly logger = new Logger(OrderProcessor.name);
+@Processor('email-queue')
+export class EmailProsessor {
+    private readonly logger = new Logger(EmailProsessor.name);
     constructor(
-        private readonly orderService: OrderService
+        private readonly emailService: EmailService
     ) { }
-    @Process('place-order') // name job
-    async handlePlaceOrder(job: Job, token?: string) {
+    @Process('send-email') // name job
+    async handleSendEmail(job: Job, token?: string) {
+        const {email, otp} = job.data
         try {
-            const result = await this.orderService.persistOrder(job.data)
-            this.logger.log("✅ Order success:", result);
+            await this.emailService.sendRegistrationEmail(email, otp)
+            this.logger.log("✅ Email success:");
 
             return { status: 'ok' };
         } catch (error) {

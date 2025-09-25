@@ -49,9 +49,7 @@ export class OTPService {
 
   async verifyOtp(body: VerifyOtpDto): Promise<VerifyResponseDto> {
     const { otp, email } = body;
-    const keyCacheOtpByEmail = await scanlAlKeys(
-      `${buildRedisKey(RedisModule.AUTH, RedisContext.OTP)}*`,
-    );
+    const keyCacheOtpByEmail = await scanlAlKeys(`${buildRedisKey(RedisModule.AUTH, RedisContext.OTP)}*`);
     const keyByEmailCache = findCacheByEmail(keyCacheOtpByEmail, email);
     const key = buildRedisKey(RedisModule.AUTH, RedisContext.OTP, email);
     if (keyByEmailCache) {
@@ -75,9 +73,6 @@ export class OTPService {
           name: '',
           is_root: false,
           is_active: true,
-          // password_hash: '',
-          // provider: 'local',
-          // provider_user_id: ''
         };
 
         const user = await this.userService.createUserWithEmailOnly(userAuth);

@@ -92,7 +92,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return record as unknown as T[K];
   }
 
-  async findByPk(id: string, exclude = ['']): Promise<T | null>{
+  async findByPk(id: string, exclude = ['']): Promise<T | null> {
     return await this.model.findByPk(id)
   }
 
@@ -108,7 +108,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       return result;
     } catch (error) {
       console.log("error: ", error);
-      
+
     }
   }
 
@@ -147,8 +147,9 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       [key]: mode === 'like' ? { [Op.iLike]: `%${value}%` } : value,
     }),
     );
+    console.log("orConditions: ", orConditions);
 
-    const exists = await this.model.findByPk({
+    const exists = await this.model.findOne({
       where: { [Op.or]: orConditions },
     });
 

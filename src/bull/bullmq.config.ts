@@ -12,7 +12,10 @@ import { ConfigModule } from '@nestjs/config';
             },
         }),
         NestBullModule.registerQueue({
-            name: 'order',
+            name: 'order-queue',
+        }),
+        NestBullModule.registerQueue({
+            name: 'email-queue',
         }),
     ],
     exports: [NestBullModule],
