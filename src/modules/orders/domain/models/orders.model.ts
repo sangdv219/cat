@@ -1,17 +1,6 @@
 import { UserModel } from '@/modules/users/domain/models/user.model';
 import { BaseModel } from '@/shared/model/base.model';
-import { PaymentsModel } from '@modules/brands/models/payment.model';
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  Default,
-  ForeignKey,
-  HasMany,
-  PrimaryKey,
-  Sequelize,
-  Table
-} from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
 
 export interface IOrder{
   id: string,

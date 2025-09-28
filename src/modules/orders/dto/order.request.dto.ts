@@ -11,10 +11,6 @@ export class CreatedOrderItemRequestDto {
   @IsNotEmpty({ message: 'product_id is required' })
   product_id: string;
 
-  @ApiProperty({ description: 'orderItem_id', example: '66f237ea-f0dc-4506-9c06-6b6f785d4b8f' })
-  @IsNotEmpty({ message: 'orderItem_id is required' })
-  orderItem_id: string;
-
   @IsNotEmpty({ message: 'quantity is required', always: true })
   @ApiProperty({ description: 'quantity', example: 1 })
   quantity: number;

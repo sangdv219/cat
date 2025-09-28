@@ -1,17 +1,18 @@
-import { BullService } from '@/bull/bull.service';
-import { BaseService } from '@/core/services/base.service';
-import { InventoryService } from '@/modules/inventory/services/inventory.service';
-import { OrdersModel } from '@/modules/orders/domain/models/orders.model';
-import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
+import { BullService } from '@bull/bull.service';
+import { BaseService } from '@core/services/base.service';
+import { InventoryService } from '@modules/inventory/services/inventory.service';
+import { OrdersModel } from '@modules/orders/domain/models/orders.model';
+import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { RedisService } from '@/redis/redis.service';
 import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/sequelize';
 import { plainToInstance } from 'class-transformer';
 import { QueryTypes, Sequelize, Transaction } from 'sequelize';
-import { ORDER_ENTITY } from '../constants/order.constant';
-import { CreatedOrderItemRequestDto, CreatedOrderRequestDto, UpdatedOrderRequestDto } from '../dto/order.request.dto';
-import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '../dto/order.response.dto';
-import { PostgresOrderRepository } from '../infrastructure/repository/postgres-order.repository';
+import { ORDER_ENTITY } from '@modules/orders/constants/order.constant';
+import { CreatedOrderItemRequestDto, CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
+import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '@modules/orders/dto/order.response.dto';
+import { PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
+import { PostgresOrderItemsRepository } from '@modules/order-items/infrastructure/repository/postgres-order-items.repository';
 
 @Injectable()
 export class OrderService extends
@@ -28,13 +29,13 @@ export class OrderService extends
     public cacheManage: RedisService,
     protected repository: PostgresOrderRepository,
     protected productRepository: PostgresProductRepository,
+    protected orderItemsRepository: PostgresOrderItemsRepository,
     public inventoryService: InventoryService,
     private readonly bullService: BullService,
   ) {
     super();
     this.entityName = ORDER_ENTITY.NAME;
   }
-
 
   protected async moduleInit() {
     // Logger.log('✅ Init Order cache...');
@@ -65,26 +66,22 @@ export class OrderService extends
   }
 
   async checkout(dto: CreatedOrderRequestDto) {
-    this.cleanCacheRedis();
     return await this.bullService.addOrderJob(dto);
   }
 
   async implementsOrder(dto: CreatedOrderRequestDto) {
-
     const order = await this.repository.create(dto)
     const orderId = order.id
     const products = dto.products;
 
-    products.forEach(async (el: CreatedOrderItemRequestDto) => {
-      const product = await this.productRepository.findByPk(el.product_id)
-      if (!product) throw new NotFoundException('Product not found !')
-      const updatePrice = { ...el, price: product.price }
-      this.handleAndInsertOrderItem(updatePrice, orderId)
-    })
+    for (const el of products) {
+      const result = await this.productRepository.findByPk(el.product_id)
+      if (!result) throw new NotFoundException('Product not found !')
+      const product = { ...el, price: result.price }
+      await this.handleAndInsertOrderItem(product, orderId)
+    }
 
-    // return result.id
-    // const result = await this.handleAndInsertOrderItem(dto.total_amount, dto.user_id);
-    // return result;
+    await this.calculatorAndUpdateAmountOrder(orderId)
   }
 
   async lockAndCheckInventory(productId: string, quantity: number, t: Transaction) {
@@ -137,19 +134,26 @@ export class OrderService extends
     );
   }
 
-  async calculatorAndUpdateAmountOrder(orderId: string, t: Transaction) {
-    // const order = this.repository.findByFields('order_id', orderId)
-    const subTotal = 0;
-    const totalAmount = 0;
+  async calculatorAndUpdateAmountOrder(orderId: string) {
+    const orderItem = await this.orderItemsRepository.findByFields('order_id', orderId, ['final_price'])
+    const order = await this.repository.findByPk(orderId)
+    if(!order) throw new NotFoundException('Order not found !')
+    const shipping_fee = order?.shipping_fee || 300000;
+    const discountAmount = order?.discount_amount;
+    let subTotal = 0;
+    for (const el of orderItem) {
+      subTotal += Number(el.final_price) 
+    }
+    
+    const totalAmount = subTotal - (Number(shipping_fee) + Number(discountAmount));
     await this.sequelize.query(
       `UPDATE orders
-          SET subtotal = subtotal,
-              total_amount = totalAmount
+          SET subtotal = :subtotal,
+              total_amount = :totalAmount
           WHERE id = :orderId
       `,
       {
         replacements: { subtotal: subTotal, totalAmount: totalAmount, orderId: orderId },
-        transaction: t,
         type: QueryTypes.UPDATE,
         plain: true
       }
@@ -165,8 +169,7 @@ export class OrderService extends
       await this.decreaseStockInventory(product_id, quantity, t)
       // 3. Add order-item
       await this.insertOrderItemTable(orderId, dto, t)
-      // 4. ReUpdate subtotal & total_amount
-      await this.calculatorAndUpdateAmountOrder(orderId, t)
+    
     });
   }
 

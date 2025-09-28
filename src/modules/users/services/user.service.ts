@@ -1,20 +1,12 @@
-import { UpdateCreateResponse } from '@/core/repositories/base.repository';
+import * as argon2 from 'argon2';
 import { BaseService } from '@/core/services/base.service';
-import { RedisService } from '@/redis/redis.service';
 import { UserModel } from '@/modules/users/domain/models/user.model';
-import {
-  ConflictException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { RedisService } from '@/redis/redis.service';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreatedUserAuthRequestDto } from '../dto/user-auth.request.dto';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../dto/user.admin.request.dto';
 import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../dto/user.admin.response.dto';
 import { PostgresUserRepository } from '../repository/user.admin.repository';
-import { JwtService } from '@nestjs/jwt';
-import { plainToInstance } from 'class-transformer';
-import * as argon2 from 'argon2';
 
 @Injectable()
 export class UserService extends
@@ -35,18 +27,10 @@ export class UserService extends
   }
 
   protected async moduleInit() {
-    // Logger.log('✅ Init user cache...');
     this.users = ['Iphone', 'Galaxy'];
-    // Logger.log('user: ', this.users);
   }
 
-  protected async bootstrapLogic(): Promise<void> {
-    // Logger.log(
-    //   '👉 OnApplicationBootstrap: UserService bootstrap: preloading cache...',
-    // );
-    //Bắt đầu chạy cron job đồng bộ tồn kho.
-    //* Gửi log "App ready" cho monitoring system.
-  }
+  protected async bootstrapLogic(): Promise<void> {}
 
   protected async beforeAppShutDown(signal): Promise<void> {
     this.stopJob();
@@ -72,7 +56,6 @@ export class UserService extends
       user.deleted_at = new Date();
     }
     if (!user) throw new NotFoundException(`User with id ${id} not found!`)
-    // const modifyDto = { ...user, is_active: false, deleted_at: Date.now() };
     await user.save();
   }
   // $argon2id$v=19$m=65536,t=3,p=4$IJNVxnKTrqpO07cfawpPGw$YdqBIL0JB7qY3sSKrplvpR8oDqIOywHMz/9nX4YHNzk
@@ -92,10 +75,8 @@ export class UserService extends
     await entity.save();
     return entity;
   }
-  // console.log("entity: ", entity);
-  // console.log("dto: ", dto);
 
-  async restoreUser(id: string): Promise<UpdateCreateResponse<UserModel>> {
+  async restoreUser(id: string): Promise<any> {
     const user = await this.userRepository.findByOneByRaw({
       where: { id, is_active: false },
       paranoid: false, // Allow fetching soft-delete records
@@ -121,17 +102,13 @@ export class UserService extends
     };
   }
 
-  async createUserWithEmailOnly(body: CreatedUserAuthRequestDto): Promise<Promise<UpdateCreateResponse<UserModel>>> {
+  async createUserWithEmailOnly(body: CreatedUserAuthRequestDto): Promise<void> {
     const existsEmail = await this.userRepository.checkExistsField({
       email: { value: body.email, mode: 'equal' },
     });
     if (existsEmail) {
       throw new ConflictException('Email already exists');
     }
-    const result = await this.userRepository.create(body);
-    return {
-      success: true,
-      data: result.id,
-    };
+     await this.userRepository.create(body);
   }
 }

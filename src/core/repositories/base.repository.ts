@@ -1,18 +1,6 @@
 import { Logger, NotFoundException } from '@nestjs/common';
 import { Op, Transaction } from 'sequelize';
 
-export class UpdateCreateResponse<T = any> {
-  success?: boolean = false;
-  message?: string;
-  data?: Partial<T>;
-}
-
-export class DeleteResponse<T> {
-  success?: boolean = false;
-  message?: string;
-  id: string | number;
-}
-
 export interface IPaginationDTO {
   page: number;
   limit: number;
@@ -22,7 +10,7 @@ export interface IPaginationDTO {
 export interface IBaseRepository<T> {
   getAll(): Promise<T[]>;
   findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>;
-  findByFields<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any[]>;
+  findByFields<K extends keyof T>(field: K, value: T[K], attributes?: string[], exclude?: string[]): Promise<any[]>;
   findOneByField<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any>;
   findByPk(id: string, exclude: string[]): Promise<T | null>;
   findByOneByRaw(condition: Record<string, any>, exclude: string[]): Promise<T | null>;
@@ -70,14 +58,14 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return { items, total };
   }
 
-  async findByFields<K extends keyof T>(field: K, value: T[K], exclude = ['']): Promise<any[]> {
+  async findByFields<K extends keyof T>(field: K, value: T[K], attributes?:string[], exclude = ['']): Promise<any[]> {
     const records = await this.model.findAll({
-      where: {
-        [field as string]: value
-      },
+      where: { [field as string]: value },
       raw: true,
-      attributes: { exclude },
+      exclude,
+      attributes: attributes 
     });
+    
     return records as unknown as T[K][];
   }
 
@@ -96,7 +84,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
      return this.model.findByPk(id, { ...exclude, raw: true })
   }
 
-  findByOneByRaw(condition) {
+  async findByOneByRaw(condition) {
     return this.model.findOne({
       ...condition,
       raw: true

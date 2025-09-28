@@ -45,7 +45,7 @@ export class OrderItemsModel extends BaseModel<OrderItemsModel> {
   @Column({ type: DataType.DECIMAL(12, 2) })
   declare final_price: string;  //(price * quantity - discount)
   
-  // @Column({ type: DataType.STRING(200)})
-  // @AllowNull(true)
-  // declare note: string
+  @AllowNull(true)
+  @Column({ type: DataType.STRING(200)})
+  declare note: string
 }
