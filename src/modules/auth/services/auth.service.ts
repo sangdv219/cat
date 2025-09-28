@@ -39,11 +39,7 @@ export class AuthService implements OnModuleInit {
     private readonly bullService: BullService,
   ) { }
 
-  onModuleInit() {
-    // this.addJobs();
-    // const myQueue = new Queue('foo');
-    // console.log("myQueue: ", myQueue);
-  }
+  onModuleInit() {}
 
   async incrementFailedLogins(id: string): Promise<void> {
     const user = await this.userRepository.findByPk(id);

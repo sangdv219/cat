@@ -74,24 +74,6 @@ export class CreatedUserAdminRequestDto implements CreatedUserAdminRequest {
   @IsNotEmpty({ message: 'avatar is required' })
   @IsString({ message: 'avatar must be a string' })
   avatar: string;
-
-  @IsOptional()
-  created_at?: Date;
-
-  @IsOptional()
-  updated_at?: Date;
-
-  @IsOptional()
-  deleted_at?: Date;
-
-  @IsOptional()
-  created_by?: string;
-
-  @IsOptional()
-  updated_by?: string;
-
-  @IsOptional()
-  deleted_by?: string;
 }
 
 export class UpdatedUserAdminRequestDto extends PartialType(OmitType(CreatedUserAdminRequestDto, ['password'] as const)) { }

@@ -1,15 +1,6 @@
 import { BaseModel } from '@/shared/model/base.model';
-import {
-  BelongsTo,
-  Column,
-  DataType,
-  Default,
-  ForeignKey,
-  PrimaryKey,
-  Sequelize,
-  Table
-} from 'sequelize-typescript';
-import { OrdersModel } from '../../order/domain/models/orders.model';
+import { BelongsTo, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
+import { OrdersModel } from '../../orders/domain/models/orders.model';
 
 @Table({ tableName: 'payments' })
 export class PaymentsModel extends BaseModel<PaymentsModel> {

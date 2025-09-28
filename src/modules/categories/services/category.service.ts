@@ -62,9 +62,9 @@ GetAllCategoryResponseDto> {
     if(!category) throw new TypeError('Category not found');
     const categoryId = category.id;
     const products = await this.postgresProductRepository.findOneByField('category_id',categoryId);
+    console.log("products: ", products);
     category['products'] = products;
     const dto = plainToInstance(GetByIdCategoryResponseDto, category, { excludeExtraneousValues: true });
-    // dto.products = products;
     return dto;
   }
 }

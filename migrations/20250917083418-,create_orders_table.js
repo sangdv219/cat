@@ -19,23 +19,34 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      product_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'products', // bảng products
-          key: 'id',
-        },
-        onDelete: 'SET NULL', // hoặc CASCADE tuỳ business
-      },
       status: {
         type: Sequelize.STRING(20),
         allowNull: false,
         defaultValue: 'pending',
       },
+      subtotal: {
+        type: Sequelize.DECIMAL(12, 2),
+        allowNull: true,
+      },
+      discount_amount: {
+        type: Sequelize.DECIMAL(12, 2),
+        allowNull: true,
+      },
+      shipping_fee: {
+        type: Sequelize.DECIMAL(12, 2),
+        allowNull: true,
+      },
       total_amount: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DECIMAL(12, 2),
+        allowNull: true,
+      },
+      shipping_address: {
+        type: Sequelize.STRING(100),
         allowNull: false,
+      },
+      payment_method: {
+        allowNull: false,
+        type: Sequelize.STRING(100),
       },
       created_at: {
         allowNull: false,

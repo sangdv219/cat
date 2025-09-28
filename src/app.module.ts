@@ -11,11 +11,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { AppController } from './app.controller';
 import { ChatGateway } from './gateways/chat.gateway';
 import { InventoryModule } from './modules/inventory/inventory.module';
-import { OrderModule } from './modules/order/order.module';
+import { OrderModule } from './modules/orders/order.module';
 import { BullModule } from './bull/bull.module';
 import { RedisModule } from './redis/redis.module';
 import { AuditModule } from './audit/audit.module';
 import { ClsModule } from 'nestjs-cls';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { OrderItemsModule } from './modules/order-items/orderItems.module';
 
 @Module({
   imports: [
@@ -37,8 +39,10 @@ import { ClsModule } from 'nestjs-cls';
     CategoryModule,
     ProductModule,
     OrderModule,
+    OrderItemsModule,
     InventoryModule,
     BullModule,
+    AnalyticsModule,
     AuditModule,
   ],
   controllers: [AppController],

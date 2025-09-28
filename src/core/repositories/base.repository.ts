@@ -93,23 +93,22 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
   }
 
   async findByPk(id: string, exclude = ['']): Promise<T | null> {
-    return await this.model.findByPk(id)
+     return this.model.findByPk(id, { ...exclude, raw: true })
   }
 
   findByOneByRaw(condition) {
     return this.model.findOne({
       ...condition,
+      raw: true
     });
   }
 
   async create(payload, options?: { transaction?: Transaction }): Promise<any> {
-    try {
-      const result = await this.model.create(payload, options);
-      return result;
-    } catch (error) {
-      console.log("error: ", error);
-
-    }
+    const result = await this.model.create(payload, {
+      returning: true,
+      ...options
+    });
+    return result.get({ plain: true });
   }
 
   async update(id: string, payload: any) {

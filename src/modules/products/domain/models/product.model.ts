@@ -1,18 +1,8 @@
-import { BrandModel } from '@/modules/brands/models/brand.model';
-import { CategoryModel } from '@/modules/categories/domain/models/category.model';
-import { PRODUCT_ENTITY } from '@/modules/products/constants/product.constant';
-import { BaseModel } from '@/shared/model/base.model';
-import {
-  AllowNull,
-  Column,
-  DataType,
-  Default,
-  ForeignKey,
-  PrimaryKey,
-  Sequelize,
-  Table,
-  Unique
-} from 'sequelize-typescript';
+import { BrandModel } from '@modules/brands/models/brand.model';
+import { BaseModel } from '@shared/model/base.model';
+import { CategoryModel } from '@modules/categories/domain/models/category.model';
+import { PRODUCT_ENTITY } from '@modules/products/constants/product.constant';
+import { AllowNull, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table, Unique } from 'sequelize-typescript';
 
 @Table({
   tableName: PRODUCT_ENTITY.TABLE_NAME,

@@ -14,7 +14,7 @@ export class OrderBaseDto {
   status: string;
 
   @Expose()
-  total_amount: number;
+  total_amount: string;
 
 }
 

@@ -12,12 +12,6 @@ export class CreatedInventoryRequestDto {
   @IsNotEmpty({ message: 'stock is required' })
   @ApiProperty({ description: 'stock', example: 100 })
   stock: number;
-
-  @IsOptional()
-  created_at?: Date;
-
-  @IsOptional()
-  updated_at?: Date;
 }
 
 export class UpdatedInventoryRequestDto extends PartialType(CreatedInventoryRequestDto) {}

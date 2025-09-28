@@ -15,7 +15,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../DTO/product.response.dto';
+import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../dto/product.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller('app/products')

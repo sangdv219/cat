@@ -1,5 +1,5 @@
 // src/bull/processors/order.processor.ts
-import { OrderService } from '@/modules/order/services/order.service';
+import { OrderService } from '@/modules/orders/services/order.service';
 import { Process, Processor } from '@nestjs/bull';
 import { HttpException, Logger } from '@nestjs/common';
 import { Job } from 'bull';
@@ -12,8 +12,9 @@ export class OrderProcessor {
     ) { }
     @Process('place-order') // name job
     async handlePlaceOrder(job: Job, token?: string) {
+        this.logger.log("✅ job:", );
         try {
-            const result = await this.orderService.persistOrder(job.data)
+            const result = await this.orderService.implementsOrder(job.data)
             this.logger.log("✅ Order success:", result);
 
             return { status: 'ok' };

@@ -27,6 +27,7 @@
       "@database/*": ["src/database/*"],
       "@redis/*": ["src/redis/*"],
       "@bull/*": ["src/bull/*"],
+      "@shared/*": ["src/shared/*"],
     }
   }
 }

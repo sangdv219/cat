@@ -1,18 +1,7 @@
-import { ProductModel } from '@/modules/products/domain/models/product.model';
-import {
-  AllowNull,
-  BelongsTo,
-  Column,
-  DataType,
-  Default,
-  ForeignKey,
-  Model,
-  PrimaryKey,
-  Sequelize,
-  Table,
-} from 'sequelize-typescript';
-import { INVENTORY_ENTITY } from '../../constants/inventory.constant';
-import { BaseModel } from '@/shared/model/base.model';
+import { ProductModel } from '@modules/products/domain/models/product.model';
+import { BaseModel } from '@shared/model/base.model';
+import { AllowNull, BelongsTo, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
+import { INVENTORY_ENTITY } from '@modules/inventory/constants/inventory.constant';
 
 @Table({
   tableName: INVENTORY_ENTITY.TABLE_NAME,

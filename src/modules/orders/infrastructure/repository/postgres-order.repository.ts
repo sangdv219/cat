@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { ORDER_ENTITY } from '@modules/order/constants/order.constant';
-import { OrdersModel } from '@/modules/order/domain/models/orders.model';
-import { AbstractOrderRepository } from '@modules/order/domain/abstract/abstract-order.repository';
+import { ORDER_ENTITY } from '@/modules/orders/constants/order.constant';
+import { OrdersModel } from '@/modules/orders/domain/models/orders.model';
+import { AbstractOrderRepository } from '@/modules/orders/domain/abstract/abstract-order.repository';
 
 @Injectable()
 export class PostgresOrderRepository extends AbstractOrderRepository {

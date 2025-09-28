@@ -2,7 +2,7 @@ import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
-import { CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@/modules/order/dto/order.request.dto';
+import { CreatedOrderItemRequestDto, CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@/modules/orders/dto/order.request.dto';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
@@ -51,11 +51,11 @@ export class OrderAppController {
     }
   }
 
-  @HttpCode(HttpStatus.CREATED)
-  @Post()
-  async create(@Body() createOrderDto: CreatedOrderRequestDto) {
+  // @HttpCode(HttpStatus.CREATED)
+  @Post('checkout')
+  async checkout(@Body() createOrderDto: CreatedOrderRequestDto) {
     try {
-      return await this.orderService.create(createOrderDto);
+      return await this.orderService.checkout(createOrderDto);
     } catch (error) {
       throw error;
     }

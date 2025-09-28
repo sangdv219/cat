@@ -16,12 +16,6 @@ export class CreatedUserAuthRequestDto {
 
   @IsOptional()
   last_login_at?: Date;
-
-  @IsOptional()
-  created_at?: Date;
-
-  @IsOptional()
-  updated_at?: Date;
 }
 export class CreatedUserCompleteRequestDto {
   gender: string;
@@ -32,10 +26,4 @@ export class CreatedUserCompleteRequestDto {
 
   @IsOptional()
   last_login_at?: Date;
-
-  @IsOptional()
-  created_at?: Date;
-
-  @IsOptional()
-  updated_at?: Date;
 }

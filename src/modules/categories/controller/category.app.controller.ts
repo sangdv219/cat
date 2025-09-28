@@ -3,7 +3,7 @@ import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@modules/categories/dto/category.response.dto';
-import { CategoryService } from '@modules/categories/services/category.service';
+import { CategoryService } from '@/modules/categories/services/category.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
   Controller,

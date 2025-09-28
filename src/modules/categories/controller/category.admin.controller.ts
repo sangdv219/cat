@@ -4,7 +4,7 @@ import { BaseResponseInterceptor } from '@/core/interceptors/base-response.inter
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
 import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/dto/category.request.dto';
-import { CategoryService } from '@modules/categories/services/category.service';
+import { CategoryService } from '@/modules/categories/services/category.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
