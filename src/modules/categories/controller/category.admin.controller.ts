@@ -26,7 +26,7 @@ import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@modules/
 import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
-@Controller('admin/categories')
+@Controller({ path:'admin/categories', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class CategoryAdminController {

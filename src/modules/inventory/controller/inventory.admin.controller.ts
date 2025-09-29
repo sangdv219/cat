@@ -26,7 +26,7 @@ import { GetAllInventoryResponseDto } from '../dto/inventory.response.dto';
 import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
-@Controller('admin/inventory')
+@Controller({ path:'admin/inventorys', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class InventoryAdminController {

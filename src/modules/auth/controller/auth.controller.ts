@@ -1,10 +1,15 @@
+import { RateLimit } from '@/core/decorators/rate-limit';
 import { LoginDto } from '@/modules/auth/DTO/login.dto';
 import { RefreshTokenDto } from '@/modules/auth/DTO/refreshToken.dto';
 import { RegisterDto } from '@/modules/auth/DTO/register.dto';
 import { VerifyOtpDto } from '@/modules/auth/DTO/verify-otp.dto';
-import { LoginResponseDto,VerifyResponseDto } from '@/modules/auth/interface/login.interface';
+import { LoginResponseDto, VerifyResponseDto } from '@/modules/auth/interface/login.interface';
 import { AuthService } from '@/modules/auth/services/auth.service';
 import { OTPService } from '@/modules/auth/services/OTP.service';
+import { RedisKey } from '@core/decorators/redis-key.decorator';
+import { TokenType } from '@core/decorators/token-type.decorator';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
+import { RateLimitGuard } from '@core/guards/rate-limit.guard';
 import {
   applyDecorators,
   Body,
@@ -12,15 +17,9 @@ import {
   HttpCode,
   HttpStatus,
   Post,
-  UseGuards
+  UseGuards,
+  Version
 } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
-import { RateLimit } from '@/core/decorators/rate-limit';
-import { RedisKey } from '@core/decorators/redis-key.decorator';
-import { TokenType } from '@core/decorators/token-type.decorator';
-import { JWTAuthGuard } from '@core/guards/jwt.guard';
-import { RateLimitGuard } from '@core/guards/rate-limit.guard';
-// import { SendOTPLimitGuard } from "@/modules/auth/guards/sendOTPLimit.guard";
 
 const OTPGuard = () =>
   applyDecorators(
@@ -30,6 +29,7 @@ const OTPGuard = () =>
     UseGuards(JWTAuthGuard, RateLimitGuard),
   );
 
+// @Controller({ path:'auth', version: '1' })
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -38,18 +38,26 @@ export class AuthController {
   ) {}
 
   @HttpCode(HttpStatus.OK)
+  @Version('1')
   @Post('login')
-  async login(@Body() body: LoginDto): Promise<LoginResponseDto> {
+  async loginV1(@Body() body: LoginDto): Promise<LoginResponseDto> {
     return await this.authService.login(body);
   }
-
+  @Post('login')
+  @Version('2')
+  async loginV2(@Body() body: LoginDto): Promise<LoginResponseDto> {
+    return await this.authService.login(body);
+  }
+  
   @Post('refresh-token')
+  @Version('3')
   @HttpCode(HttpStatus.OK)
   async refreshToken(@Body() body: RefreshTokenDto): Promise<LoginResponseDto> {
     return await this.authService.refreshToken(body.refreshToken);
   }
-
+  
   @Post('register')
+  @Version('3')
   @HttpCode(HttpStatus.NO_CONTENT)
   // @RateLimit(3, 300)
   // @RedisKey(buildRedisKey('auth', RedisContext.RATE_LIMIT, 'send'))
@@ -57,9 +65,9 @@ export class AuthController {
   async register(@Body() body: RegisterDto): Promise<void> {
     return await this.authService.register(body);
   }
-
-  @ApiBearerAuth('Authorization')
+  
   @Post('verify-otp')
+  @Version('3')
   @HttpCode(HttpStatus.CREATED)
   async verifyOTP(@Body() body: VerifyOtpDto): Promise<VerifyResponseDto> {
     return await this.OTPService.verifyOtp(body);

@@ -1,6 +1,6 @@
-import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
-import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
-import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
+import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
+import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
 import { ProductService } from '@modules/products/services/product.service';
 import { CacheTTL } from '@nestjs/cache-manager';
@@ -18,7 +18,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../dto/product.response.dto';
 
 @ApiBearerAuth('Authorization')
-@Controller('app/products')
+@Controller({ path:'app/products', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class ProductAppController {

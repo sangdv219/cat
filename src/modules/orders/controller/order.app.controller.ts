@@ -23,7 +23,7 @@ import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '../dto/order.re
 import { OrderService } from '../services/order.service';
 
 @ApiBearerAuth('Authorization')
-@Controller('app/orders')
+@Controller({ path:'app/orders', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class OrderAppController {

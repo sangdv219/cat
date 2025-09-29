@@ -1,8 +1,8 @@
-import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
-import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
-import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
+import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
+import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
-import { BaseGetResponse } from '@/shared/interface/common';
+import { BaseGetResponse } from '@shared/interface/common';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
@@ -24,11 +24,11 @@ import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../dto/u
 import { UserModel } from '../domain/models/user.model';
 import { UserService } from '../services/user.service';
 import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../dto/user.admin.response.dto';
-import { JWTAuthGuard } from '@/core/guards/jwt.guard';
-import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
+import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
-@Controller('user-admin')
+@Controller({ path:'user-admin', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class UserAdminController {
@@ -37,7 +37,8 @@ export class UserAdminController {
   @ApiOkResponse({ description: 'Danh sách user phân trang', type: BaseGetResponse<UserModel> })
   @Get()
   @HttpCode(HttpStatus.OK)
-  // @UseGuards(JWTAuthGuard)
+  @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @CacheTTL(60)
   async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllUserAdminResponseDto> {
     try {
@@ -48,7 +49,8 @@ export class UserAdminController {
   }
 
   @Get(':id')
-  // @UseGuards(JWTAuthGuard)
+  @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async getUserAdminById(@Param('id') id: string): Promise<GetByIdUserAdminResponseDto | null> {
     try {
       return await this.userService.getById(id);

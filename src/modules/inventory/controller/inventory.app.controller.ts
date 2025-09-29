@@ -1,6 +1,6 @@
-import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
-import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
-import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
+import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
+import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@/dto/common';
 import { GetAllInventoryResponseDto, GetByIdInventoryResponseDto } from '@modules/inventory/dto/inventory.response.dto';
 import { InventoryService } from '@modules/inventory/services/inventory.service';
@@ -16,7 +16,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 
-@Controller('app/inventory')
+@Controller({ path:'app/inventory', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class InventoryAppController {

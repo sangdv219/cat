@@ -1,31 +1,25 @@
-import { LoginDto } from '@/modules/auth/DTO/login.dto';
-import { LoginResponseDto } from '@/modules/auth/interface/login.interface';
-import { RefreshTokenResponseDto } from '@/modules/auth/interface/refreshToken.interface';
-import { PasswordService } from '@/modules/password/services/password.service';
-import { UserModel } from '@/modules/users/domain/models/user.model';
-import { PostgresUserRepository } from '@/modules/users/repository/user.admin.repository';
-import { RedisContext, RedisModule } from '@/shared/redis/enums/redis-key.enum';
-import { buildRedisKey } from '@/shared/redis/helpers/redis-key.helper';
-import { findCacheByEmail, scanlAlKeys } from '@/shared/utils/common.util';
-import {
-  GoneException,
-  Inject,
-  Injectable,
-  NotFoundException,
-  OnModuleInit,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { LoginDto } from '@modules/auth/DTO/login.dto';
+import { LoginResponseDto } from '@modules/auth/interface/login.interface';
+import { RefreshTokenResponseDto } from '@modules/auth/interface/refreshToken.interface';
+import { PasswordService } from '@modules/password/services/password.service';
+import { UserModel } from '@modules/users/domain/models/user.model';
+import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
+import { RedisContext, RedisModule } from '@shared/redis/enums/redis-key.enum';
+import { buildRedisKey } from '@shared/redis/helpers/redis-key.helper';
+import { findCacheByEmail, scanlAlKeys } from '@shared/utils/common.util';
+import { GoneException, Inject, Injectable, Logger, NotFoundException, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
-import Redis from 'ioredis';
 import { RegisterDto } from '../DTO/register.dto';
 import { OTPService } from './OTP.service';
 import { REDIS_TOKEN } from '@redis/redis.module';
-import { BullService } from '@/bull/bull.service';
+import { BullService } from '@bull/bull.service';
+import Redis from 'ioredis';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
@@ -43,8 +37,8 @@ export class AuthService implements OnModuleInit {
 
   async incrementFailedLogins(id: string): Promise<void> {
     const user = await this.userRepository.findByPk(id);
-    const userData = user?.get({ plain: true });
-    if (!userData) {
+    
+    if (!user) {
       throw new NotFoundException('User not found');
     }
     const maxAttempts = 2;
@@ -52,11 +46,11 @@ export class AuthService implements OnModuleInit {
     const now = new Date();
 
     const updatedBody = {
-      ...userData,
-      failed_login_attempts: userData.failed_login_attempts + 1,
+      ...user,
+      failed_login_attempts: user.failed_login_attempts + 1,
       last_failed_login_at: new Date(),
     };
-    if (userData.failed_login_attempts >= maxAttempts) {
+    if (user.failed_login_attempts >= maxAttempts) {
       updatedBody.locked_until = new Date(now.getTime() + logoutDuration);
     }
 
@@ -85,26 +79,25 @@ export class AuthService implements OnModuleInit {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const userData = user?.get({ plain: true });
-    if (userData.locked_until && new Date() > new Date(userData.locked_until)) {
-      await this.resetFailedLogins(userData.id);
+    if (user.locked_until && new Date() > new Date(user.locked_until)) {
+      await this.resetFailedLogins(user.id);
     }
-    if (userData.locked_until && new Date() < new Date(userData.locked_until)) {
+    if (user.locked_until && new Date() < new Date(user.locked_until)) {
       throw new GoneException(
         `Account locked until 3 minutes from last failed login attempt`,
       );
     }
-    if (userData) {
-      if (userData.deleted_at) {
+    if (user) {
+      if (user.deleted_at) {
         throw new GoneException('Account has been delete');
       }
       const isPasswordValid = await this.passwordService.comparePassword(
         password,
-        userData.password_hash,
+        user.password_hash,
       );
       if (isPasswordValid) {
-        await this.resetFailedLogins(userData.id);
-        const payload = { email: userData.email, id: userData.id };
+        await this.resetFailedLogins(user.id);
+        const payload = { email: user.email, id: user.id };
         const accessToken = await this.jwtService.signAsync(payload, {
           secret: this.configService.getOrThrow('ACCESS_TOKEN_SECRET'),
           expiresIn: '24h',
@@ -120,11 +113,11 @@ export class AuthService implements OnModuleInit {
         response.refreshToken = refreshToken;
         return response;
       } else {
-        this.incrementFailedLogins(userData.id);
+        this.incrementFailedLogins(user.id);
         throw new UnauthorizedException('Password is not correct');
       }
     } else {
-      this.incrementFailedLogins(userData.id);
+      this.incrementFailedLogins(user.id);
       throw new NotFoundException('User not found');
     }
   }

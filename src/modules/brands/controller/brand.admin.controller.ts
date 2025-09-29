@@ -26,7 +26,7 @@ import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '../DTO/brand.re
 import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
-@Controller('admin/brand')
+@Controller({ path:'admin/brand', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class BrandAdminController {

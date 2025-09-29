@@ -18,7 +18,7 @@ import {
 import { ApiBearerAuth } from '@nestjs/swagger';
 
 @ApiBearerAuth('Authorization')
-@Controller('app/categories')
+@Controller({ path:'app/categories', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class CategoryAppController {
