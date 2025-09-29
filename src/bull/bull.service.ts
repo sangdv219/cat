@@ -15,11 +15,11 @@ export class BullService {
 
     async addOrderJob(data) {
         await this.orderQueue.add('place-order', data, {
-            delay: 1000, // 1 giây sau mới chạy
-            attempts: 3, // thử lại tối đa 1 lần - Retry (số lần thử lại khi job fail)
+            // delay: 1000, // 1 giây sau mới chạy
+            // attempts: 1, // thử lại tối đa 1 lần - Retry (số lần thử lại khi job fail)
             backoff: {
                 type: 'exponential',     // retry sau 1s, 2s, 4s, 8s...
-                delay: 5000,             // chờ 1 giây giữa mỗi lần retry,
+                delay: 1000,             // chờ 1 giây giữa mỗi lần retry,
             },
             // jobId: data.product_id,
             // priority:1
@@ -31,11 +31,11 @@ export class BullService {
 
     async addSendMailJob(data) {
         await this.emailQueue.add('send-email', data, {
-            delay: 2000, // 2 giây sau mới chạy
-            attempts: 3, // thử lại tối đa 1 lần - Retry (số lần thử lại khi job fail)
+            delay: 1000, // 2 giây sau mới chạy
+            attempts: 1, // thử lại tối đa 1 lần - Retry (số lần thử lại khi job fail)
             backoff: {
                 type: 'exponential',     // retry sau 1s, 2s, 4s, 8s...
-                delay: 5000,             // chờ 1 giây giữa mỗi lần retry,
+                delay: 1000,             // chờ 1 giây giữa mỗi lần retry,
             },
             // jobId: data.product_id,
             // priority:1

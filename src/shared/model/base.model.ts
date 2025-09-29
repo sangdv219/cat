@@ -1,6 +1,6 @@
 // base.model.ts
-import { Model, Column, DataType, BeforeCreate, BeforeUpdate, AllowNull, Default, CreatedAt, UpdatedAt, AfterCreate, AfterDestroy, AfterUpdate, AfterBulkDestroy } from 'sequelize-typescript';
 import { ClsServiceManager } from 'nestjs-cls';
+import { AfterCreate, AfterDestroy, AfterUpdate, AllowNull, BeforeCreate, BeforeUpdate, Column, CreatedAt, DataType, Default, Model, UpdatedAt } from 'sequelize-typescript';
 
 export abstract class BaseModel<T extends {}> extends Model<T> {
     @AllowNull(true)
@@ -62,28 +62,30 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
         const tableName = (instance.constructor as typeof Model).tableName;
         const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
         const recordId = (instance as any).get(primaryKey);
-            const { AuditLogModel } = require('../../audit/audit_logs.model');
-            await AuditLogModel.create({
-                table_name: tableName,
-                record_id: recordId,
-                action: 'UPDATE',
-                old_data: instance.toJSON(),
-                new_data: instance.toJSON(),
-            } as typeof AuditLogModel);
-    }
-
-    @AfterBulkDestroy
-    static async logDelete(instance: BaseModel<any>, options: any) {
-        const tableName = (instance.constructor as typeof Model).tableName;
-        const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
-        const recordId = (instance as any).get(primaryKey);
         const { AuditLogModel } = require('../../audit/audit_logs.model');
         await AuditLogModel.create({
             table_name: tableName,
             record_id: recordId,
-            action: 'DELETE',
+            action: 'UPDATE',
             old_data: instance.toJSON(),
             new_data: instance.toJSON(),
         } as typeof AuditLogModel);
+    }
+
+    // @AfterBulkDestroy
+    @AfterDestroy
+    static async logDelete(instance: BaseModel<any>, options: any) {
+        console.log('Trigger =====> AfterBulkDestroy')
+        const tableName = (instance.constructor as typeof Model).tableName;
+        const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
+        const recordId = (instance as any).get(primaryKey);
+        const { AuditLogModel } = require('../../audit/audit_logs.model');
+            await AuditLogModel.create({
+                table_name: tableName,
+                record_id: recordId,
+                action: 'DELETE',
+                old_data: null,
+                new_data: null
+            } as typeof AuditLogModel);
     }
 }

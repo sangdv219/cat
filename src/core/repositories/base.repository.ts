@@ -1,7 +1,7 @@
 import { Logger, NotFoundException } from '@nestjs/common';
 import { Op, Transaction } from 'sequelize';
 
-export interface IPaginationDTO {
+interface IPaginationDTO {
   page: number;
   limit: number;
   keyword?: string;
@@ -109,6 +109,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
   async delete(id: string) {
     const deletedRows = await this.model.destroy({
       where: { id },
+      individualHooks: true
     });
     if (deletedRows === 0) {
       throw new NotFoundException('Record not found');

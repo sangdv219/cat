@@ -70,9 +70,9 @@ export abstract class BaseService<
     return response as GetAllResponseDto;
   }
 
-  create(dto: TCreateDto) {
+  async create(dto: TCreateDto) {
     this.cleanCacheRedis()
-    return this.repository.create(dto);
+    return await this.repository.create(dto);
   }
 
   async update(id: string, dto: TUpdateDto): Promise<any> {

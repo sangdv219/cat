@@ -24,7 +24,7 @@ module.exports = {
       },
       old_data: {
         type: Sequelize.JSONB,
-        allowNull: false,
+        allowNull: true,
       },
       new_data: {
         allowNull: true,

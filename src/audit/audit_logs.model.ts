@@ -24,7 +24,7 @@ export class AuditLogModel extends BaseModel<AuditLogModel> {
   @Column({ type: DataType.STRING })
   declare table_name: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column({ type: DataType.UUID })
   declare record_id: string;
 
@@ -32,7 +32,7 @@ export class AuditLogModel extends BaseModel<AuditLogModel> {
   @Column({ type: DataType.STRING(20) })
   declare action: string;
 
-  @AllowNull(false)
+  @AllowNull(true)
   @Column({ type: DataType.JSONB })
   declare old_data: any;
 
