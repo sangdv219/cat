@@ -1,4 +1,4 @@
-import { BaseModel } from '@/shared/model/base.model';
+import { BaseModel } from '@shared/model/base.model';
 import {
   AllowNull,
   Column,

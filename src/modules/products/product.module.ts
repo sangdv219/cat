@@ -1,5 +1,5 @@
-import { ProductModel } from '@/modules/products/domain/models/product.model';
-import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
+import { ProductModel } from '@modules/products/domain/models/product.model';
+import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { ProductService } from '@modules/products/services/product.service';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';

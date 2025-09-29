@@ -1,5 +1,5 @@
 // import path from 'path';
-import { EmailService } from '@/modules/auth/services/mail.service';
+import { EmailService } from '@modules/auth/services/mail.service';
 import { ConfigService } from '@nestjs/config';
 import { Job, Worker } from 'bullmq';
 

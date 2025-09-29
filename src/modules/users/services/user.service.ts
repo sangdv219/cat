@@ -1,6 +1,6 @@
 import * as argon2 from 'argon2';
-import { BaseService } from '@/core/services/base.service';
-import { UserModel } from '@/modules/users/domain/models/user.model';
+import { BaseService } from '@core/services/base.service';
+import { UserModel } from '@modules/users/domain/models/user.model';
 import { RedisService } from '@/redis/redis.service';
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreatedUserAuthRequestDto } from '../dto/user-auth.request.dto';

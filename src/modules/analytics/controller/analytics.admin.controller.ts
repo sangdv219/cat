@@ -1,4 +1,4 @@
-import { PaginationQueryDto } from '@/dto/common';
+import { PaginationQueryDto } from '@shared/dto/common';
 import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
 import { JWTAuthGuard } from '@core/guards/jwt.guard';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';

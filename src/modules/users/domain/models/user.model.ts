@@ -1,4 +1,4 @@
-import { BaseModel } from '@/shared/model/base.model';
+import { BaseModel } from '@shared/model/base.model';
 import { ClsServiceManager } from 'nestjs-cls';
 import {
   AllowNull,

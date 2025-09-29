@@ -1,4 +1,4 @@
-import { BaseResponse } from "@/shared/interface/common";
+import { BaseResponse } from "@shared/interface/common";
 import { CallHandler, ExecutionContext, HttpException, HttpStatus, Injectable, NestInterceptor } from "@nestjs/common";
 import { Observable, throwError } from "rxjs";
 import { catchError, map } from 'rxjs/operators';

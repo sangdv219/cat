@@ -1,5 +1,5 @@
 // base.model.ts
-import { Model, Column, DataType, BeforeCreate, BeforeUpdate, AllowNull, Default, CreatedAt, UpdatedAt, AfterCreate, AfterDestroy, AfterUpdate } from 'sequelize-typescript';
+import { Model, Column, DataType, BeforeCreate, BeforeUpdate, AllowNull, Default, CreatedAt, UpdatedAt, AfterCreate, AfterDestroy, AfterUpdate, AfterBulkDestroy } from 'sequelize-typescript';
 import { ClsServiceManager } from 'nestjs-cls';
 
 export abstract class BaseModel<T extends {}> extends Model<T> {
@@ -23,7 +23,6 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
 
     @BeforeCreate
     static async setCreatedBy(instance: BaseModel<any>) {
-        console.log(">>> BeforeCreate Hook Triggered");
         const userId = ClsServiceManager.getClsService().get('userId');
         if (userId) {
             instance.created_by = userId;
@@ -32,7 +31,6 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
 
     @BeforeUpdate
     static async setUpdatedBy(instance: BaseModel<any>) {
-        console.log(">>> BeforeUpdate Hook Triggered");
         const userId = ClsServiceManager.getClsService().get('userId');
         if (userId) {
             instance.updated_by = userId;
@@ -42,7 +40,6 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
 
     @AfterCreate
     static async logCreate(instance: BaseModel<any>, options: any) {
-        console.log(">>> AfterCreate Hook Triggered");
         const tableName = (instance.constructor as typeof Model).tableName;
         const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
         const recordId = (instance as any).get(primaryKey);
@@ -62,7 +59,6 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
 
     @AfterUpdate
     static async logUpdate(instance: BaseModel<any>, options: any) {
-        console.log(">>> AfterUpdate Hook Triggered:");
         const tableName = (instance.constructor as typeof Model).tableName;
         const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
         const recordId = (instance as any).get(primaryKey);
@@ -76,9 +72,8 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
             } as typeof AuditLogModel);
     }
 
-    @AfterDestroy
+    @AfterBulkDestroy
     static async logDelete(instance: BaseModel<any>, options: any) {
-        console.log(">>> AfterDestroy Hook Triggered:");
         const tableName = (instance.constructor as typeof Model).tableName;
         const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
         const recordId = (instance as any).get(primaryKey);

@@ -1,7 +1,7 @@
 import { RedisService } from '@/redis/redis.service';
-import { sensitiveFields } from '@/shared/config/sensitive-fields.config';
-import { RedisContext } from '@/shared/redis/enums/redis-key.enum';
-import { buildRedisKeyQuery } from '@/shared/redis/helpers/redis-key.helper';
+import { sensitiveFields } from '@shared/config/sensitive-fields.config';
+import { RedisContext } from '@shared/redis/enums/redis-key.enum';
+import { buildRedisKeyQuery } from '@shared/redis/helpers/redis-key.helper';
 import { IBaseRepository } from '@core/repositories/base.repository';
 import {
   BeforeApplicationShutdown,

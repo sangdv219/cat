@@ -1,4 +1,4 @@
-import { EmailService } from '@/modules/auth/services/mail.service';
+import { EmailService } from '@modules/auth/services/mail.service';
 import { ConfigService } from '@nestjs/config';
 import { SandboxedJob, WaitingError } from 'bullmq';
 

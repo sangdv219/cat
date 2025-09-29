@@ -1,4 +1,4 @@
-import { UserModel } from '@/modules/users/domain/models/user.model';
+import { UserModel } from '@modules/users/domain/models/user.model';
 import { PasswordModule } from '@modules/password/password.module';
 import { UserAdminController } from '@modules/users/controller/user.admin.controller';
 import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';

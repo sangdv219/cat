@@ -1,6 +1,6 @@
-import { BaseService } from '@/core/services/base.service';
-import { InventoryModel } from '@/modules/inventory/domain/models/inventory.model';
-import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
+import { BaseService } from '@core/services/base.service';
+import { InventoryModel } from '@modules/inventory/domain/models/inventory.model';
+import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { RedisService } from '@/redis/redis.service';
 import { ProductModel } from '@modules/products/domain/models/product.model';
 import { Injectable, Logger } from '@nestjs/common';

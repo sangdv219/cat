@@ -1,9 +1,9 @@
-import { BaseService } from '@/core/services/base.service';
+import { BaseService } from '@core/services/base.service';
 import { RedisService } from '@/redis/redis.service';
-import { PRODUCT_ENTITY } from '@/modules/products/constants/product.constant';
-import { ProductModel } from '@/modules/products/domain/models/product.model';
-import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@/modules/products/dto/product.request.dto';
-import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
+import { PRODUCT_ENTITY } from '@modules/products/constants/product.constant';
+import { ProductModel } from '@modules/products/domain/models/product.model';
+import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@modules/products/dto/product.request.dto';
+import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable, Logger } from '@nestjs/common';
 import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../dto/product.response.dto';
 

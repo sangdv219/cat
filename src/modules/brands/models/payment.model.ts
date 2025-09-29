@@ -1,4 +1,4 @@
-import { BaseModel } from '@/shared/model/base.model';
+import { BaseModel } from '@shared/model/base.model';
 import { BelongsTo, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
 import { OrdersModel } from '../../orders/domain/models/orders.model';
 

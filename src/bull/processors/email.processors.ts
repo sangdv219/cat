@@ -1,5 +1,5 @@
 // src/bull/processors/order.processor.ts
-import { EmailService } from '@/modules/auth/services/mail.service';
+import { EmailService } from '@modules/auth/services/mail.service';
 import { Process, Processor } from '@nestjs/bull';
 import { HttpException, Logger } from '@nestjs/common';
 import { Job } from 'bull';

@@ -1,5 +1,5 @@
-import { UserModel } from '@/modules/users/domain/models/user.model';
-import { BaseModel } from '@/shared/model/base.model';
+import { UserModel } from '@modules/users/domain/models/user.model';
+import { BaseModel } from '@shared/model/base.model';
 import { BelongsTo, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
 
 export interface IOrder{

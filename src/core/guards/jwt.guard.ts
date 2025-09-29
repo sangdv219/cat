@@ -8,7 +8,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
-import { TokenSecretResolver } from '@/modules/auth/interface/tokenSecret.interface';
+import { TokenSecretResolver } from '@modules/auth/interface/tokenSecret.interface';
 
 @Injectable()
 export class JWTAuthGuard implements CanActivate {

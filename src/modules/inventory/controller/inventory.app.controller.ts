@@ -1,7 +1,7 @@
 import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
-import { PaginationQueryDto } from '@/dto/common';
+import { PaginationQueryDto } from '@shared/dto/common';
 import { GetAllInventoryResponseDto, GetByIdInventoryResponseDto } from '@modules/inventory/dto/inventory.response.dto';
 import { InventoryService } from '@modules/inventory/services/inventory.service';
 import { CacheTTL } from '@nestjs/cache-manager';

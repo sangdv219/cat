@@ -1,5 +1,5 @@
-import { OrderAppController } from '@/modules/orders/controller/order.app.controller';
-import { OrdersModel } from '@/modules/orders/domain/models/orders.model';
+import { OrderAppController } from '@modules/orders/controller/order.app.controller';
+import { OrdersModel } from '@modules/orders/domain/models/orders.model';
 import { RedisService } from '@/redis/redis.service';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';

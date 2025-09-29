@@ -1,5 +1,5 @@
 // src/bull/processors/order.processor.ts
-import { OrderService } from '@/modules/orders/services/order.service';
+import { OrderService } from '@modules/orders/services/order.service';
 import { Process, Processor } from '@nestjs/bull';
 import { HttpException, Logger } from '@nestjs/common';
 import { Job } from 'bull';

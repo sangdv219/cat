@@ -9,7 +9,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant';
-import { BaseModel } from '@/shared/model/base.model';
+import { BaseModel } from '@shared/model/base.model';
 
 @Table({
   tableName: BRAND_ENTITY.TABLE_NAME,

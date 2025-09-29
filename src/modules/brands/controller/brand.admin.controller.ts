@@ -1,8 +1,8 @@
-import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
-import { JWTAuthGuard } from '@/core/guards/jwt.guard';
-import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
-import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
-import { PaginationQueryDto } from '@/dto/common';
+import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
+import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
+import { PaginationQueryDto } from '@shared/dto/common';
 import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '@modules/brands/DTO/brand.request.dto';
 import { BrandService } from '@modules/brands/services/brand.service';
 import { CacheTTL } from '@nestjs/cache-manager';
@@ -23,7 +23,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '../DTO/brand.response.dto';
-import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
+import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
 @Controller({ path:'admin/brand', version: '1' })
