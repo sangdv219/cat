@@ -137,14 +137,14 @@ export class OrderService extends
   async calculatorAndUpdateAmountOrder(orderId: string) {
     const orderItem = await this.orderItemsRepository.findByFields('order_id', orderId, ['final_price'])
     const order = await this.repository.findByPk(orderId)
-    if(!order) throw new NotFoundException('Order not found !')
+    if (!order) throw new NotFoundException('Order not found !')
     const shipping_fee = order?.shipping_fee || 300000;
     const discountAmount = order?.discount_amount;
     let subTotal = 0;
     for (const el of orderItem) {
-      subTotal += Number(el.final_price) 
+      subTotal += Number(el.final_price)
     }
-    
+
     const totalAmount = subTotal - (Number(shipping_fee) + Number(discountAmount));
     await this.sequelize.query(
       `UPDATE orders
@@ -169,7 +169,7 @@ export class OrderService extends
       await this.decreaseStockInventory(product_id, quantity, t)
       // 3. Add order-item
       await this.insertOrderItemTable(orderId, dto, t)
-    
+
     });
   }
 
@@ -181,5 +181,48 @@ export class OrderService extends
     Order['products'] = products;
     const dto = plainToInstance(GetByIdOrderResponseDto, Order, { excludeExtraneousValues: true });
     return dto;
+  }
+
+  async calculatorOrder(idOrderItem: string, order_id: string, t: Transaction) {
+    await this.sequelize.query(
+      `UPDATE orders
+         SET subtotal = subtotal - (
+              SELECT final_price
+              FROM order_items
+              WHERE id = :id
+            ),
+            total_amount = total_amount - (
+              SELECT final_price
+              FROM order_items
+              WHERE id = :id 
+            )
+            WHERE id=:orderId`,
+      {
+        replacements: { orderId: order_id, id: idOrderItem },
+        transaction: t,
+      }
+    );
+  }
+
+  async destroyRowOrderItems(idOrderItem: string, t: Transaction) {
+    await this.sequelize.query(
+      `DELETE FROM order_items
+       WHERE id=:id`,
+      {
+        replacements: { id: idOrderItem },
+        transaction: t,
+      }
+    )
+  }
+
+  async deleteOrderItems(id: string) {
+    return await this.sequelize.transaction(async (t: Transaction) => {
+      const orderItems = await this.orderItemsRepository.findByPk(id);
+      if (!orderItems) throw new NotFoundException('OrderItems not found!')
+      const { order_id } = orderItems || {}
+      this.calculatorOrder(id, order_id, t)
+      this.destroyRowOrderItems(id, t)
+    })
+    // return 'dsaa'
   }
 }

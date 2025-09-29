@@ -25,7 +25,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../dto/product.response.dto';
 
 @ApiBearerAuth('Authorization')
-@Controller({ path:'admin/orders', version: '1' })
+@Controller({ path:'admin/products', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class ProductAdminController {

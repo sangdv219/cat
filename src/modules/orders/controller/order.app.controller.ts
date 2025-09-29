@@ -1,8 +1,9 @@
 import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
-import { PaginationQueryDto } from '@shared/dto/common';
-import { CreatedOrderItemRequestDto, CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
+import { CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
+import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '@modules/orders/dto/order.response.dto';
+import { OrderService } from '@modules/orders/services/order.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
@@ -19,8 +20,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '../dto/order.response.dto';
-import { OrderService } from '../services/order.service';
+import { PaginationQueryDto } from '@shared/dto/common';
 
 @ApiBearerAuth('Authorization')
 @Controller({ path:'app/orders', version: '1' })
@@ -76,6 +76,16 @@ export class OrderAppController {
   async deleteOrder(@Param('id') id: string): Promise<void> {
     try {
       return await this.orderService.delete(id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Delete('removeOrderItems/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteOrderItems(@Param('id') id: string): Promise<void> {
+    try {
+      return await this.orderService.deleteOrderItems(id);
     } catch (error) {
       throw error;
     }

@@ -52,8 +52,8 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
             table_name: tableName,
             record_id: recordId,
             action: 'CREATE',
-            old_data: instance.toJSON(),
-            new_data: instance.toJSON(),
+            old_data: null,
+            new_data: null,
         } as typeof AuditLogModel);
     }
 
