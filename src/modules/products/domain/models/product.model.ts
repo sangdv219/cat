@@ -1,73 +1,54 @@
-import { BrandModel } from '@/modules/brands/models/brand.model';
-import { CategoryModel } from '@/modules/categories/domain/models/category.model';
-import { PRODUCT_ENTITY } from '@/modules/products/constants/product.constant';
-import {
-  AllowNull,
-  Column,
-  DataType,
-  Default,
-  ForeignKey,
-  Model,
-  PrimaryKey,
-  Table,
-  Unique,
-} from 'sequelize-typescript';
+import { BrandModel } from '@modules/brands/models/brand.model';
+import { BaseModel } from '@shared/model/base.model';
+import { CategoryModel } from '@modules/categories/domain/models/category.model';
+import { PRODUCT_ENTITY } from '@modules/products/constants/product.constant';
+import { AllowNull, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table, Unique } from 'sequelize-typescript';
 
 @Table({
   tableName: PRODUCT_ENTITY.TABLE_NAME,
   timestamps: true,
   underscored: true,
 })
-export class ProductModel extends Model {
+export class ProductModel extends BaseModel<ProductModel> {
   @PrimaryKey
-  @Default(DataType.UUIDV4)
-  @Column(DataType.UUIDV4)
+  @Default(Sequelize.literal('gen_random_uuid()'))
+  @Column(DataType.UUID)
   declare id: string;
 
   @AllowNull(false)
   @Default('')
   @Column({ type: DataType.STRING(500) })
-  name: string;
-  
+  declare name: string;
+
   @AllowNull(false)
   @Unique(true)
   @Column({ type: DataType.STRING(500) })
-  sku: string;
+  declare sku: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.DECIMAL(10,2) })
-  price: number;
+  @Column({ type: DataType.DECIMAL(10, 2) })
+  declare price: number;
 
   @AllowNull(true)
-  @Column({ type: DataType.DECIMAL(10,2) })
-  promotion_price: number;
+  @Column({ type: DataType.DECIMAL(10, 2) })
+  declare promotion_price: number;
 
   @AllowNull(true)
   @Column({ type: DataType.INTEGER })
-  evaluate: number;
+  declare evaluate: number;
 
   @ForeignKey(() => CategoryModel)
   @AllowNull(false)
-  @Column({ type: DataType.UUIDV4 })
-  category_id: string;
+  @Column({ type: DataType.UUID })
+  declare category_id: string;
 
   @ForeignKey(() => BrandModel)
   @AllowNull(false)
-  @Column({ type: DataType.UUIDV4 })
-  brand_id: string;
+  @Column({ type: DataType.UUID })
+  declare brand_id: string;
 
   @AllowNull(false)
   @Default(false)
   @Column(DataType.BOOLEAN)
-  is_public: boolean;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  created_at: Date;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  updated_at: Date;
+  declare is_public: boolean;
 }

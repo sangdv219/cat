@@ -1,29 +1,24 @@
-import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
-import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
-import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
-import { PaginationQueryDto } from '@/dto/common';
-import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@/modules/categories/dto/category.request.dto';
+import { PaginationQueryDto } from '@shared/dto/common';
+import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
+import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
+import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@modules/categories/dto/category.response.dto';
 import { CategoryService } from '@modules/categories/services/category.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
-  Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
-  Patch,
-  Post,
   Query,
   UseFilters,
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '../dto/category.response.dto';
 
 @ApiBearerAuth('Authorization')
-@Controller('app/categories')
+@Controller({ path:'app/categories', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class CategoryAppController {
@@ -48,35 +43,4 @@ export class CategoryAppController {
       throw error;
     }
   }
-
-  @HttpCode(HttpStatus.CREATED)
-  @Post()
-  async create(@Body() createCategoryDto: CreatedCategoryRequestDto) {
-    try {
-      return await this.categoryService.create(createCategoryDto);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  @Patch(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async updateCategory(@Param('id') id: string, @Body() dto: UpdatedCategoryRequestDto) {
-    try {
-      return await this.categoryService.update(id, dto);
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteCategory(@Param('id') id: string): Promise<void> {
-    try {
-      return await this.categoryService.delete(id);
-    } catch (error) {
-      throw error;
-    }
-  }
-
 }

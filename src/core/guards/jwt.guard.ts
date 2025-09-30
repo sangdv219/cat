@@ -8,7 +8,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
-import { TokenSecretResolver } from '@/modules/auth/interface/tokenSecret.interface';
+import { TokenSecretResolver } from '@modules/auth/interface/tokenSecret.interface';
 
 @Injectable()
 export class JWTAuthGuard implements CanActivate {
@@ -28,9 +28,7 @@ export class JWTAuthGuard implements CanActivate {
     }
 
     const TOKEN_TYPE_KEY = 'tokenType';
-    const tokenType =
-      this.reflector.get<string>(TOKEN_TYPE_KEY, context.getHandler()) ??
-      'access';
+    const tokenType = this.reflector.get<string>(TOKEN_TYPE_KEY, context.getHandler()) ?? 'access';
     const secret = this.tokenSecretResolver.resolve(tokenType);
 
     try {

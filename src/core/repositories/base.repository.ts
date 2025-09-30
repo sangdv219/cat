@@ -1,21 +1,7 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-import { isUUID } from 'class-validator';
-import { UUID } from 'crypto';
+import { Logger, NotFoundException } from '@nestjs/common';
 import { Op, Transaction } from 'sequelize';
 
-export class UpdateCreateResponse<T = any> {
-  success?: boolean = false;
-  message?: string;
-  data?: Partial<T>;
-}
-
-export class DeleteResponse<T> {
-  success?: boolean = false;
-  message?: string;
-  id: string | number;
-}
-
-export interface IPaginationDTO {
+interface IPaginationDTO {
   page: number;
   limit: number;
   keyword?: string;
@@ -23,18 +9,20 @@ export interface IPaginationDTO {
 
 export interface IBaseRepository<T> {
   getAll(): Promise<T[]>;
-  findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>; 
-  findByFields<K extends keyof T>(field: K, value: T[K]): Promise<any[]>;
-  findOneByField<K extends keyof T>(field: K, value: T[K]): Promise<any>;
-  findOne(id: string): Promise<T | null>;
-  findOneByRaw(condition: Record<string, any>): Promise<T | null>;
+  findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>;
+  findByFields<K extends keyof T>(field: K, value: T[K], attributes?: string[], exclude?: string[]): Promise<any[]>;
+  findAllByRaw(condition: Record<string, any>, exclude?: string[]): Promise<any[] | null>;
+  findOneByField<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any>;
+  findByPk(id: string, exclude: string[]): Promise<T | null>;
+  findByOneByRaw(condition: Record<string, any>, exclude: string[]): Promise<T | null>;
   create(payload: Partial<T>, options?: { transaction?: Transaction }): Promise<void>;
-  update(id: string, payload: Partial<T>): Promise<void>;
+  update(id: string, payload: Partial<T>): Promise<any>;
   delete(id: string): Promise<boolean>;
 }
 
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
   public readonly _entityName: string;
+  private readonly logger = new Logger(BaseRepository.name);
   constructor(
     readonly entityName: string = 'BaseEntity',
     readonly model,
@@ -46,7 +34,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return await this.model.findAll();
   }
 
-  async findWithPagination(parameter, exclude = [''] ): Promise<{ items: T; total: number }> {
+  async findWithPagination(parameter, exclude = ['']): Promise<{ items: T; total: number }> {
     const { page = 1, limit = 100, keyword } = parameter;
 
     const offset = (page - 1) * limit;
@@ -71,53 +59,54 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return { items, total };
   }
 
-  async findByFields<K extends keyof T>(field: K, value: T[K]): Promise<any[]> {
+  async findByFields<K extends keyof T>(field: K, value: T[K], attributes?:string[], exclude = ['']): Promise<any[]> {
     const records = await this.model.findAll({
-      where:{
-        [field as string]: value
-      },
+      where: { [field as string]: value },
       raw: true,
-      // attributes: [field as string],
+      exclude,
+      attributes: attributes 
     });
+    
     return records as unknown as T[K][];
   }
 
-  async findOneByField<K extends keyof T>(field: K, value: T[K]): Promise<any> {
+  async findOneByField<K extends keyof T>(field: K, value: T[K], exclude = ['']): Promise<any> {
     const record = await this.model.findOne({
-      where:{
+      where: {
         [field as string]: value
       },
       raw: true,
-      // attributes: [field as string],
+      attributes: { exclude },
     });
     return record as unknown as T[K];
   }
 
-  async findOne(id): Promise<T | null> {
-    return await this.model.findOne({
-      where: { id },
-      attributes: { exclude: [] },
-      raw: true,
-    });
+  async findByPk(id: string, exclude = ['']): Promise<T | null> {
+     return this.model.findByPk(id, { ...exclude, raw: true })
   }
 
-  async findByEmail(email: string): Promise<T | null> {
-    return await this.model.findOne({
-      where: { email },
-      attributes: { exclude: [] },
-      raw: true,
-    });
-  }
-
-  findOneByRaw(condition) {
+  async findByOneByRaw(condition) {
     return this.model.findOne({
       ...condition,
+      raw: true
     });
+  }
+
+  async findAllByRaw(condition){
+    return await this.model.findAndCountAll(
+      {
+        ...condition,
+        raw: true
+      }
+    )
   }
 
   async create(payload, options?: { transaction?: Transaction }): Promise<any> {
-    const result = await this.model.create(payload, options);
-    return result;
+    const result = await this.model.create(payload, {
+      returning: true,
+      ...options
+    });
+    return result.get({ plain: true });
   }
 
   async update(id: string, payload: any) {
@@ -127,12 +116,10 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     });
   }
 
-  async delete(id: UUID) {
-    if (!isUUID(id)) {
-      throw new BadRequestException('Invalid UUID format');
-    }
+  async delete(id: string) {
     const deletedRows = await this.model.destroy({
       where: { id },
+      individualHooks: true
     });
     if (deletedRows === 0) {
       throw new NotFoundException('Record not found');
@@ -146,7 +133,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       id: { [Op.ne]: excludeId },
     };
 
-    const brand = await this.model.findOne({
+    const brand = await this.model.findByPk({
       where: condition,
     });
 
@@ -158,6 +145,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       [key]: mode === 'like' ? { [Op.iLike]: `%${value}%` } : value,
     }),
     );
+    console.log("orConditions: ", orConditions);
 
     const exists = await this.model.findOne({
       where: { [Op.or]: orConditions },

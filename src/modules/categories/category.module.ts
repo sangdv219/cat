@@ -1,25 +1,24 @@
-import { CommonModule } from '@modules/common/common.module';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { config } from 'dotenv';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
+import { ProductModule } from '../products/product.module';
+import { CategoryAdminController } from './controller/category.admin.controller';
+import { CategoryAppController } from './controller/category.app.controller';
 import { CategoryModel } from './domain/models/category.model';
 import { PostgresCategoryRepository } from './infrastructure/repository/postgres-category.repository';
 import { CategoryService } from './services/category.service';
-import { CategoryAppController } from './controller/category.app.controller';
-import { CategoryAdminController } from './controller/category.admin.controller';
-import { ProductModule } from '../products/product.module';
-import { PostgresProductRepository } from '../products/infrastructure/repository/postgres-product.repository';
+import { RedisModule } from '@/redis/redis.module';
+import { RedisService } from '@/redis/redis.service';
 
-config();
 @Module({
-  imports: [SequelizeModule.forFeature([CategoryModel]), CommonModule, ProductModule ],
+  imports: [SequelizeModule.forFeature([CategoryModel]), ProductModule, RedisModule ],
   controllers: [CategoryAppController, CategoryAdminController],
   providers: [
     PostgresCategoryRepository,
     CategoryService,
     JwtModule,
+    RedisService,
     {
       provide: 'TokenSecretResolver',
       useClass: DefaultTokenSecretResolverStrategy,

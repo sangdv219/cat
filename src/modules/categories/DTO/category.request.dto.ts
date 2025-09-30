@@ -20,15 +20,6 @@ export class CreatedCategoryRequestDto {
   @Transform(({ value }) => value === 'true' || value === true)
   @IsBoolean({ message: 'is_public must be a boolean (true/false)' })
   is_public: boolean = false;
-
-  @IsOptional()
-  created_at?: Date;
-
-  @IsOptional()
-  updated_at?: Date;
-
-  @IsOptional()
-  deleted_at?: Date;
 }
 
 export class UpdatedCategoryRequestDto extends PartialType(CreatedCategoryRequestDto) {}

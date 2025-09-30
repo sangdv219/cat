@@ -1,8 +1,8 @@
-import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
-import { JWTAuthGuard } from '@/core/guards/jwt.guard';
-import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
-import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
-import { PaginationQueryDto } from '@/dto/common';
+import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
+import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
+import { PaginationQueryDto } from '@shared/dto/common';
 import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '@modules/brands/DTO/brand.request.dto';
 import { BrandService } from '@modules/brands/services/brand.service';
 import { CacheTTL } from '@nestjs/cache-manager';
@@ -23,9 +23,10 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '../DTO/brand.response.dto';
+import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
-@Controller('admin/brand')
+@Controller({ path:'admin/brand', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class BrandAdminController {
@@ -55,6 +56,7 @@ export class BrandAdminController {
 
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @Post()
   async create(@Body() createBrandDto: CreatedBrandRequestDto) {
     try {
@@ -67,6 +69,7 @@ export class BrandAdminController {
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async updateBrand(@Param('id') id: string, @Body() dto: UpdatedBrandRequestDto) {
     try {
       return await this.brandService.update(id, dto);
@@ -77,6 +80,7 @@ export class BrandAdminController {
 
   @Delete(':id')
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBrand(@Param('id') id: string): Promise<void> {
     try {

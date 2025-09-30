@@ -1,4 +1,4 @@
-import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
@@ -10,18 +10,35 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class CreatedUserAdminRequestDto {
+interface CreatedUserAdminRequest {
+  name: string
+  email: string
+  password: string
+  gender: string
+  phone: string
+  is_root: boolean
+  is_active: boolean
+  avatar: string
+  created_at?: Date
+  updated_at?: Date
+  deleted_at?: Date
+  created_by?: string
+  updated_by?: string
+  deleted_by?: string
+}
+
+export class CreatedUserAdminRequestDto implements CreatedUserAdminRequest {
   @IsNotEmpty({ message: 'Name is required' })
   @IsString({ message: 'Name must be a string' })
   @ApiProperty({ description: 'user', example: 'user' })
   name: string;
 
   @IsNotEmpty()
-  @ApiProperty({ description: 'email', example: 'sangdva@gmail.com' })
+  @ApiProperty({ description: 'email', example: 'sangdv219@gmail.com' })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ description: 'password', minLength: 6 })
+  @ApiProperty({ description: 'password', minLength: 6, example: '123456' })
   @IsNotEmpty()
   @MinLength(6)
   password: string;
@@ -57,15 +74,6 @@ export class CreatedUserAdminRequestDto {
   @IsNotEmpty({ message: 'avatar is required' })
   @IsString({ message: 'avatar must be a string' })
   avatar: string;
-
-  @IsOptional()
-  created_at?: Date;
-
-  @IsOptional()
-  updated_at?: Date;
-
-  @IsOptional()
-  deleted_at?: Date;
 }
 
-export class UpdatedUserAdminRequestDto extends PartialType(OmitType(CreatedUserAdminRequestDto, ['password'] as const)) {}
+export class UpdatedUserAdminRequestDto extends PartialType(OmitType(CreatedUserAdminRequestDto, ['password'] as const)) { }
