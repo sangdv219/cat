@@ -35,9 +35,11 @@ export class CreatedOrderReponseDto extends OrderBaseDto {
 }
 
 
-export class GetByIdOrderResponseDto extends CreatedOrderReponseDto {
-  // @Expose()
-  // user: ProductResponseDto[];
-  // cart: CartBaseDto[];
+export class GetByIdOrderResponseDto extends CreatedOrderReponseDto {}
+export class GetByIdOrderResponseDtoV2 extends CreatedOrderReponseDto {
+  @Expose()
+  products: []
+  @Expose()
+  user:any
 }
 

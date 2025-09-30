@@ -1,18 +1,20 @@
+import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
 import { BullService } from '@bull/bull.service';
 import { BaseService } from '@core/services/base.service';
 import { InventoryService } from '@modules/inventory/services/inventory.service';
+import { PostgresOrderItemsRepository } from '@modules/order-items/infrastructure/repository/postgres-order-items.repository';
+import { ORDER_ENTITY } from '@modules/orders/constants/order.constant';
 import { OrdersModel } from '@modules/orders/domain/models/orders.model';
+import { CreatedOrderItemRequestDto, CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
+import { GetAllOrderResponseDto, GetByIdOrderResponseDto, GetByIdOrderResponseDtoV2 } from '@modules/orders/dto/order.response.dto';
+import { PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
 import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
-import { RedisService } from '@/redis/redis.service';
+import { UserModel } from '@modules/users/domain/models/user.model';
 import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/sequelize';
+import { RedisService } from '@redis/redis.service';
 import { plainToInstance } from 'class-transformer';
 import { QueryTypes, Sequelize, Transaction } from 'sequelize';
-import { ORDER_ENTITY } from '@modules/orders/constants/order.constant';
-import { CreatedOrderItemRequestDto, CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
-import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '@modules/orders/dto/order.response.dto';
-import { PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
-import { PostgresOrderItemsRepository } from '@modules/order-items/infrastructure/repository/postgres-order-items.repository';
 
 @Injectable()
 export class OrderService extends
@@ -66,6 +68,7 @@ export class OrderService extends
   }
 
   async checkout(dto: CreatedOrderRequestDto) {
+    this.cleanCacheRedis()
     return await this.bullService.addOrderJob(dto);
   }
 
@@ -98,7 +101,7 @@ export class OrderService extends
       }
     );
 
-    if (!rows) throw new NotFoundException('Product not found');
+    if (!rows) throw new NotFoundException('Product not found in inventory');
     if (rows['stock'] < quantity) {
       throw new HttpException('Not enough stock', HttpStatus.CONFLICT);
     }
@@ -221,6 +224,7 @@ export class OrderService extends
   }
 
   async deleteOrderItems(id: string) {
+    this.cleanCacheRedis()
     return await this.sequelize.transaction(async (t: Transaction) => {
       const orderItems = await this.orderItemsRepository.findByPk(id);
       if (!orderItems) throw new NotFoundException('OrderItems not found!')
@@ -228,6 +232,49 @@ export class OrderService extends
       await this.calculatorOrder(id, order_id, t)
       await this.destroyRowOrderItems(id, t)
     })
-    // return 'dsaa'
+  }
+
+  async getOrderByIdv2(id: string) {
+    const products = await this.orderItemsRepository.findByFields('order_id', id, ['quantity', 'price', 'discount', 'final_price', 'note']);
+
+    const order = await this.repository.findByOneByRaw({
+      where: { id },
+      include: [{
+        model: UserModel,
+        // attributes: {exclude: ['password_hash', 'created_by']}
+        attributes: ['name', 'email', 'phone', 'age', 'gender', 'avatar']
+      },
+      ],
+      raw: true,
+      nest: true
+    })
+    order['products'] = products
+    return plainToInstance<GetByIdOrderResponseDtoV2, any>(GetByIdOrderResponseDtoV2, order, { excludeExtraneousValues: true });
+  }
+
+  async getRevenue() {
+    return await this.repository.findAllByRaw({
+      attributes: [
+        'id',
+        [Sequelize.col('user.name'), 'name'],
+        [Sequelize.fn('SUM', Sequelize.col('orderItems.final_price')), 'total_price'],
+        [Sequelize.fn('COUNT',
+            Sequelize.fn('DISTINCT', Sequelize.col('OrdersModel.id'))
+          ),
+          'total_order'
+        ],
+      ],
+      include: [
+        {
+          model: UserModel,
+          attributes: [],
+        },
+        {
+          model: OrderItemsModel,
+          attributes: [],
+        }
+      ],
+      group: ['OrdersModel.id', 'user.name'],
+    })
   }
 }

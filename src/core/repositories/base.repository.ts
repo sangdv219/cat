@@ -11,6 +11,7 @@ export interface IBaseRepository<T> {
   getAll(): Promise<T[]>;
   findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>;
   findByFields<K extends keyof T>(field: K, value: T[K], attributes?: string[], exclude?: string[]): Promise<any[]>;
+  findAllByRaw(condition: Record<string, any>, exclude?: string[]): Promise<any[] | null>;
   findOneByField<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any>;
   findByPk(id: string, exclude: string[]): Promise<T | null>;
   findByOneByRaw(condition: Record<string, any>, exclude: string[]): Promise<T | null>;
@@ -89,6 +90,15 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       ...condition,
       raw: true
     });
+  }
+
+  async findAllByRaw(condition){
+    return await this.model.findAndCountAll(
+      {
+        ...condition,
+        raw: true
+      }
+    )
   }
 
   async create(payload, options?: { transaction?: Transaction }): Promise<any> {

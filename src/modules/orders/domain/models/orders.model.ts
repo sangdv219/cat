@@ -1,6 +1,7 @@
+import { OrderItemsModel } from '@/modules/order-items/domain/models/order-items.model';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { BaseModel } from '@shared/model/base.model';
-import { BelongsTo, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
+import { BelongsTo, Column, DataType, Default, ForeignKey, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
 
 export interface IOrder{
   id: string,
@@ -48,4 +49,7 @@ export class OrdersModel extends BaseModel<OrdersModel> implements IOrder{
   @Default('pending')
   @Column(DataType.STRING(20))
   declare status: string;
+
+  @HasMany(() => OrderItemsModel)
+  declare orderItems: OrderItemsModel[]
 }

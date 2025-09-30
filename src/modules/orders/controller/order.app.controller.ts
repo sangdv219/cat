@@ -2,7 +2,7 @@ import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
-import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '@modules/orders/dto/order.response.dto';
+import { GetAllOrderResponseDto, GetByIdOrderResponseDto, GetByIdOrderResponseDtoV2 } from '@modules/orders/dto/order.response.dto';
 import { OrderService } from '@modules/orders/services/order.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
@@ -17,7 +17,8 @@ import {
   Post,
   Query,
   UseFilters,
-  UseInterceptors
+  UseInterceptors,
+  Version
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { PaginationQueryDto } from '@shared/dto/common';
@@ -42,10 +43,32 @@ export class OrderAppController {
     }
   }
 
+  @Version('1')
+  @Get('getRevenue')
+  @HttpCode(HttpStatus.OK)
+  @CacheTTL(60)
+  async getRevenue(): Promise<GetAllOrderResponseDto> {
+    try {
+      return await this.orderService.getRevenue();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Version('1')
   @Get(':id')
   async getOrderById(@Param('id') id: string): Promise<GetByIdOrderResponseDto | null> {
     try {
       return await this.orderService.getById(id);
+    } catch (error) {
+      throw error;
+    }
+  }
+  @Version('2')
+  @Get(':id')
+  async getOrderByIdv2(@Param('id') id: string): Promise<GetByIdOrderResponseDtoV2 | null> {
+    try {
+      return await this.orderService.getOrderByIdv2(id);
     } catch (error) {
       throw error;
     }

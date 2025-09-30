@@ -45,5 +45,5 @@ export class CreatedUserAdminReponseDto extends UserAdminBaseDto {
 
 export class GetByIdUserAdminResponseDto extends CreatedUserAdminReponseDto {
   @Expose()
-  products: UserAdminBaseDto[];
+  user: UserAdminBaseDto[];
 }
