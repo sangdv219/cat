@@ -196,12 +196,17 @@ export class OrderService extends
               FROM order_items
               WHERE id = :id 
             )
-            WHERE id=:orderId`,
+            WHERE id=:orderId;
+            
+            DELETE FROM orders
+            WHERE id = :orderId
+            AND subtotal = 0;`,
       {
         replacements: { orderId: order_id, id: idOrderItem },
         transaction: t,
       }
     );
+
   }
 
   async destroyRowOrderItems(idOrderItem: string, t: Transaction) {
@@ -220,8 +225,8 @@ export class OrderService extends
       const orderItems = await this.orderItemsRepository.findByPk(id);
       if (!orderItems) throw new NotFoundException('OrderItems not found!')
       const { order_id } = orderItems || {}
-      this.calculatorOrder(id, order_id, t)
-      this.destroyRowOrderItems(id, t)
+      await this.calculatorOrder(id, order_id, t)
+      await this.destroyRowOrderItems(id, t)
     })
     // return 'dsaa'
   }
