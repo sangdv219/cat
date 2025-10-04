@@ -23,12 +23,12 @@ module.exports = {
       },
 
       price: {
-        type: Sequelize.DECIMAL(12, 2),
+        type: Sequelize.DECIMAL(18,2),
         allowNull: false,
       },
 
       promotion_price: {
-        type: Sequelize.DECIMAL(12, 2),
+        type: Sequelize.DECIMAL(18,2),
         allowNull: true,
       },
       evaluate: {

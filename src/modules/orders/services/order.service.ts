@@ -73,15 +73,20 @@ export class OrderService extends
   }
 
   async implementsOrder(dto: CreatedOrderRequestDto) {
-    const order = await this.repository.create(dto)
-    const orderId = order.id
+    const order:OrdersModel | unknown = await this.upsertOrdersTable(dto);
+
+    if (!order) {
+      throw new NotFoundException('Order creation failed!');
+    }
+    const orderId: any = (typeof order === 'object' && order !== null && 'id' in order) ? order.id : "";
+    
     const products = dto.products;
 
     for (const el of products) {
       const result = await this.productRepository.findByPk(el.product_id)
       if (!result) throw new NotFoundException('Product not found !')
       const product = { ...el, price: result.price }
-      await this.handleAndInsertOrderItem(product, orderId)
+      await this.handleAndInsertOrderItems(product, orderId)
     }
 
     await this.calculatorAndUpdateAmountOrder(orderId)
@@ -100,6 +105,8 @@ export class OrderService extends
         plain: true
       }
     );
+
+    Logger.log('rows:', rows);
 
     if (!rows) throw new NotFoundException('Product not found in inventory');
     if (rows['stock'] < quantity) {
@@ -121,13 +128,18 @@ export class OrderService extends
     );
   }
 
-  async insertOrderItemTable(orderId: string, dto, t: Transaction) {
+  async unsertOrderItemTable(orderId: string | false, dto, t: Transaction) {
     const { product_id, quantity, price, discount, note } = dto
     const finalPrice = price * quantity * (1 - discount / 100)
+
     await this.sequelize.query(
       `INSERT INTO order_items(order_id, product_id, quantity, price, discount, final_price, note)
-          VALUES(:orderId, :productId, :quantity, :price, :discount, :finalPrice, :note)
-          RETURNING id`,
+       VALUES(:orderId, :productId, :quantity, :price, :discount, :finalPrice, :note)
+       ON CONFLICT(product_id)
+       DO UPDATE SET
+          quantity = order_items.quantity + EXCLUDED.quantity,
+          final_price = order_items.price * (order_items.quantity + EXCLUDED.quantity) * (1 - EXCLUDED.discount / 100)
+            `,
       {
         replacements: { orderId: orderId, productId: product_id, quantity: quantity, price: price, discount: discount, finalPrice: finalPrice, note: note ?? "" },
         transaction: t,
@@ -163,7 +175,31 @@ export class OrderService extends
     )
   }
 
-  async handleAndInsertOrderItem(dto: CreatedOrderItemRequestDto, orderId: string): Promise<any> {
+  async upsertOrdersTable(dto: CreatedOrderRequestDto) {
+    const {user_id, discount_amount, shipping_fee, shipping_address, payment_method } = dto;
+    return await this.sequelize.query(
+      `INSERT INTO orders(user_id, discount_amount, payment_method, shipping_fee, shipping_address)
+       VALUES(:user_id, :discount_amount, :payment_method, :shipping_fee, :shipping_address)
+       ON CONFLICT(user_id)
+       DO UPDATE SET
+          subtotal = 0, 
+          total_amount = 0
+        RETURNING *`,
+      {
+        replacements: { 
+          user_id: user_id, 
+          discount_amount: discount_amount, 
+          shipping_fee: shipping_fee, 
+          payment_method: payment_method, 
+          shipping_address: shipping_address,
+        },
+        type: QueryTypes.SELECT,
+        plain: true
+      }
+    );
+  }
+
+  async handleAndInsertOrderItems(dto: CreatedOrderItemRequestDto, orderId: string): Promise<any> {
     const { product_id, quantity } = dto
     return await this.sequelize.transaction(async (t: Transaction) => {
       // 1. Lock row + check tồn kho
@@ -171,7 +207,7 @@ export class OrderService extends
       // 2. Giảm stock và trả lại record mới
       await this.decreaseStockInventory(product_id, quantity, t)
       // 3. Add order-item
-      await this.insertOrderItemTable(orderId, dto, t)
+      await this.unsertOrderItemTable(orderId, dto, t)
 
     });
   }
@@ -253,14 +289,14 @@ export class OrderService extends
   }
 
   async getRevenue() {
-    return await this.repository.findAllByRaw({
+    const SequelizeQuery = await this.repository.findAllByRaw({
       attributes: [
         'id',
         [Sequelize.col('user.name'), 'name'],
         [Sequelize.fn('SUM', Sequelize.col('orderItems.final_price')), 'total_price'],
         [Sequelize.fn('COUNT',
-            Sequelize.fn('DISTINCT', Sequelize.col('OrdersModel.id'))
-          ),
+          Sequelize.fn('DISTINCT', Sequelize.col('OrdersModel.id'))
+        ),
           'total_order'
         ],
       ],
@@ -276,5 +312,17 @@ export class OrderService extends
       ],
       group: ['OrdersModel.id', 'user.name'],
     })
+
+    const rawQuery = await this.sequelize.query(
+      `SELECT o.id, u.name, 
+      SUM(oi.final_price) AS total_price, 
+      COUNT(DISTINCT o.id) AS total_order 
+      FROM public.orders o
+      JOIN public.users u ON u.id = o.user_id
+      JOIN public.order_items oi ON oi.order_id = o.id 
+      GROUP BY o.id, u.name;`
+    )
+
+    return rawQuery;
   }
 }

@@ -16,7 +16,7 @@ export class BullService {
     async addOrderJob(data) {
         await this.orderQueue.add('place-order', data, {
             delay: 1000, // 1 giây sau mới chạy
-            attempts: 1, // thử lại tối đa 1 lần - Retry (số lần thử lại khi job fail)
+            attempts: 2, // thử lại tối đa 1 lần - Retry (số lần thử lại khi job fail)
             backoff: {
                 type: 'exponential',     // retry sau 1s, 2s, 4s, 8s...
                 delay: 1000,             // chờ 1 giây giữa mỗi lần retry,

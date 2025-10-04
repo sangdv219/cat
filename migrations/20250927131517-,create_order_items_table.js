@@ -35,15 +35,15 @@ module.exports = {
         defaultValue: 1,
       },
       price: {
-        type: Sequelize.DECIMAL(12, 2),
+        type: Sequelize.DECIMAL(18,2),
         allowNull: false,
       },
       discount: {
-        type: Sequelize.DECIMAL(12, 2),
+        type: Sequelize.DECIMAL(18,2),
         allowNull: false,
       },
       final_price: {
-        type: Sequelize.DECIMAL(12, 2),
+        type: Sequelize.DECIMAL(18,2),
         allowNull: false,
       },
       note: {

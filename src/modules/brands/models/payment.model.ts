@@ -16,7 +16,7 @@ export class PaymentsModel extends BaseModel<PaymentsModel> {
   @BelongsTo(() => OrdersModel)
   declare order: OrdersModel;
 
-  @Column({ type: DataType.DECIMAL(12, 2), allowNull: false })
+  @Column({ type: DataType.DECIMAL(18,2), allowNull: false })
   declare amount: number;
 
   @Column({ type: DataType.STRING(50), allowNull: false })

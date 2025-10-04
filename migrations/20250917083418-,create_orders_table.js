@@ -25,19 +25,19 @@ module.exports = {
         defaultValue: 'pending',
       },
       subtotal: {
-        type: Sequelize.DECIMAL(12, 2),
+        type: Sequelize.DECIMAL(18,2),
         allowNull: true,
       },
       discount_amount: {
-        type: Sequelize.DECIMAL(12, 2),
+        type: Sequelize.DECIMAL(18,2),
         allowNull: true,
       },
       shipping_fee: {
-        type: Sequelize.DECIMAL(12, 2),
+        type: Sequelize.DECIMAL(18,2),
         allowNull: true,
       },
       total_amount: {
-        type: Sequelize.DECIMAL(12, 2),
+        type: Sequelize.DECIMAL(18,2),
         allowNull: true,
       },
       shipping_address: {

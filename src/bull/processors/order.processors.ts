@@ -25,7 +25,7 @@ export class OrderProcessor {
                 this.logger.error(`Order failed: ${status} - ${JSON.stringify(response)}`);
                 throw error; // vẫn throw để Bull đánh dấu job failed
             }
-            throw new Error(error.message);
+            throw new Error('error from job =>',error);
         }
     }
 }

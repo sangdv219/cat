@@ -7,8 +7,8 @@ export interface IOrder{
   id: string,
   user_id: string,
   subtotal: string,
-  discount_amount: string,
-  shipping_fee: string,
+  discount_amount: number,
+  shipping_fee: number,
   total_amount: string,
   shipping_address: string,
   payment_method: string,
@@ -28,26 +28,26 @@ export class OrdersModel extends BaseModel<OrdersModel> implements IOrder{
   @BelongsTo(() => UserModel)
   declare user: UserModel;
 
-  @Column({ type: DataType.DECIMAL(12, 2) })
+  @Column({ type: DataType.DECIMAL(18,2) })
   declare subtotal: string //(tổng giá trị các item, chưa tính ship, chưa trừ voucher)
 
-  @Column({ type: DataType.DECIMAL(12, 2) })
-  declare discount_amount: string // (voucher, promotion)
+  @Column({ type: DataType.DECIMAL(18,2) })
+  declare discount_amount: number // (voucher, promotion)
 
-  @Column({ type: DataType.DECIMAL(12, 2) })
-  declare shipping_fee: string
+  @Column({ type: DataType.DECIMAL(18,2) })
+  declare shipping_fee: number
 
-  @Column({ type: DataType.DECIMAL(12, 2) })
+  @Column({ type: DataType.DECIMAL(18,2) })
   declare total_amount: string //(sau khi tính hết)
 
-  @Column(DataType.STRING(20))
+  @Column({ type: DataType.STRING(100) })
   declare shipping_address: string;
 
-  @Column(DataType.STRING(20))
+  @Column({ type: DataType.STRING(20) })
   declare payment_method: string;
 
   @Default('pending')
-  @Column(DataType.STRING(20))
+  @Column({ type: DataType.STRING(20) })
   declare status: string;
 
   @HasMany(() => OrderItemsModel)

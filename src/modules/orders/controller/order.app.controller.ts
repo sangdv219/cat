@@ -47,7 +47,7 @@ export class OrderAppController {
   @Get('getRevenue')
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
-  async getRevenue(): Promise<GetAllOrderResponseDto> {
+  async getRevenue(): Promise<unknown> {
     try {
       return await this.orderService.getRevenue();
     } catch (error) {
@@ -74,7 +74,7 @@ export class OrderAppController {
     }
   }
 
-  // @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.CREATED)
   @Post('checkout')
   async checkout(@Body() createOrderDto: CreatedOrderRequestDto) {
     try {

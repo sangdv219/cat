@@ -19,10 +19,10 @@ export class OrderItemsModel extends BaseModel<OrderItemsModel> {
   @AllowNull(false)
   @Column({ type: DataType.UUID })
   declare order_id: string; // FK đến orders
-  
+
   @BelongsTo(() => OrdersModel)
   declare orders: OrdersModel;
-  
+
   @ForeignKey(() => ProductModel)
   @AllowNull(false)
   @Column({ type: DataType.UUID })
@@ -35,17 +35,35 @@ export class OrderItemsModel extends BaseModel<OrderItemsModel> {
   @Column(DataType.INTEGER)
   declare quantity: number;
 
-  @Column({ type: DataType.DECIMAL(12, 2) })
-  declare price: string;
+  @Column({
+    type: DataType.DECIMAL(18,2),
+    get() {
+      const raw = this.getDataValue('price');
+      return raw ? Number(raw) : 0;
+    },
+  })
+  declare price: number;
 
   @Default(0)
-  @Column({ type: DataType.DECIMAL(12, 2) })
-  declare discount: string;  //(sale trên từng item, nếu có)
+  @Column({
+    type: DataType.DECIMAL(18,2),
+    get() {
+      const raw = this.getDataValue('discount');
+      return raw ? Number(raw) : 0;
+    },
+  })
+  declare discount: number;  //(sale trên từng item, nếu có)
 
-  @Column({ type: DataType.DECIMAL(12, 2) })
-  declare final_price: string;  //(price * quantity - discount)
-  
+  @Column({
+    type: DataType.DECIMAL(18,2),
+    get() {
+      const raw = this.getDataValue('final_price');
+      return raw ? Number(raw) : 0;
+    },
+  })
+  declare final_price: number;  //(price * quantity - discount)
+
   @AllowNull(true)
-  @Column({ type: DataType.STRING(200)})
+  @Column({ type: DataType.STRING(200) })
   declare note: string
 }
