@@ -8,9 +8,11 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { UserModel } from '../users/domain/models/user.model';
 import { PostgresRoleRepository } from '@modules/roles/infrastructure/repository/postgres-role.repository';
 import { RolesService } from '@modules/roles/services/roles.service';
+import { RolePermissionsModel } from '@modules/associations/models/role-permissions.model';
+import { UserRolesModel } from '@modules/associations/models/user-roles.model';
 
 @Module({
-  imports: [ SequelizeModule.forFeature([RolesModel, UserModel]), RolesModule],
+  imports: [ SequelizeModule.forFeature([RolesModel, UserModel, RolePermissionsModel, UserRolesModel]), RolesModule],
   controllers: [ RoleAppController ],
   providers: [
     RolesService,

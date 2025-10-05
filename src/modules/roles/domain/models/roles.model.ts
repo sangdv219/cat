@@ -1,8 +1,9 @@
-import { OrderItemsModel } from '@/modules/order-items/domain/models/order-items.model';
-import { UserModel } from '@modules/users/domain/models/user.model';
 import { BaseModel } from '@shared/model/base.model';
-import { BelongsTo, Column, DataType, Default, ForeignKey, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
-import { ROLES_ENTITY } from '../../constants/roles.constant';
+import { Column, DataType, Default, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
+import { ROLES_ENTITY } from '@modules/roles/constants/roles.constant';
+import { RolePermissionsModel } from '@modules/associations/models/role-permissions.model';
+// import { UserRolesModel } from '@modules/associations/models/user-roles.model';
+// import { RolePermissionsModel } from '@modules/associations/models/role-permissions.model';
 
 export interface IRole{
   id: string,
@@ -20,4 +21,10 @@ export class RolesModel extends BaseModel<RolesModel> implements IRole{
 
   @Column({ type: DataType.STRING(100) })
   declare description: string;
+
+  // @HasMany(() => UserRolesModel)
+  // declare userRoles: UserRolesModel[]
+
+  @HasMany(() => RolePermissionsModel)
+  declare rolePermission: RolePermissionsModel[]
 }

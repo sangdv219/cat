@@ -1,9 +1,9 @@
-import { OrderItemsModel } from '@/modules/order-items/domain/models/order-items.model';
+import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { BaseModel } from '@shared/model/base.model';
 import { BelongsTo, Column, DataType, Default, ForeignKey, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
 
-export interface IOrder{
+export interface IOrder {
   id: string,
   user_id: string,
   subtotal: string,
@@ -15,29 +15,29 @@ export interface IOrder{
   status: string,
 }
 @Table({ tableName: 'orders' })
-export class OrdersModel extends BaseModel<OrdersModel> implements IOrder{
+export class OrdersModel extends BaseModel<OrdersModel> implements IOrder {
   @PrimaryKey
   @Default(Sequelize.literal('gen_random_uuid()'))
-  @Column(DataType.UUID)
+  @Column({ type: DataType.UUID })
   declare id: string;
 
   @ForeignKey(() => UserModel)
-  @Column(DataType.UUID)
+  @Column({ type: DataType.UUID })
   declare user_id: string;
 
   @BelongsTo(() => UserModel)
   declare user: UserModel;
 
-  @Column({ type: DataType.DECIMAL(18,2) })
+  @Column({ type: DataType.DECIMAL(18, 2) })
   declare subtotal: string //(tổng giá trị các item, chưa tính ship, chưa trừ voucher)
 
-  @Column({ type: DataType.DECIMAL(18,2) })
+  @Column({ type: DataType.DECIMAL(18, 2) })
   declare discount_amount: number // (voucher, promotion)
 
-  @Column({ type: DataType.DECIMAL(18,2) })
+  @Column({ type: DataType.DECIMAL(18, 2) })
   declare shipping_fee: number
 
-  @Column({ type: DataType.DECIMAL(18,2) })
+  @Column({ type: DataType.DECIMAL(18, 2) })
   declare total_amount: string //(sau khi tính hết)
 
   @Column({ type: DataType.STRING(100) })

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { AuditLogModel } from './audit_logs.model';
+import { AuditLogModel } from '@audit/audit_logs.model';
 
 @Module({
   imports: [SequelizeModule.forFeature([AuditLogModel])],
