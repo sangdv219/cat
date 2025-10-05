@@ -1,14 +1,16 @@
 import { BaseService } from '@core/services/base.service';
 import { InventoryModel } from '@modules/inventory/domain/models/inventory.model';
 import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
-import { RedisService } from '@/redis/redis.service';
+import { RedisService } from '@redis/redis.service';
 import { ProductModel } from '@modules/products/domain/models/product.model';
 import { Injectable, Logger } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { INVENTORY_ENTITY } from '../constants/inventory.constant';
-import { CreatedInventoryRequestDto, UpdatedInventoryRequestDto } from '../dto/inventory.request.dto';
-import { GetAllInventoryResponseDto, GetByIdInventoryResponseDto } from '../dto/inventory.response.dto';
-import { PostgresInventoryRepository } from '../infrastructure/repository/postgres-inventory.repository';
+import { INVENTORY_ENTITY } from '@modules/inventory/constants/inventory.constant';
+import { CreatedInventoryRequestDto, UpdatedInventoryRequestDto } from '@modules/inventory/dto/inventory.request.dto';
+import { GetAllInventoryResponseDto, GetByIdInventoryResponseDto } from '@modules/inventory/dto/inventory.response.dto';
+import { PostgresInventoryRepository } from '@modules/inventory/infrastructure/repository/postgres-inventory.repository';
+import { buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
+import { RedisContext } from '@redis/enums/redis-key.enum';
 
 @Injectable()
 export class InventoryService extends
@@ -58,8 +60,16 @@ export class InventoryService extends
     Logger.log('🗑️onModuleDestroy -> inventory: ', this.inventory);
   }
 
-  async getByProductId(field: string, id: string): Promise<GetByIdInventoryResponseDto> {
-    const inventory_ = await this.repository.findByOneByRaw({
+  async getByProductId(field: string, id: string) {
+    const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.DETAIL, {}, id);
+
+    const cached = await this.cacheManage.get(redisKey);
+
+    const dataCache = cached && JSON.parse(cached);
+
+    if (cached) return dataCache;
+
+    const inventory = await this.repository.findByOneByRaw({
       where: { [`${field}`]: id },
       include: [{
         model: ProductModel,
@@ -69,9 +79,9 @@ export class InventoryService extends
       nest: true,
     });
 
-    if (!inventory_) throw new TypeError('Inventory not found');
-    inventory_['product'] = inventory_.product;
-    const dto = plainToInstance<GetByIdInventoryResponseDto, any>(GetByIdInventoryResponseDto, inventory_, { excludeExtraneousValues: true });
-    return dto;
+    if (!inventory) throw new TypeError('Inventory not found!');
+    inventory['product'] = inventory.product;
+    const dto = plainToInstance<GetByIdInventoryResponseDto, any>(GetByIdInventoryResponseDto, inventory, { excludeExtraneousValues: true });
+    await this.cacheManage.set(redisKey, JSON.stringify(dto), 'EX', 300);
   }
 }

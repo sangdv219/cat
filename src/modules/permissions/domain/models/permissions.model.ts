@@ -1,12 +1,11 @@
-import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
-import { UserModel } from '@modules/users/domain/models/user.model';
 import { BaseModel } from '@shared/model/base.model';
-import { BelongsTo, Column, DataType, Default, ForeignKey, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
+import { Column, DataType, Default, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
 import { ROLES_ENTITY } from '../../constants/permissions.constant';
 
 export interface IPermissions{
   id: string,
-  description: string,
+  action: string,
+  resource: string,
 }
 @Table({ tableName: ROLES_ENTITY.TABLE_NAME })
 export class PermissionsModel extends BaseModel<PermissionsModel> implements IPermissions{
@@ -19,5 +18,8 @@ export class PermissionsModel extends BaseModel<PermissionsModel> implements IPe
   declare name: string;
 
   @Column({ type: DataType.STRING(100) })
-  declare description: string;
+  declare action: string;
+
+  @Column({ type: DataType.STRING(100) })
+  declare resource: string;
 }

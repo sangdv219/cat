@@ -9,8 +9,14 @@ export enum RedisContext {
   OTP = 'otp',
 }
 export enum RedisModule {
-  USER = 'users',
-  ORDER = 'order',
   AUTH = 'auth',
-  TRANSACTION = 'transaction',
+  USER = 'users',
+  ORDER = 'orders',
+  ROLE = 'roles',
+  CATEGORIES = 'categories',
+  PRODUCTS = 'products',
+  BRAND = 'brands',
+  INVENTORY = 'inventories',
+  PERMISSION = 'permissions',
+  TRANSACTION = 'transactions',
 }

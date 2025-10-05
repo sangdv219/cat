@@ -3,22 +3,20 @@ import { RedisService } from '@/redis/redis.service';
 import { OrderAppController } from '@modules/orders/controller/order.app.controller';
 import { OrdersModel } from '@modules/orders/domain/models/orders.model';
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { InventoryModule } from '../inventory/inventory.module';
-import { InventoryService } from '../inventory/services/inventory.service';
-import { OrderItemsModule } from '../order-items/orderItems.module';
-import { ProductModule } from '../products/product.module';
-import { UserModel } from '../users/domain/models/user.model';
-import { PostgresOrderRepository } from './infrastructure/repository/postgres-order.repository';
-import { OrderService } from './services/order.service';
+import { InventoryModule } from '@modules/inventory/inventory.module';
+import { InventoryService } from '@modules/inventory/services/inventory.service';
+import { OrderItemsModule } from '@modules/order-items/orderItems.module';
+import { ProductModule } from '@modules/products/product.module';
+import { UserModel } from '@modules/users/domain/models/user.model';
+import { PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
+import { OrderService } from '@modules/orders/services/order.service';
 
 @Module({
   imports: [ SequelizeModule.forFeature([OrdersModel, UserModel]), OrderItemsModule, InventoryModule, ProductModule],
   controllers: [ OrderAppController ],
   providers: [
     OrderService,
-    JwtModule,
     PostgresOrderRepository,
     InventoryService,
     RedisService,

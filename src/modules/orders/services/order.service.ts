@@ -106,8 +106,6 @@ export class OrderService extends
       }
     );
 
-    Logger.log('rows:', rows);
-
     if (!rows) throw new NotFoundException('Product not found in inventory');
     if (rows['stock'] < quantity) {
       throw new HttpException('Not enough stock', HttpStatus.CONFLICT);

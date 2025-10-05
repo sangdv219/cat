@@ -1,7 +1,6 @@
 import { RedisService } from '@/redis/redis.service';
 import { sensitiveFields } from '@shared/config/sensitive-fields.config';
-import { RedisContext } from '@shared/redis/enums/redis-key.enum';
-import { buildRedisKeyQuery } from '@shared/redis/helpers/redis-key.helper';
+import { RedisContext } from '@/redis/enums/redis-key.enum';
 import { IBaseRepository } from '@core/repositories/base.repository';
 import {
   BeforeApplicationShutdown,
@@ -11,6 +10,8 @@ import {
   OnModuleDestroy,
   OnModuleInit
 } from '@nestjs/common';
+import { buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
+
 export abstract class BaseService<
   TEntity,
   TCreateDto extends Partial<TEntity>,
@@ -49,20 +50,19 @@ export abstract class BaseService<
   }
 
   async getPagination(query): Promise<GetAllResponseDto> {
-    const time = new Date().getTime();
-    console.log("time::::::::: ", time);
     const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST, query);
-
+    Logger.log('redisKey:', redisKey);
+    
     const cached = await this.cacheManage.get(redisKey);
-
-    const dataCache = cached ? JSON.parse(cached) : null;
-
+    
+    const dataCache = cached && JSON.parse(cached);
+    
     if (cached) return dataCache;
-
+    
     const exclude = sensitiveFields[this.entityName] ?? [];
-
+    
     const { items, total } = await this.repository.findWithPagination(query, exclude);
-
+    
     const response = { data: items, totalRecord: total };
 
     await this.cacheManage.set(redisKey, JSON.stringify(response), 'EX', 300);
@@ -86,12 +86,21 @@ export abstract class BaseService<
   }
 
   async getById(id: string): Promise<GetByIdResponseDto | any> {
+    const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.DETAIL, {}, id);
+
+    const cached = await this.cacheManage.get(redisKey);
+
+    const dataCache = cached && JSON.parse(cached);
+
+    if (cached) return dataCache;
+
     const exclude = sensitiveFields[this.entityName] ?? [];
     const entity = await this.repository.findByPk(id, exclude);
     if (!entity) {
       throw new NotFoundException(`${this.entityName} with id ${id} not found`);
     }
-    return entity as TEntity;
+    // const dto = plainToInstance<GetByIdResponseDto, any>(GetByIdResponseDto, entity, { excludeExtraneousValues: true });
+    await this.cacheManage.set(redisKey, JSON.stringify(entity), 'EX', 300);
   }
 
   async cleanCacheRedis() {

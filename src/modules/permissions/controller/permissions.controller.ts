@@ -14,6 +14,7 @@ import {
   Patch,
   Query,
   UseFilters,
+  UseGuards,
   UseInterceptors,
   Version
 } from '@nestjs/common';
@@ -21,19 +22,21 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { PaginationQueryDto } from '@shared/dto/common';
 import { UpdatedPermissionssRequestDto } from '../dto/permissions.request.dto';
 import { GetAllPermissionsResponseDto, GetByIdPermissionsResponseDto } from '@modules/permissions/dto/permissions.response.dto';
+import { JWTAuthGuard } from '@/core/guards/jwt.guard';
+import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
-@Controller({ path:'app/permissions', version: '1' })
+@Controller({ path: 'permissions', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
-export class PermissionsAppController {
+export class PermissionsController {
   constructor(
     private readonly permissionService: PermissionsService
   ) { }
 
   @Get()
+  @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @CacheTTL(60)
   async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllPermissionsResponseDto> {
     try {
       return await this.permissionService.getPagination(query);
@@ -44,6 +47,7 @@ export class PermissionsAppController {
 
   @Version('1')
   @Get(':id')
+  @UseGuards(JWTAuthGuard)
   async getPermissionsById(@Param('id') id: string): Promise<GetByIdPermissionsResponseDto | null> {
     try {
       return await this.permissionService.getById(id);
@@ -55,6 +59,8 @@ export class PermissionsAppController {
 
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async updatePermissions(@Param('id') id: string, @Body() dto: UpdatedPermissionssRequestDto) {
     try {
       return await this.permissionService.update(id, dto);
@@ -65,6 +71,8 @@ export class PermissionsAppController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async deletePermissions(@Param('id') id: string): Promise<void> {
     try {
       return await this.permissionService.delete(id);

@@ -6,7 +6,7 @@ import { PostgresRoleRepository } from '@modules/roles/infrastructure/repository
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/sequelize';
 import { RedisService } from '@redis/redis.service';
-import { CreatedRolesRequestDto, UpdatedRolesRequestDto } from '../dto/role.request.dto';
+import { CreatedRolesRequestDto, UpdatedRolesRequestDto } from '@modules/roles/dto/role.request.dto';
 
 @Injectable()
 export class RolesService extends
@@ -28,7 +28,6 @@ export class RolesService extends
   }
 
   protected async moduleInit() {
-    // Logger.log('✅ Init Role cache...');
     this.Roles = ['Iphone', 'Galaxy'];
   }
 

@@ -1,6 +1,6 @@
 import { DefaultTokenSecretResolverStrategy } from '@core/strategies/default-token-secret-resolver.strategy';
 import { RedisService } from '@redis/redis.service';
-import { PermissionsAppController } from '@modules/permissions/controller/permissions.app.controller';
+import { PermissionsController } from '@/modules/permissions/controller/permissions.controller';
 import { PermissionsModel } from '@modules/permissions/domain/models/permissions.model';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
@@ -11,7 +11,7 @@ import { PermissionsService } from '@modules/permissions/services/permissions.se
 
 @Module({
   imports: [ SequelizeModule.forFeature([PermissionsModel, UserModel]), PermissionsModule],
-  controllers: [ PermissionsAppController ],
+  controllers: [ PermissionsController ],
   providers: [
     PermissionsService,
     JwtModule,
