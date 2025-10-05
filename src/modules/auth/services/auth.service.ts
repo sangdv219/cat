@@ -16,6 +16,7 @@ import { OTPService } from './OTP.service';
 import { REDIS_TOKEN } from '@redis/redis.module';
 import { BullService } from '@bull/bull.service';
 import Redis from 'ioredis';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -97,7 +98,12 @@ export class AuthService implements OnModuleInit {
       );
       if (isPasswordValid) {
         await this.resetFailedLogins(user.id);
-        const payload = { email: user.email, id: user.id };
+        const session_id = uuidv4()
+        Logger.log('session_id:', session_id);
+        
+        //role query from roles table
+        // const payload = { email: user.email, id: user.id, roles: ['ADMIN', 'ACCOUNTANT'], permissions:['order:read', 'order:update', 'order:checkout'] };
+        const payload = { sub: user.id, session_id };
         const accessToken = await this.jwtService.signAsync(payload, {
           secret: this.configService.getOrThrow('ACCESS_TOKEN_SECRET'),
           expiresIn: '24h',

@@ -18,6 +18,7 @@ import { AuditModule } from './audit/audit.module';
 import { ClsModule } from 'nestjs-cls';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { OrderItemsModule } from './modules/order-items/orderItems.module';
+import { RolesModule } from './modules/roles/role.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { OrderItemsModule } from './modules/order-items/orderItems.module';
     OrderModule,
     OrderItemsModule,
     InventoryModule,
+    RolesModule,
     BullModule,
     AnalyticsModule,
     AuditModule,

@@ -1,3 +1,6 @@
+import { Roles } from '@core/decorators/roles.decorator';
+import { Permissions } from '@core/decorators/permissions.decorator';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
 import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
@@ -17,11 +20,13 @@ import {
   Post,
   Query,
   UseFilters,
+  UseGuards,
   UseInterceptors,
   Version
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { PaginationQueryDto } from '@shared/dto/common';
+import { PermissionAuthGuard } from '@core/guards/permission.guard';
 
 @ApiBearerAuth('Authorization')
 @Controller({ path:'app/orders', version: '1' })
@@ -44,6 +49,7 @@ export class OrderAppController {
   }
 
   @Version('1')
+  @UseGuards(JWTAuthGuard, PermissionAuthGuard)
   @Get('getRevenue')
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
