@@ -6,7 +6,7 @@ import { PostgresRoleRepository } from '@modules/roles/infrastructure/repository
 import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '@redis/redis.service';
 import { CreatedRolesRequestDto, UpdatedRolesRequestDto } from '@modules/roles/dto/role.request.dto';
-import { BaseTransactionService } from '@/database/base.transaction.service';
+import { BaseTransactionService } from '@/database/transaction.service';
 import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
@@ -87,7 +87,7 @@ export class RolesService extends
         ['total_price', 'updated_at'],
         { transaction: t1 }
       )
-      
+
       //B3 Insert role_permission
       this.repository.upsert(
         this.sequelize,

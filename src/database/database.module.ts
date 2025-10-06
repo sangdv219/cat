@@ -2,7 +2,7 @@ import { DatabaseService } from '@database/database.service';
 import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { BaseTransactionService } from './base.transaction.service';
+import { BaseTransactionService } from './transaction.service';
 
 @Global()
 @Module({
