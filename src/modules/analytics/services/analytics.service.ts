@@ -1,5 +1,5 @@
 import { UserModel } from '@modules/users/domain/models/user.model';
-import { RedisService } from '@/redis/redis.service';
+import { RedisService } from '@redis/redis.service';
 import { BaseService } from '@core/services/base.service';
 import { CreatedAnalyticsRequestDto, UpdatedAnalyticsRequestDto } from '@modules/analytics/dto/analytics.request.dto';
 import { GetAllAnalyticsResponseDto, GetByIdAnalyticsResponseDto } from '@modules/analytics/dto/analytics.response.dto';

@@ -1,7 +1,6 @@
-import { Roles } from '@core/decorators/roles.decorator';
-import { Permissions } from '@core/decorators/permissions.decorator';
-import { JWTAuthGuard } from '@core/guards/jwt.guard';
 import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
+import { PermissionAuthGuard } from '@core/guards/permission.guard';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
@@ -26,7 +25,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { PaginationQueryDto } from '@shared/dto/common';
-import { PermissionAuthGuard } from '@core/guards/permission.guard';
 
 @ApiBearerAuth('Authorization')
 @Controller({ path:'app/orders', version: '1' })

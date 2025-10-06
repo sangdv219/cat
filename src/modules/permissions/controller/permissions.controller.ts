@@ -22,8 +22,8 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { PaginationQueryDto } from '@shared/dto/common';
 import { UpdatedPermissionssRequestDto } from '../dto/permissions.request.dto';
 import { GetAllPermissionsResponseDto, GetByIdPermissionsResponseDto } from '@modules/permissions/dto/permissions.response.dto';
-import { JWTAuthGuard } from '@/core/guards/jwt.guard';
-import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
+import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
 @Controller({ path: 'permissions', version: '1' })

@@ -1,6 +1,6 @@
 import { BaseService } from '@core/services/base.service';
 import { CategoryModel } from '@modules/categories/domain/models/category.model';
-import { RedisService } from '@/redis/redis.service';
+import { RedisService } from '@redis/redis.service';
 import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable, Logger } from '@nestjs/common';
 import { CATEGORY_ENTITY } from '@modules/categories/constants/category.constant';

@@ -4,9 +4,10 @@ import { ROLES_ENTITY } from '@modules/roles/constants/roles.constant';
 import { RolesModel } from '@modules/roles/domain/models/roles.model';
 import { PostgresRoleRepository } from '@modules/roles/infrastructure/repository/postgres-role.repository';
 import { Injectable, Logger } from '@nestjs/common';
-import { InjectConnection } from '@nestjs/sequelize';
 import { RedisService } from '@redis/redis.service';
 import { CreatedRolesRequestDto, UpdatedRolesRequestDto } from '@modules/roles/dto/role.request.dto';
+import { BaseTransactionService } from '@/database/base.transaction.service';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class RolesService extends
@@ -18,10 +19,12 @@ export class RolesService extends
   protected entityName: string;
   private Roles: string[] = [];
   constructor(
-    @InjectConnection()
-    public cacheManage: RedisService,
     protected repository: PostgresRoleRepository,
     protected rolesRepository: PostgresRoleRepository,
+    protected cacheManage: RedisService,
+    protected baseTransactionService: BaseTransactionService,
+    private readonly sequelize: Sequelize
+
   ) {
     super();
     this.entityName = ROLES_ENTITY.NAME;
@@ -29,9 +32,11 @@ export class RolesService extends
 
   protected async moduleInit() {
     this.Roles = ['Iphone', 'Galaxy'];
+    // Logger.log('baseTransactionService:', this.baseTransactionService);
+
   }
 
-  protected async bootstrapLogic(): Promise<void> {}
+  protected async bootstrapLogic(): Promise<void> { }
 
   protected async beforeAppShutDown(signal): Promise<void> {
     this.stopJob();
@@ -43,8 +48,60 @@ export class RolesService extends
     Logger.log('* Ngắt kết nối queue worker: ', RolesService.name);
   }
 
+  async getPermission(userId: string) {
+    Logger.log('userId:', userId);
+  }
+
   protected async moduleDestroy() {
     this.Roles = [];
     Logger.log('onModuleDestroy -> Roles: ', this.Roles);
   }
+
+  async create(dto) {
+    Logger.log('dto:', dto);
+    this.baseTransactionService.runInTransaction(async (t1) => {
+      //B1 Insert role
+      this.repository.upsert(
+        this.sequelize,
+        'roles',
+        ['name'],
+        {
+          product_id: 'abc',
+          quantity: 5,
+          price: 10000,
+        },
+        ['total_price', 'updated_at'],
+        { transaction: t1 }
+      )
+      
+      //B2 Insert user_role
+      this.repository.upsert(
+        this.sequelize,
+        'user_roles',
+        ['user_id'],
+        {
+          product_id: 'abc',
+          quantity: 5,
+          price: 10000,
+        },
+        ['total_price', 'updated_at'],
+        { transaction: t1 }
+      )
+      
+      //B3 Insert role_permission
+      this.repository.upsert(
+        this.sequelize,
+        'role_permissions',
+        ['role_id'],
+        {
+          product_id: 'abc',
+          quantity: 5,
+          price: 10000,
+        },
+        ['total_price', 'updated_at'],
+        { transaction: t1 }
+      )
+    })
+  }
+
 }

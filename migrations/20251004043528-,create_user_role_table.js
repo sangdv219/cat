@@ -19,7 +19,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'roles', // bảng products
+          model: 'roles', // bảng roles 
           key: 'id',
         },
         onUpdate: 'CASCADE',

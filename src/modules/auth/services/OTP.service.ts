@@ -2,7 +2,7 @@ import Redis from 'ioredis';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '@modules/users/services/user.service';
-import { RedisContext, RedisModule } from '@/redis/enums/redis-key.enum';
+import { RedisContext, RedisModule } from '@redis/enums/redis-key.enum';
 import { buildRedisKey } from '@redis/helpers/redis-key.helper';
 import { findCacheByEmail, scanlAlKeys } from '@shared/utils/common.util';
 import { GoneException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';

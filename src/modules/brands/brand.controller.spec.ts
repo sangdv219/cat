@@ -5,7 +5,7 @@ import { BrandController } from './controller/brand.app.controller';
 import {
   CreatedBrandRequestDto,
   UpdatedBrandRequestDto,
-} from './DTO/brand.request.dto';
+} from './dto/brand.request.dto';
 import { BrandService } from './services/brand.service';
 
 // DTO và model giả định (thay theo dự án thật)

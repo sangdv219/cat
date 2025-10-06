@@ -1,5 +1,5 @@
-import { DefaultTokenSecretResolverStrategy } from '@/core/strategies/default-token-secret-resolver.strategy';
-import { RedisService } from '@/redis/redis.service';
+import { DefaultTokenSecretResolverStrategy } from '@core/strategies/default-token-secret-resolver.strategy';
+import { RedisService } from '@redis/redis.service';
 import { OrderAppController } from '@modules/orders/controller/order.app.controller';
 import { OrdersModel } from '@modules/orders/domain/models/orders.model';
 import { Module } from '@nestjs/common';

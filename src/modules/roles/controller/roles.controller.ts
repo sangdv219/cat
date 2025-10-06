@@ -38,8 +38,8 @@ export class RolesController {
     private readonly roleService: RolesService
   ) { }
 
-  @ApiOkResponse({ description: 'Danh sách role phân trang', type: BaseGetResponse<RolesModel> })
   @Get()
+  @ApiOkResponse({ description: 'Danh sách role phân trang', type: BaseGetResponse<RolesModel> })
   @HttpCode(HttpStatus.OK)
   @UseGuards(JWTAuthGuard)
   async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllRoleResponseDto> {
@@ -50,8 +50,8 @@ export class RolesController {
     }
   }
   
-  @Version('1')
   @Get(':id')
+  @Version('1')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JWTAuthGuard)
   async getRoleById(@Param('id') id: string): Promise<GetByIdRoleResponseDto | null> {
@@ -62,13 +62,13 @@ export class RolesController {
     }
   }
 
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
   @UseInterceptors(UserContextInterceptor)
-  @Post()
-  async create(@Body() createUserAdminDto: CreatedRolesRequestDto) {
+  async create(@Body() createRolesDto: CreatedRolesRequestDto) {
     try {
-      return await this.roleService.create(createUserAdminDto);
+      return await this.roleService.create(createRolesDto);
     } catch (error) {
       throw error;
     }

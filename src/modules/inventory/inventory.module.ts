@@ -8,8 +8,8 @@ import { InventoryAppController } from './controller/inventory.app.controller';
 import { InventoryModel } from './domain/models/inventory.model';
 import { PostgresInventoryRepository } from './infrastructure/repository/postgres-inventory.repository';
 import { InventoryService } from './services/inventory.service';
-import { RedisModule } from '@/redis/redis.module';
-import { RedisService } from '@/redis/redis.service';
+import { RedisModule } from '@redis/redis.module';
+import { RedisService } from '@redis/redis.service';
 
 @Module({
   imports: [SequelizeModule.forFeature([InventoryModel]), ProductModule, RedisModule ],

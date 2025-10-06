@@ -8,8 +8,8 @@ import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/defaul
 import { BrandModule } from '../brands/brand.module';
 import { ProductAdminController } from './controller/product.admin.controller';
 import { ProductAppController } from './controller/product.app.controller';
-import { RedisModule } from '@/redis/redis.module';
-import { RedisService } from '@/redis/redis.service';
+import { RedisModule } from '@redis/redis.module';
+import { RedisService } from '@redis/redis.service';
 
 @Module({
   imports: [SequelizeModule.forFeature([ProductModel]), BrandModule, RedisModule],

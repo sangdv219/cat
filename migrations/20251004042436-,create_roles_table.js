@@ -38,6 +38,12 @@ module.exports = {
         type: Sequelize.STRING,
       },
     });
+
+    await queryInterface.addIndex('roles', ['name'], {
+      unique: true,
+      name: 'idx_roles_name',
+      include: ['name', 'description', 'created_at', 'updated_at', 'created_by', 'created_by']
+    });
   },
 
   async down(queryInterface, Sequelize) {

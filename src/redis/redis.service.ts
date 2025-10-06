@@ -52,9 +52,7 @@ export class RedisService {
   }
 
   async get(key: string): Promise<any> {
-    console.log("key___: ", key);
     return await this.redis.get(key);
-    
   }
   async set(key: string, value: any, secondsToken, TTL): Promise<any> {
     return await this.redis.set(key, value, secondsToken, TTL);

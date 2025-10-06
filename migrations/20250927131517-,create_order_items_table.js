@@ -13,7 +13,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'orders', // bảng orders
+          model: 'orders', 
           key: 'id',
         },
         onUpdate: 'CASCADE',
@@ -23,7 +23,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'products', // bảng products
+          model: 'products', 
           key: 'id',
         },
         onUpdate: 'CASCADE',

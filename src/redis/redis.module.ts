@@ -1,7 +1,7 @@
 import { Global, Module, DynamicModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
-import { RedisService } from '@/redis/redis.service';
+import { RedisService } from '@redis/redis.service';
 
 export const REDIS_TOKEN = 'REDIS_CLIENT';
 

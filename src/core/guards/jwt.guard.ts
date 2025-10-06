@@ -3,6 +3,7 @@ import {
   ExecutionContext,
   Inject,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -12,12 +13,13 @@ import { TokenSecretResolver } from '@modules/auth/interface/tokenSecret.interfa
 
 @Injectable()
 export class JWTAuthGuard implements CanActivate {
+  private readonly logger = new Logger(JWTAuthGuard.name);
   constructor(
     private readonly jwtService: JwtService,
     private readonly reflector: Reflector,
     @Inject('TokenSecretResolver')
     private readonly tokenSecretResolver: TokenSecretResolver,
-  ) {}
+  ) { }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -30,9 +32,9 @@ export class JWTAuthGuard implements CanActivate {
     const TOKEN_TYPE_KEY = 'tokenType';
     const tokenType = this.reflector.get<string>(TOKEN_TYPE_KEY, context.getHandler()) ?? 'access';
     const secret = this.tokenSecretResolver.resolve(tokenType);
-
     try {
       request.user = await this.jwtService.verifyAsync(token, { secret });
+      this.logger.log("JWT guard: ", request.user);
       return true;
     } catch (error: any) {
       if (error.name === 'TokenExpiredError') {

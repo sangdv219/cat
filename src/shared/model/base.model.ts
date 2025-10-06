@@ -43,7 +43,7 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
         const tableName = (instance.constructor as typeof Model).tableName;
         const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
         const recordId = (instance as any).get(primaryKey);
-        const { AuditLogModel } = require('../.@audit/audit_logs.model');
+        const { AuditLogModel } = require('../../audit/audit_logs.model');
         const modelClass = instance.constructor as typeof Model;
         if (modelClass.tableName === 'audit_logs') {
             return;
@@ -62,7 +62,7 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
         const tableName = (instance.constructor as typeof Model).tableName;
         const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
         const recordId = (instance as any).get(primaryKey);
-        const { AuditLogModel } = require('../.@audit/audit_logs.model');
+        const { AuditLogModel } = require('../../audit/audit_logs.model');
         await AuditLogModel.create({
             table_name: tableName,
             record_id: recordId,
@@ -79,7 +79,7 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
         const tableName = (instance.constructor as typeof Model).tableName;
         const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
         const recordId = (instance as any).get(primaryKey);
-        const { AuditLogModel } = require('../.@audit/audit_logs.model');
+        const { AuditLogModel } = require('../../audit/audit_logs.model');
             await AuditLogModel.create({
                 table_name: tableName,
                 record_id: recordId,
