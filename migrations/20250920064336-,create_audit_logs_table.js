@@ -30,6 +30,14 @@ module.exports = {
         allowNull: true,
         type: Sequelize.JSONB,
       },
+      diff: {
+        allowNull: true,
+        type: Sequelize.JSONB,
+      },
+      changed_fields: {
+        allowNull: true,
+        type: Sequelize.JSONB,
+      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
