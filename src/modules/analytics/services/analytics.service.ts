@@ -22,7 +22,7 @@ GetAllAnalyticsResponseDto> {
     protected postgresProductRepository: PostgresProductRepository,
     public cacheManage: RedisService,
   ) {
-    super();
+    super(repository);
     this.entityName = 'users';
   }
 

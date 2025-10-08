@@ -22,7 +22,7 @@ export class UserService extends
     private readonly userRepository: PostgresUserRepository,
     public cacheManage: RedisService,
   ) {
-    super();
+    super(repository);
     this.entityName = 'User';
   }
 

@@ -23,7 +23,7 @@ GetAllCategoryResponseDto> {
     protected postgresProductRepository: PostgresProductRepository,
     public cacheManage: RedisService,
   ) {
-    super();
+    super(repository);
     this.entityName = CATEGORY_ENTITY.NAME;
   }
 

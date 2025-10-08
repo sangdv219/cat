@@ -1,25 +1,24 @@
-import { RedisService } from '@redis/redis.service';
-import { sensitiveFields } from '@shared/config/sensitive-fields.config';
-import { RedisContext } from '@redis/enums/redis-key.enum';
 import { IBaseRepository } from '@core/repositories/base.repository';
 import {
   BeforeApplicationShutdown,
-  Inject,
   Logger,
   NotFoundException,
   OnApplicationBootstrap,
   OnModuleDestroy,
   OnModuleInit
 } from '@nestjs/common';
+import { RedisContext } from '@redis/enums/redis-key.enum';
 import { buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
+import { RedisService } from '@redis/redis.service';
+import { sensitiveFields } from '@shared/config/sensitive-fields.config';
 import Redis from 'ioredis';
-import { REDIS_TOKEN } from '@redis/redis.module';
+import { Model } from 'sequelize';
 
 export abstract class BaseService<
   TEntity,
-  TCreateDto extends Partial<TEntity>,
-  TUpdateDto extends Partial<TEntity>,
-  GetByIdResponseDto extends Partial<TEntity>,
+  TCreateDto,
+  TUpdateDto,
+  GetByIdResponseDto,
   GetAllResponseDto
 >
   implements
@@ -28,15 +27,15 @@ export abstract class BaseService<
   BeforeApplicationShutdown,
   OnModuleDestroy {
   protected abstract entityName: string;
-  protected abstract repository: IBaseRepository<TEntity>;
   protected abstract cacheManage: RedisService;
   protected abstract moduleInit(): Promise<void>;
   protected abstract bootstrapLogic(): Promise<void>;
   protected abstract beforeAppShutDown(signal?: string): Promise<void>;
   protected abstract moduleDestroy(): Promise<void>;
   private readonly logger = new Logger(BaseService.name);
-  private readonly redis: Redis
   constructor(
+    protected readonly repository: IBaseRepository<TEntity>,
+    protected readonly mapper?: (dto: TCreateDto) => Partial<TEntity>,
   ) { }
 
   async onModuleInit() {
@@ -79,16 +78,24 @@ export abstract class BaseService<
 
   async create(dto: TCreateDto) {
     this.cleanCacheRedis()
-    return await this.repository.create(dto);
+    const entity = this.mapper ? this.mapper(dto) : (dto as Partial<TEntity>)
+    Logger.log('entity:', entity);
+    
+    return await this.repository.create(entity);
   }
 
   async update(id: string, dto: TUpdateDto): Promise<any> {
     this.cleanCacheRedis()
-    const entity = await this.getById(id)
-    if (entity) {
+    const entity = await this.repository.findByPk(id,[],false) as Model<any, any>
+    
+    if (!entity) return null;
+    try {
       Object.assign(entity, dto)
       await entity.save()
       return entity;
+    } catch (error) {
+      this.logger.error('[base.service:97] message', error);
+            
     }
   }
 

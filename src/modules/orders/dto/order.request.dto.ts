@@ -40,14 +40,14 @@ export class CreatedOrderRequestDto {
   @IsUUID()
   user_id: string;
 
-  @ApiProperty({ description: 'discount_amount', example: 10 })
+  @ApiProperty({ description: 'discount_amount', example: 100000.00 })
   @IsDefined({ message: 'discount_amount is required' })
   @Type(() => Number)
   @IsNumber({}, { message: 'discount_amount must be a number' })
   @Min(0, { message: 'discount_amount must be >= 0' })
   discount_amount: number; // (voucher, promotion)
 
-  @ApiProperty({ description: 'shipping_fee', example: 10 })
+  @ApiProperty({ description: 'shipping_fee', example: 160000.00 })
   @IsDefined({ message: 'shipping_fee is required' })
   @Type(() => Number)
   @Min(0, { message: 'shipping_fee must be >= 0' })

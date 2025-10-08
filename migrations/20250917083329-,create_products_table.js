@@ -31,6 +31,7 @@ module.exports = {
         type: Sequelize.DECIMAL(18,2),
         allowNull: true,
       },
+      
       evaluate: {
         type: Sequelize.STRING(100),
         allowNull: true,

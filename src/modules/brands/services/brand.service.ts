@@ -23,7 +23,7 @@ GetAllBrandResponseDto> {
     public cacheManage: RedisService,
     protected repository: PostgresBrandRepository,
   ) {
-    super();
+    super(repository);
     this.entityName = BRAND_ENTITY.NAME;
   }
 

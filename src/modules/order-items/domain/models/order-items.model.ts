@@ -35,33 +35,15 @@ export class OrderItemsModel extends BaseModel<OrderItemsModel> {
   @Column(DataType.INTEGER)
   declare quantity: number;
 
-  @Column({
-    type: DataType.DECIMAL(18,2),
-    get() {
-      const raw = this.getDataValue('price');
-      return raw ? Number(raw) : 0;
-    },
-  })
-  declare price: number;
-
+  @Column({type: DataType.DECIMAL(18,2)})
+  declare price: string;
+  
   @Default(0)
-  @Column({
-    type: DataType.DECIMAL(18,2),
-    get() {
-      const raw = this.getDataValue('discount');
-      return raw ? Number(raw) : 0;
-    },
-  })
-  declare discount: number;  //(sale trên từng item, nếu có)
-
-  @Column({
-    type: DataType.DECIMAL(18,2),
-    get() {
-      const raw = this.getDataValue('final_price');
-      return raw ? Number(raw) : 0;
-    },
-  })
-  declare final_price: number;  //(price * quantity - discount)
+  @Column({type: DataType.DECIMAL(18,2)})
+  declare discount: string;  
+  
+  @Column({type: DataType.DECIMAL(18,2)})
+  declare final_price: string;  
 
   @AllowNull(true)
   @Column({ type: DataType.STRING(200) })

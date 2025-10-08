@@ -26,12 +26,12 @@ export class ProductModel extends BaseModel<ProductModel> {
   declare sku: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.DECIMAL(10, 2) })
-  declare price: number;
+  @Column({ type: DataType.DECIMAL(18, 2) })
+  declare price: string;
 
   @AllowNull(true)
-  @Column({ type: DataType.DECIMAL(10, 2) })
-  declare promotion_price: number;
+  @Column({ type: DataType.DECIMAL(18, 2) })
+  declare promotion_price: string;
 
   @AllowNull(true)
   @Column({ type: DataType.INTEGER })

@@ -26,7 +26,7 @@ export class RolesService extends
     private readonly sequelize: Sequelize
 
   ) {
-    super();
+    super(repository);
     this.entityName = ROLES_ENTITY.NAME;
   }
 
@@ -57,51 +57,23 @@ export class RolesService extends
     Logger.log('onModuleDestroy -> Roles: ', this.Roles);
   }
 
-  async create(dto) {
-    Logger.log('dto:', dto);
-    this.baseTransactionService.runInTransaction(async (t1) => {
-      //B1 Insert role
-      this.repository.upsert(
-        this.sequelize,
-        'roles',
-        ['name'],
-        {
-          product_id: 'abc',
-          quantity: 5,
-          price: 10000,
-        },
-        ['total_price', 'updated_at'],
-        { transaction: t1 }
-      )
-      
-      //B2 Insert user_role
-      this.repository.upsert(
-        this.sequelize,
-        'user_roles',
-        ['user_id'],
-        {
-          product_id: 'abc',
-          quantity: 5,
-          price: 10000,
-        },
-        ['total_price', 'updated_at'],
-        { transaction: t1 }
-      )
-
-      //B3 Insert role_permission
-      this.repository.upsert(
-        this.sequelize,
-        'role_permissions',
-        ['role_id'],
-        {
-          product_id: 'abc',
-          quantity: 5,
-          price: 10000,
-        },
-        ['total_price', 'updated_at'],
-        { transaction: t1 }
-      )
-    })
-  }
+  // async create(dto) {
+    // this.baseTransactionService.runInTransaction(async (t1) => {
+    //   //B1 Insert role
+    //   this.repository.upsert(
+    //     this.sequelize,
+    //     'roles',
+    //     ['name'],
+    //     {
+    //       product_id: 'abc',
+    //       quantity: 5,
+    //       price: 10000,
+    //     },
+    //     ['total_price', 'updated_at'],
+    //     { transaction: t1 }
+    //   )
+    // })
+    // await this.repository.create(d)
+  // }
 
 }

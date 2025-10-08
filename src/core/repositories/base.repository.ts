@@ -13,7 +13,7 @@ export interface IBaseRepository<T> {
   findByFields<K extends keyof T>(field: K, value: T[K], attributes?: string[], exclude?: string[]): Promise<any[]>;
   findAllByRaw(condition: Record<string, any>, exclude?: string[]): Promise<any[] | null>;
   findOneByField<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any>;
-  findByPk(id: string, exclude: string[]): Promise<T | null>;
+  findByPk(id: string, exclude?: string[], raw?: boolean): Promise<T | null>;
   findByOneByRaw(condition: Record<string, any>, exclude: string[]): Promise<T | null>;
   create(payload: Partial<T>, options?: { transaction?: Transaction }): Promise<void>;
   update(id: string, payload: Partial<T>): Promise<any>;
@@ -78,8 +78,8 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return record as unknown as T[K];
   }
 
-  async findByPk(id: string, exclude = ['']): Promise<T | null> {
-    return this.model.findByPk(id, { ...exclude, raw: true })
+  async findByPk(id: string, exclude = [''], raw = true): Promise<T | null> {
+    return this.model.findByPk(id, { ...exclude, raw })
   }
 
   async findByOneByRaw(condition) {
@@ -99,10 +99,14 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
   }
 
   async create(payload, options?: { transaction?: Transaction }): Promise<any> {
+    this.logger.log('payload:', payload);
+    this.logger.log('options:', options);
     const result = await this.model.create(payload, {
       returning: true,
       ...options
     });
+    this.logger.log('result:', result);
+    
     return result.get({ plain: true });
   }
 

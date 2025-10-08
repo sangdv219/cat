@@ -8,7 +8,7 @@ export class ProductResponseDto {
   sku: string;
 
   @Expose()
-  price: number;
+  price: string;
 
   @Expose()
   promotion_price: number;

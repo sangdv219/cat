@@ -3,6 +3,7 @@ import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   Max,
   Min,
@@ -15,18 +16,20 @@ export class CreatedProductRequestDto {
   @MinLength(3)
   sku: string;
 
-  @ApiProperty({ description: 'Name', example: 'Product Name' })
+  @ApiProperty({ description: 'Name', example: 'Iphone17 Pro 2TB' })
   @IsNotEmpty({ message: 'Name is required' })
   @MinLength(3)
   name: string;
 
-  @ApiProperty({ description: 'price', example: 20 })
+  @ApiProperty({ description: 'price', example: 180000.00 })
   @IsNotEmpty()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(1)
   price: number;
-
-  @ApiProperty({ description: 'promotion_price', example: 20 })
+  
+  @ApiProperty({ description: 'promotion_price', example: 200000.00 })
   @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 2 })
   @Min(1)
   promotion_price: number;
 
@@ -41,7 +44,7 @@ export class CreatedProductRequestDto {
   category_id: string;
 
   @IsNotEmpty()
-  @ApiProperty({ description: 'brandId', example: '3e7792b9-6411-43a3-abba-41ecefd8de8c' })
+  @ApiProperty({ description: 'brandId', example: '2bf2787d-ac6d-4035-9a75-9b5476a55bae' })
   brand_id: string;
 
   @IsOptional()

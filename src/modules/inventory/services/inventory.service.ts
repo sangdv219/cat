@@ -26,7 +26,7 @@ export class InventoryService extends
     protected postgresProductRepository: PostgresProductRepository,
     public cacheManage: RedisService,
   ) {
-    super();
+    super(repository);
     this.entityName = INVENTORY_ENTITY.NAME;
   }
 

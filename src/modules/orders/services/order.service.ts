@@ -35,7 +35,7 @@ export class OrderService extends
     public inventoryService: InventoryService,
     private readonly bullService: BullService,
   ) {
-    super();
+    super(repository);
     this.entityName = ORDER_ENTITY.NAME;
   }
 

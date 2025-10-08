@@ -25,7 +25,7 @@ export class PermissionsService extends
     protected repository: PostgresPermissionsRepository,
     protected permissionsRepository: PostgresPermissionsRepository,
   ) {
-    super();
+    super(repository);
     this.entityName = ROLES_ENTITY.NAME;
   }
 
