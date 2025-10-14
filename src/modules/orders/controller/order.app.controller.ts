@@ -1,3 +1,5 @@
+import { Action } from '@core/decorators/action.decorator';
+import { Resource } from '@core/decorators/resource.decorator';
 import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
 import { JWTAuthGuard } from '@core/guards/jwt.guard';
 import { PermissionAuthGuard } from '@core/guards/permission.guard';
@@ -34,9 +36,12 @@ export class OrderAppController {
   constructor(
     private readonly orderService: OrderService
   ) { }
-
+  
   @Get()
+  @Resource('order')
+  @Action('read')
   @HttpCode(HttpStatus.OK)
+  @UseGuards(JWTAuthGuard, PermissionAuthGuard)
   @CacheTTL(60)
   async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllOrderResponseDto> {
     try {

@@ -3,10 +3,18 @@ import { BaseService } from '@core/services/base.service';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { RedisService } from '@redis/redis.service';
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CreatedUserAuthRequestDto } from '../dto/user-auth.request.dto';
-import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../dto/user.admin.request.dto';
-import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../dto/user.admin.response.dto';
-import { PostgresUserRepository } from '../repository/user.admin.repository';
+import { CreatedUserAuthRequestDto } from '@modules/users/dto/user-auth.request.dto';
+import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@modules/users/dto/user.admin.request.dto';
+import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@modules/users/dto/user.admin.response.dto';
+import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
+import { RolesModel } from '@modules/roles/domain/models/roles.model';
+import { PostgresUserRolesRepository } from '@modules/associations/repositories/user-roles.repository';
+import { PostgresRolePermissionsRepository } from '@modules/associations/repositories/role-permissions.repository';
+import { PermissionsModel } from '@modules/permissions/domain/models/permissions.model';
+import { UserRolesModel } from '@modules/associations/models/user-roles.model';
+import { Sequelize } from 'sequelize';
+import { RolePermissionsModel } from '@modules/associations/models/role-permissions.model';
+import { InjectConnection } from '@nestjs/sequelize';
 
 @Injectable()
 export class UserService extends
@@ -18,7 +26,11 @@ export class UserService extends
   protected entityName: string;
   private users: string[] = [];
   constructor(
+    @InjectConnection()
+    private readonly sequelize: Sequelize,
     protected repository: PostgresUserRepository,
+    protected userRolesRepository: PostgresUserRolesRepository,
+    // protected userPermissionsRepository: PostgresRolePermissionsRepository,
     private readonly userRepository: PostgresUserRepository,
     public cacheManage: RedisService,
   ) {
@@ -30,7 +42,7 @@ export class UserService extends
     this.users = ['Iphone', 'Galaxy'];
   }
 
-  protected async bootstrapLogic(): Promise<void> {}
+  protected async bootstrapLogic(): Promise<void> { }
 
   protected async beforeAppShutDown(signal): Promise<void> {
     this.stopJob();
@@ -102,6 +114,26 @@ export class UserService extends
     };
   }
 
+  async getRolePermissionByUserId(userId: string) {
+    const rawQuery = await this.sequelize.query(`
+        SELECT DISTINCT p.id, p.name as permission_name, p.action as permission_action, r.name as role_name
+        FROM permissions p
+        JOIN role_permissions rp ON p.id = rp.permission_id
+        JOIN roles r ON r.id = rp.role_id
+        JOIN user_roles ur ON ur.role_id = r.id
+        JOIN users u ON u.id = ur.user_id
+        WHERE u.id = '63965d46-5979-4c17-ad7e-98fa9a2333ef';
+      `,
+    {
+      replacements: { userId },
+      raw: true,
+      nest: true
+    })
+
+    // Logger.log('rawQuery:', rawQuery);
+    return rawQuery;
+  }
+
   async createUserWithEmailOnly(body: CreatedUserAuthRequestDto): Promise<void> {
     const existsEmail = await this.userRepository.checkExistsField({
       email: { value: body.email, mode: 'equal' },
@@ -109,6 +141,6 @@ export class UserService extends
     if (existsEmail) {
       throw new ConflictException('Email already exists');
     }
-     await this.userRepository.create(body);
+    await this.userRepository.create(body);
   }
 }

@@ -23,9 +23,7 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
 
     @BeforeCreate
     static async setCreatedBy(instance: BaseModel<any>) {
-        console.log('Trigger====> BeforeCreate');
         const userId = ClsServiceManager.getClsService().get('userId');
-        console.log('userId:', userId);
 
         if (userId) {
             instance.created_by = userId;
@@ -34,10 +32,7 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
 
     @BeforeUpdate
     static async setUpdatedBy(instance: BaseModel<any>, options: any) {
-        console.log('==>BeforeUpdate');
         const userId = ClsServiceManager.getClsService().get('userId');
-        const newData = instance.dataValues;
-        console.log('before update:', newData);
         if (userId) {
             instance.updated_by = userId;
         }
@@ -65,7 +60,6 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
 
     @AfterUpdate
     static async logUpdate(instance: BaseModel<any>, options: any) {
-        console.log('==>AfterUpdate');
         const tableName = (instance.constructor as typeof Model).tableName;
         const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
         const recordId = (instance as any).get(primaryKey);
@@ -73,16 +67,12 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
 
         const newData = instance.dataValues; // dữ liệu sau khi update
 
-        console.log('afterUpdate:', newData);
-        console.log('oldData:', options.oldData);
-        
         const diff = {};
         for (const key in newData) {
             if (newData[key] !== options.oldData[key]) {
                 diff[key] = { old: options.oldData[key], new: newData[key] };
             }
         }
-        console.log('diff:', diff);
 
         const { AuditLogModel } = require('../../audit/audit_logs.model');
         await AuditLogModel.create({
@@ -103,12 +93,13 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
         const tableName = (instance.constructor as typeof Model).tableName;
         const primaryKey = (instance.constructor as typeof Model).primaryKeyAttribute;
         const recordId = (instance as any).get(primaryKey);
+        options.oldData = (instance as any)._previousDataValues;
         const { AuditLogModel } = require('../../audit/audit_logs.model');
         await AuditLogModel.create({
             table_name: tableName,
             record_id: recordId,
             action: 'DELETE',
-            old_data: null,
+            old_data: options.oldData,
             new_data: null
         } as typeof AuditLogModel);
     }

@@ -55,6 +55,16 @@ export class UserAdminController {
       throw error;
     }
   }
+
+  @Get('getRolePermissionByUserId/:id')
+  @UseGuards(JWTAuthGuard)
+  async getRolePermissionByUserId(@Param('id') id: string): Promise<any | null> {
+    try {
+      return await this.userService.getRolePermissionByUserId(id);
+    } catch (error) {
+      throw error;
+    }
+  }
   
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)

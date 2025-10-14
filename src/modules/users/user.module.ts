@@ -9,16 +9,23 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { RedisService } from '@redis/redis.service';
 import { DefaultTokenSecretResolverStrategy } from '@core/strategies/default-token-secret-resolver.strategy';
 import { UserRolesModel } from '@modules/associations/models/user-roles.model';
+import { PostgresUserRolesRepository } from '@modules/associations/repositories/user-roles.repository';
+import { PostgresRolePermissionsRepository } from '@modules/associations/repositories/role-permissions.repository';
+import { AssociationsModule } from '../associations/associations.module';
+import { RolePermissionsModel } from '../associations/models/role-permissions.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([UserModel, UserRolesModel]),
+    SequelizeModule.forFeature([UserModel, UserRolesModel, RolePermissionsModel ]),
+    AssociationsModule,
     PasswordModule,
   ],
   controllers: [UserAdminController],
   providers: [
     PostgresUserRepository,
     UserService,
+    PostgresUserRolesRepository,
+    PostgresRolePermissionsRepository,
     RedisService,
     JwtModule,
     {

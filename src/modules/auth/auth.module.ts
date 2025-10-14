@@ -9,6 +9,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
+import { UserService } from '../users/services/user.service';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/defaul
     AuthService,
     EmailService,
     OTPService,
+    // UserService,
     JwtModule,
     {
       provide: 'TokenSecretResolver',

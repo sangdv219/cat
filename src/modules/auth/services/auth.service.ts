@@ -5,7 +5,7 @@ import { PasswordService } from '@modules/password/services/password.service';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
 import { RedisContext, RedisModule } from '@redis/enums/redis-key.enum';
-import { buildRedisKey } from '@redis/helpers/redis-key.helper';
+import { buildRedisKey, buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
 import { findCacheByEmail, scanlAlKeys } from '@shared/utils/common.util';
 import { GoneException, Inject, Injectable, Logger, NotFoundException, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -17,6 +17,8 @@ import { REDIS_TOKEN } from '@redis/redis.module';
 import { BullService } from '@bull/bull.service';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
+import { RedisService } from '@redis/redis.service';
+import { UserService } from '@modules/users/services/user.service';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -29,16 +31,19 @@ export class AuthService implements OnModuleInit {
     protected readonly userModel: typeof UserModel,
     private readonly userRepository: PostgresUserRepository, // Assuming Redis is injected for cache management
     private readonly configService: ConfigService,
+    private readonly userService: UserService,
     @Inject(REDIS_TOKEN)
     private readonly redis: Redis,
     private readonly bullService: BullService,
-  ) { }
+    public cacheManage: RedisService,
+  ) {
+  }
 
-  onModuleInit() {}
+  onModuleInit() { }
 
   async incrementFailedLogins(id: string): Promise<void> {
     const user = await this.userRepository.findByPk(id);
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -100,14 +105,40 @@ export class AuthService implements OnModuleInit {
         await this.resetFailedLogins(user.id);
         const session_id = uuidv4()
         Logger.log('session_id:', session_id);
+        const user_ = await this.userService.getRolePermissionByUserId(user.id);
+        Logger.log('user_:', user_);
+        const rolePermissions = {}
+      
+        const normalizePermissions = (rows) => {
+          const result: any = { roles: new Set(), permissions: {} };
+          for (const row of rows) {
+            result.roles.add(row.role_name);
+            if (!result.permissions[row.permission_name])
+              result.permissions[row.permission_name] = {};
+            result.permissions[row.permission_name][row.permission_action] = true;
+          }
+          result.roles = [...result.roles];
+          return result;
+        }
+
+        if (user_ && user_.length) {
+          Object.assign(rolePermissions, normalizePermissions(user_))
+        } else {
+          rolePermissions['roles'] = ['USER']
+        }
         
+        const redisKey = buildRedisKeyQuery('auth', RedisContext.SESSION, {}, session_id);
+        await this.cacheManage.set(redisKey, JSON.stringify(rolePermissions), 'EX', 84600);
+
         //role query from roles table
         // const payload = { email: user.email, id: user.id, roles: ['ADMIN', 'ACCOUNTANT'], permissions:['order:read', 'order:update', 'order:checkout'] };
         const payload = { sub: user.id, session_id };
+
         const accessToken = await this.jwtService.signAsync(payload, {
           secret: this.configService.getOrThrow('ACCESS_TOKEN_SECRET'),
           expiresIn: '24h',
         });
+
         const refreshToken = await this.jwtService.signAsync(payload, {
           secret: this.configService.getOrThrow('REFRESH_TOKEN_SECRET'),
           expiresIn: '1y',
@@ -184,7 +215,7 @@ export class AuthService implements OnModuleInit {
     if (!cacheByEmail) {
       await this.redis.set(key, JSON.stringify(otpCache), 'EX', TTL_OTP);
       await this.bullService.addSendMailJob({ email, otp })
-    }else{
+    } else {
       const cache = JSON.parse((await this.redis.get(cacheByEmail as string)) as string);
       const sendCount = cache.sendCount;
       const limitSendEmail = this.configService.getOrThrow('LIMIT_SEND_EMAIL');
