@@ -51,6 +51,10 @@ export class RedisService {
     }
   }
 
+  async exists(key: string): Promise<boolean> {
+    const result = await this.redis.exists(key);
+    return result === 1;
+  }
   async get(key: string): Promise<any> {
     return await this.redis.get(key);
   }

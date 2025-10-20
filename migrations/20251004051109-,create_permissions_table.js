@@ -9,10 +9,7 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
-      name: {
-        type: Sequelize.STRING(100),
-        allowNull: false,
-      },
+
       action: {
         type: Sequelize.STRING(100),
         allowNull: false,

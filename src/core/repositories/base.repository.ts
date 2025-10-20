@@ -90,7 +90,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
   }
 
   async findAllByRaw(condition) {
-    return await this.model.findAndCountAll(
+    return await this.model.findAll(
       {
         ...condition,
         raw: true

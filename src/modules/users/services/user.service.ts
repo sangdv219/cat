@@ -116,7 +116,7 @@ export class UserService extends
 
   async getRolePermissionByUserId(userId: string) {
     const rawQuery = await this.sequelize.query(`
-        SELECT DISTINCT p.id, p.name as permission_name, p.action as permission_action, r.name as role_name
+        SELECT DISTINCT p.id, p.resource as resource, p.action as permission_action, r.name as role_name
         FROM permissions p
         JOIN role_permissions rp ON p.id = rp.permission_id
         JOIN roles r ON r.id = rp.role_id

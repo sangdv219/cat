@@ -11,7 +11,6 @@ import { RedisContext } from '@redis/enums/redis-key.enum';
 import { buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
 import { RedisService } from '@redis/redis.service';
 import { sensitiveFields } from '@shared/config/sensitive-fields.config';
-import Redis from 'ioredis';
 import { Model } from 'sequelize';
 
 export abstract class BaseService<
@@ -43,8 +42,10 @@ export abstract class BaseService<
     this.logger.log(`${this.entityName} Service initialized`);
   }
 
+  async loadPermissionsDefault() {}
+
   async onApplicationBootstrap() {
-    await this.bootstrapLogic();
+   
   }
 
   async beforeApplicationShutdown(signal?: string) {
@@ -80,14 +81,14 @@ export abstract class BaseService<
     this.cleanCacheRedis()
     const entity = this.mapper ? this.mapper(dto) : (dto as Partial<TEntity>)
     Logger.log('entity:', entity);
-    
+
     return await this.repository.create(entity);
   }
 
   async update(id: string, dto: TUpdateDto): Promise<any> {
     this.cleanCacheRedis()
-    const entity = await this.repository.findByPk(id,[],false) as Model<any, any>
-    
+    const entity = await this.repository.findByPk(id, [], false) as Model<any, any>
+
     if (!entity) return null;
     try {
       Object.assign(entity, dto)
@@ -95,7 +96,7 @@ export abstract class BaseService<
       return entity;
     } catch (error) {
       this.logger.error('[base.service:97] message', error);
-            
+
     }
   }
 

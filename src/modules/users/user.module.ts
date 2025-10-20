@@ -11,8 +11,8 @@ import { DefaultTokenSecretResolverStrategy } from '@core/strategies/default-tok
 import { UserRolesModel } from '@modules/associations/models/user-roles.model';
 import { PostgresUserRolesRepository } from '@modules/associations/repositories/user-roles.repository';
 import { PostgresRolePermissionsRepository } from '@modules/associations/repositories/role-permissions.repository';
-import { AssociationsModule } from '../associations/associations.module';
-import { RolePermissionsModel } from '../associations/models/role-permissions.model';
+import { AssociationsModule } from '@modules/associations/associations.module';
+import { RolePermissionsModel } from '@modules/associations/models/role-permissions.model';
 
 @Module({
   imports: [

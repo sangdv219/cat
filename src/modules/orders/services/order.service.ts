@@ -41,9 +41,10 @@ export class OrderService extends
 
   protected async moduleInit() {
     // Logger.log('✅ Init Order cache...');
-    this.Orders = ['Iphone', 'Galaxy'];
+
   }
 
+ 
   protected async bootstrapLogic(): Promise<void> {
     // Logger.log(
     //   '👉 OnApplicationBootstrap: OrderService bootstrap: preloading cache...',
@@ -73,13 +74,13 @@ export class OrderService extends
   }
 
   async implementsOrder(dto: CreatedOrderRequestDto) {
-    const order:OrdersModel | unknown = await this.upsertOrdersTable(dto);
+    const order: OrdersModel | unknown = await this.upsertOrdersTable(dto);
 
     if (!order) {
       throw new NotFoundException('Order creation failed!');
     }
     const orderId: any = (typeof order === 'object' && order !== null && 'id' in order) ? order.id : "";
-    
+
     const products = dto.products;
 
     for (const el of products) {
@@ -174,7 +175,7 @@ export class OrderService extends
   }
 
   async upsertOrdersTable(dto: CreatedOrderRequestDto) {
-    const {user_id, discount_amount, shipping_fee, shipping_address, payment_method } = dto;
+    const { user_id, discount_amount, shipping_fee, shipping_address, payment_method } = dto;
     return await this.sequelize.query(
       `INSERT INTO orders(user_id, discount_amount, payment_method, shipping_fee, shipping_address)
        VALUES(:user_id, :discount_amount, :payment_method, :shipping_fee, :shipping_address)
@@ -184,11 +185,11 @@ export class OrderService extends
           total_amount = 0
         RETURNING *`,
       {
-        replacements: { 
-          user_id: user_id, 
-          discount_amount: discount_amount, 
-          shipping_fee: shipping_fee, 
-          payment_method: payment_method, 
+        replacements: {
+          user_id: user_id,
+          discount_amount: discount_amount,
+          shipping_fee: shipping_fee,
+          payment_method: payment_method,
           shipping_address: shipping_address,
         },
         type: QueryTypes.SELECT,

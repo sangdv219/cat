@@ -8,14 +8,15 @@ import { UserModule } from '@modules/users/user.module';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
-import { UserService } from '../users/services/user.service';
+import { DefaultTokenSecretResolverStrategy } from '@core/strategies/default-token-secret-resolver.strategy';
+import { AssociationsModule } from '@modules/associations/associations.module';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([UserModel]),
     UserModule,
     PasswordModule,
+    AssociationsModule
   ],
   controllers: [AuthController],
   providers: [

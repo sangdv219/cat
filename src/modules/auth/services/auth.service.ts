@@ -104,34 +104,50 @@ export class AuthService implements OnModuleInit {
       if (isPasswordValid) {
         await this.resetFailedLogins(user.id);
         const session_id = uuidv4()
-        Logger.log('session_id:', session_id);
-        const user_ = await this.userService.getRolePermissionByUserId(user.id);
-        Logger.log('user_:', user_);
-        const rolePermissions = {}
-      
+        const rolePermission = await this.userService.getRolePermissionByUserId(user.id);
+        const rolePermissions = {};
+
         const normalizePermissions = (rows) => {
           const result: any = { roles: new Set(), permissions: {} };
           for (const row of rows) {
             result.roles.add(row.role_name);
-            if (!result.permissions[row.permission_name])
-              result.permissions[row.permission_name] = {};
-            result.permissions[row.permission_name][row.permission_action] = true;
+            if (!result.permissions[row.resource])
+              result.permissions[row.resource] = {};
+            result.permissions[row.resource][row.permission_action] = true;
           }
           result.roles = [...result.roles];
           return result;
         }
 
-        if (user_ && user_.length) {
-          Object.assign(rolePermissions, normalizePermissions(user_))
+        const normalizePermissionsRoleDefault = (rows) => {
+          const roleMap = new Map();
+          for (const item of rows) {
+            const roleName = item.roles.name;
+            const permissionKey = `${item.permissions.resource}.${item.permissions.action}`;
+
+            if (!roleMap.has(roleName)) {
+              roleMap.set(roleName, new Set()); // Dùng Set để tránh trùng
+            }
+            roleMap.get(roleName).add(permissionKey);
+          }
+
+          const result = [
+            Object.fromEntries(
+              Array.from(roleMap, ([role, perms]) => [role, [...perms]])
+            )
+          ];
+        }
+
+        if (rolePermission && rolePermission.length) {
+          Object.assign(rolePermissions, normalizePermissions(rolePermission))
         } else {
           rolePermissions['roles'] = ['USER']
         }
-        
+
         const redisKey = buildRedisKeyQuery('auth', RedisContext.SESSION, {}, session_id);
+        
         await this.cacheManage.set(redisKey, JSON.stringify(rolePermissions), 'EX', 84600);
 
-        //role query from roles table
-        // const payload = { email: user.email, id: user.id, roles: ['ADMIN', 'ACCOUNTANT'], permissions:['order:read', 'order:update', 'order:checkout'] };
         const payload = { sub: user.id, session_id };
 
         const accessToken = await this.jwtService.signAsync(payload, {
