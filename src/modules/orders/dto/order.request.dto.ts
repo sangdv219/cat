@@ -47,7 +47,7 @@ export class CreatedOrderRequestDto {
   @Min(0, { message: 'discount_amount must be >= 0' })
   discount_amount: number; // (voucher, promotion)
 
-  @ApiProperty({ description: 'shipping_fee', example: 160000.00 })
+  @ApiProperty({ description: 'shipping_fee', example: 30000.00 })
   @IsDefined({ message: 'shipping_fee is required' })
   @Type(() => Number)
   @Min(0, { message: 'shipping_fee must be >= 0' })

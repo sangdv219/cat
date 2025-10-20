@@ -2,7 +2,7 @@ import { Action } from '@core/decorators/action.decorator';
 import { Resource } from '@core/decorators/resource.decorator';
 import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
 import { JWTAuthGuard } from '@core/guards/jwt.guard';
-import { RbacGuard } from '@/core/guards/rbac.guard';
+import { RbacGuard } from '@core/guards/rbac.guard';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
@@ -29,14 +29,14 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { PaginationQueryDto } from '@shared/dto/common';
 
 @ApiBearerAuth('Authorization')
-@Controller({ path:'app/orders', version: '1' })
+@Controller({ path: 'app/orders', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class OrderAppController {
   constructor(
     private readonly orderService: OrderService
   ) { }
-  
+
   @Get()
   @Resource('order')
   @Action('read')
@@ -54,6 +54,8 @@ export class OrderAppController {
   @Version('1')
   @UseGuards(JWTAuthGuard, RbacGuard)
   @Get('getRevenue')
+  @Resource('order:revenue')
+  @Action('read')
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
   async getRevenue(): Promise<unknown> {

@@ -15,6 +15,7 @@ import { InjectConnection } from '@nestjs/sequelize';
 import { RedisService } from '@redis/redis.service';
 import { plainToInstance } from 'class-transformer';
 import { QueryTypes, Sequelize, Transaction } from 'sequelize';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 
 @Injectable()
 export class OrderService extends
@@ -34,6 +35,7 @@ export class OrderService extends
     protected orderItemsRepository: PostgresOrderItemsRepository,
     public inventoryService: InventoryService,
     private readonly bullService: BullService,
+    private eventEmitter: EventEmitter2
   ) {
     super(repository);
     this.entityName = ORDER_ENTITY.NAME;
@@ -43,7 +45,6 @@ export class OrderService extends
     // Logger.log('✅ Init Order cache...');
 
   }
-
  
   protected async bootstrapLogic(): Promise<void> {
     // Logger.log(
@@ -91,6 +92,8 @@ export class OrderService extends
     }
 
     await this.calculatorAndUpdateAmountOrder(orderId)
+
+    // this.eventEmitter.emit('order.completed', { orderId, email: 'sangdv2109@gmail.com' });
   }
 
   async lockAndCheckInventory(productId: string, quantity: number, t: Transaction) {
@@ -146,7 +149,7 @@ export class OrderService extends
         plain: true
       }
     );
-  }
+  };
 
   async calculatorAndUpdateAmountOrder(orderId: string) {
     const orderItem = await this.orderItemsRepository.findByFields('order_id', orderId, ['final_price'])
@@ -287,7 +290,10 @@ export class OrderService extends
     return plainToInstance<GetByIdOrderResponseDtoV2, any>(GetByIdOrderResponseDtoV2, order, { excludeExtraneousValues: true });
   }
 
+  @OnEvent('auth.login')
   async getRevenue() {
+    Logger.log('====>getRevenue:');
+    
     const SequelizeQuery = await this.repository.findAllByRaw({
       attributes: [
         'id',

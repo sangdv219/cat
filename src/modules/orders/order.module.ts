@@ -13,9 +13,13 @@ import { PostgresOrderRepository } from '@modules/orders/infrastructure/reposito
 import { OrderService } from '@modules/orders/services/order.service';
 import { AssociationsModule } from '@modules/associations/associations.module';
 import { RbacModule } from '@modules/rbac/rbac.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
-  imports: [SequelizeModule.forFeature([OrdersModel, UserModel]), OrderItemsModule, InventoryModule, ProductModule, AssociationsModule, RbacModule],
+  imports: [
+    SequelizeModule.forFeature([OrdersModel, UserModel]), OrderItemsModule, InventoryModule, ProductModule, AssociationsModule, RbacModule,
+    EventEmitterModule.forRoot(),
+  ],
   controllers: [ OrderAppController ],
   providers: [
     OrderService,

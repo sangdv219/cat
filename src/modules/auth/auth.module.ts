@@ -10,10 +10,12 @@ import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { DefaultTokenSecretResolverStrategy } from '@core/strategies/default-token-secret-resolver.strategy';
 import { AssociationsModule } from '@modules/associations/associations.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([UserModel]),
+    EventEmitterModule.forRoot(),
     UserModule,
     PasswordModule,
     AssociationsModule

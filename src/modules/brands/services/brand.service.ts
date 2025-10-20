@@ -1,13 +1,11 @@
-import { RedisService } from '@redis/redis.service';
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '../dto/brand.request.dto';
-import { PostgresBrandRepository } from '../infrastructure/repository/postgres-brand.repository';
 import { BaseService } from '@core/services/base.service';
 import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant';
 import { BrandModel } from '@modules/brands/models/brand.model';
+import { Injectable, Logger } from '@nestjs/common';
+import { RedisService } from '@redis/redis.service';
+import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '../dto/brand.request.dto';
 import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '../dto/brand.response.dto';
-import { REDIS_TOKEN } from '@redis/redis.module';
-import Redis from 'ioredis';
+import { PostgresBrandRepository } from '../infrastructure/repository/postgres-brand.repository';
 
 @Injectable()
 export class BrandService extends 
@@ -19,7 +17,6 @@ GetAllBrandResponseDto> {
   protected entityName: string;
   private brands: string[] = [];
   constructor(
-    @Inject(REDIS_TOKEN)
     public cacheManage: RedisService,
     protected repository: PostgresBrandRepository,
   ) {

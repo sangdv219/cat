@@ -1,9 +1,9 @@
 // src/modules/rbac/rbac.service.ts
-import { Injectable, Logger } from '@nestjs/common';
-import { RedisService } from '@redis/redis.service';
-import { RolesModel } from '@modules/roles/domain/models/roles.model';
-import { PermissionsModel } from '@modules/permissions/domain/models/permissions.model';
 import { PostgresRolePermissionsRepository } from '@modules/associations/repositories/role-permissions.repository';
+import { PermissionsModel } from '@modules/permissions/domain/models/permissions.model';
+import { RolesModel } from '@modules/roles/domain/models/roles.model';
+import { Injectable } from '@nestjs/common';
+import { RedisService } from '@redis/redis.service';
 
 @Injectable()
 export class RbacService {
