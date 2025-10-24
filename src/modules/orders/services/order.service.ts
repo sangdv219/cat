@@ -93,7 +93,7 @@ export class OrderService extends
 
     await this.calculatorAndUpdateAmountOrder(orderId)
 
-    // this.eventEmitter.emit('order.completed', { orderId, email: 'sangdv2109@gmail.com' });
+    this.eventEmitter.emit('order.completed', { orderId, email: 'sangdv2109@gmail.com' });
   }
 
   async lockAndCheckInventory(productId: string, quantity: number, t: Transaction) {

@@ -1,20 +1,15 @@
-import * as argon2 from 'argon2';
 import { BaseService } from '@core/services/base.service';
+import { PostgresUserRolesRepository } from '@modules/associations/repositories/user-roles.repository';
 import { UserModel } from '@modules/users/domain/models/user.model';
-import { RedisService } from '@redis/redis.service';
-import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreatedUserAuthRequestDto } from '@modules/users/dto/user-auth.request.dto';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@modules/users/dto/user.admin.request.dto';
 import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@modules/users/dto/user.admin.response.dto';
 import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
-import { RolesModel } from '@modules/roles/domain/models/roles.model';
-import { PostgresUserRolesRepository } from '@modules/associations/repositories/user-roles.repository';
-import { PostgresRolePermissionsRepository } from '@modules/associations/repositories/role-permissions.repository';
-import { PermissionsModel } from '@modules/permissions/domain/models/permissions.model';
-import { UserRolesModel } from '@modules/associations/models/user-roles.model';
-import { Sequelize } from 'sequelize';
-import { RolePermissionsModel } from '@modules/associations/models/role-permissions.model';
+import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/sequelize';
+import { RedisService } from '@redis/redis.service';
+import * as argon2 from 'argon2';
+import { Sequelize } from 'sequelize';
 
 @Injectable()
 export class UserService extends

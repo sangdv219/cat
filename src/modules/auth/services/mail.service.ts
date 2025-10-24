@@ -33,7 +33,7 @@ export class EmailService {
     });
   }
 
-  // @OnEvent('order.completed')
+  @OnEvent('order.completed', { async: true })
   async sendOrderEmail(event: { orderId: number, email: string }): Promise<void> {
     await this.transporter.sendMail({
       from: `"Fintech App" <${this.configService.getOrThrow('SMTP_USER')}>`,

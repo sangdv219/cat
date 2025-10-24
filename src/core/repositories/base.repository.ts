@@ -103,7 +103,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       returning: true,
       ...options
     });
-    
+
     return result.get({ plain: true });
   }
 

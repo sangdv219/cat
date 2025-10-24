@@ -72,7 +72,7 @@ export abstract class BaseService<
 
     const response = { data: items, totalRecord: total };
 
-    await this.cacheManage.set(redisKey, JSON.stringify(response), 'EX', 300);
+    await this.cacheManage.set(redisKey, JSON.stringify(response), 'EX', 30);
 
     return response as GetAllResponseDto;
   }
@@ -115,7 +115,7 @@ export abstract class BaseService<
       throw new NotFoundException(`${this.entityName} with id ${id} not found`);
     }
     // const dto = plainToInstance<GetByIdResponseDto, any>(GetByIdResponseDto, entity, { excludeExtraneousValues: true });
-    await this.cacheManage.set(redisKey, JSON.stringify(entity), 'EX', 300);
+    await this.cacheManage.set(redisKey, JSON.stringify(entity), 'EX', 30);
   }
 
   async cleanCacheRedis() {
