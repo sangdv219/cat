@@ -1,8 +1,9 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from "@nestjs/common";
 import { Response } from 'express';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+    private readonly logger = new Logger(AllExceptionsFilter.name);
     catch(exception: any, host: ArgumentsHost) {
         // console.log("exception:===> ", exception);
         const ctx = host.switchToHttp();
@@ -24,8 +25,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
         } else {
             message = exception?.message || 'Internal server error';
         }
-        // console.error(`Error occurred processing request to ${request.url}:`, exception);
-
+        
+        this.logger.error(`Error occurred processing request to ${request.url}:`, exception);
+        this.logger.error(`statusCode${statusCode}:` );
         response.status(statusCode).json({
             message,
           timestamp: new Date().toLocaleString(),

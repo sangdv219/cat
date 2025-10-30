@@ -13,12 +13,15 @@ import { PostgresUserRolesRepository } from '@modules/associations/repositories/
 import { PostgresRolePermissionsRepository } from '@modules/associations/repositories/role-permissions.repository';
 import { AssociationsModule } from '@modules/associations/associations.module';
 import { RolePermissionsModel } from '@modules/associations/models/role-permissions.model';
+import { RmqModule } from 'libs/common/src/rabbitMQ/rmb.module';
+import { SERVICES } from 'libs/common/src/constants/services';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([UserModel, UserRolesModel, RolePermissionsModel ]),
     AssociationsModule,
     PasswordModule,
+    RmqModule.register({name: SERVICES.ORDER_SERVICE})
   ],
   controllers: [UserAdminController],
   providers: [

@@ -1,25 +1,14 @@
-import { AuthModule } from '@modules/auth/auth.module';
-import { BrandModule } from '@modules/brands/brand.module';
-import { CategoryModule } from '@modules/categories/category.module';
-import { ProductModule } from '@modules/products/product.module';
-import { UserModule } from '@modules/users/user.module';
+import { AuditModule } from '@audit/audit.module';
+import { BullModule } from '@bull/bull.module';
 import { DatabaseModule } from '@database/database.module';
 import { DatabaseService } from '@database/database.service';
+import { AuthModule } from '@modules/auth/auth.module';
+import { UserModule } from '@modules/users/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
-import { InventoryModule } from '@modules/inventory/inventory.module';
-import { OrderModule } from '@modules/orders/order.module';
-import { BullModule } from '@bull/bull.module';
 import { RedisModule } from '@redis/redis.module';
-import { AuditModule } from '@audit/audit.module';
 import { ClsModule } from 'nestjs-cls';
-import { AnalyticsModule } from '@modules/analytics/analytics.module';
-import { OrderItemsModule } from '@modules/order-items/orderItems.module';
-import { RolesModule } from '@modules/roles/roles.module';
-import { PermissionsModule } from '@modules/permissions/permissions.module';
-import { AssociationsModule } from '@modules/associations/associations.module';
-import { AppController } from './app.controller';
 import { ChatGateway } from './gateways/chat.gateway';
 
 @Module({
@@ -36,22 +25,11 @@ import { ChatGateway } from './gateways/chat.gateway';
     }),
     RedisModule.forRootAsync(),
     DatabaseModule,
+    BullModule,
     AuthModule,
     UserModule,
-    BrandModule,
-    CategoryModule,
-    ProductModule,
-    OrderModule,
-    OrderItemsModule,
-    InventoryModule,
-    RolesModule,
-    PermissionsModule,
-    BullModule,
-    AnalyticsModule,
-    AssociationsModule,
     AuditModule,
   ],
-  controllers: [AppController],
   providers: [ChatGateway, DatabaseService],
   exports: [DatabaseService],
 })
