@@ -45,7 +45,7 @@ export class OrderService extends
     // Logger.log('✅ Init Order cache...');
 
   }
- 
+
   protected async bootstrapLogic(): Promise<void> {
     // Logger.log(
     //   '👉 OnApplicationBootstrap: OrderService bootstrap: preloading cache...',
@@ -178,16 +178,19 @@ export class OrderService extends
 
   async upsertOrdersTable(dto: CreatedOrderRequestDto) {
     const { user_id, discount_amount, shipping_fee, shipping_address, payment_method } = dto;
+    const order_code = this.generateOrderCode();
+    
     return await this.sequelize.query(
-      `INSERT INTO orders(user_id, discount_amount, payment_method, shipping_fee, shipping_address)
-       VALUES(:user_id, :discount_amount, :payment_method, :shipping_fee, :shipping_address)
-       ON CONFLICT(user_id)
+      `INSERT INTO orders(order_code, user_id, discount_amount, payment_method, shipping_fee, shipping_address)
+       VALUES(:order_code, :user_id, :discount_amount, :payment_method, :shipping_fee, :shipping_address)
+       ON CONFLICT(order_code)
        DO UPDATE SET
           subtotal = 0, 
           total_amount = 0
         RETURNING *`,
       {
         replacements: {
+          order_code: order_code,
           user_id: user_id,
           discount_amount: discount_amount,
           shipping_fee: shipping_fee,
@@ -260,6 +263,14 @@ export class OrderService extends
     )
   }
 
+  generateOrderCode(): string {
+    const prefix = 'ORD';
+    const now = new Date();
+    const datePart = now.toISOString().replace(/[-:tz.]/g, '').slice(0, 14);
+    const randomPart = Math.random().toString(20).substring(2, 8).toUpperCase();
+    return `${prefix}-${datePart}-${randomPart}`;
+  };
+
   async deleteOrderItems(id: string) {
     this.cleanCacheRedis()
     return await this.sequelize.transaction(async (t: Transaction) => {
@@ -292,7 +303,7 @@ export class OrderService extends
   @OnEvent('auth.login')
   async getRevenue() {
     Logger.log('====>getRevenue:');
-    
+
     const SequelizeQuery = await this.repository.findAllByRaw({
       attributes: [
         'id',

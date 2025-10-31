@@ -9,6 +9,11 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
+      order_code: {
+        type: Sequelize.STRING(50),
+        allowNull: false,
+        unique: true
+      },
       user_id: {
         type: Sequelize.UUID,
         allowNull: false,
@@ -20,9 +25,9 @@ module.exports = {
         onDelete: 'CASCADE'
       },
       status: {
-        type: Sequelize.STRING(20),
+        type: Sequelize.STRING(10),
         allowNull: false,
-        defaultValue: 'pending',
+        defaultValue: 'PENDING',
       },
       subtotal: {
         type: Sequelize.DECIMAL(18,2),

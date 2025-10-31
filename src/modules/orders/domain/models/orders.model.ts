@@ -21,6 +21,10 @@ export class OrdersModel extends BaseModel<OrdersModel> implements IOrder {
   @Column({ type: DataType.UUID })
   declare id: string;
 
+  @AllowNull(false)
+  @Column({ type: DataType.STRING(50) })
+  declare order_code: string 
+
   @ForeignKey(() => UserModel)
   @Column({ type: DataType.UUID })
   declare user_id: string;
