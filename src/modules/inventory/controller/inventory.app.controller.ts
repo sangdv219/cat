@@ -1,7 +1,6 @@
 import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
-import { PaginationQueryDto } from '@shared/dto/common';
 import { GetAllInventoryResponseDto, GetByIdInventoryResponseDto } from '@modules/inventory/dto/inventory.response.dto';
 import { InventoryService } from '@modules/inventory/services/inventory.service';
 import { CacheTTL } from '@nestjs/cache-manager';
@@ -16,26 +15,38 @@ import {
   UseFilters,
   UseInterceptors
 } from '@nestjs/common';
-import { Ctx, EventPattern, Payload, TcpContext } from '@nestjs/microservices';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { PaginationQueryDto } from '@shared/dto/common';
 import { EVENT } from 'libs/common/src/constants/event';
+import { RmqService } from 'libs/common/src/rabbitMQ/rmb.service';
 
 @Controller({ path: 'app/inventory', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class InventoryAppController {
   private readonly logger = new Logger(InventoryAppController.name);
-  constructor(private readonly inventoryService: InventoryService) { }
+  constructor(
+    private readonly inventoryService: InventoryService
+    , private readonly rmqService: RmqService
+  ) { }
 
   @Get()
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
   @EventPattern(EVENT.ORDER_CREATED_EVENT)
   // async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllInventoryResponseDto> {
-  async getPagination(@Payload() @Query() query: PaginationQueryDto, @Ctx() context: TcpContext): Promise<GetAllInventoryResponseDto> {
+  async getPagination(@Payload() @Query() query: PaginationQueryDto, @Ctx() context: RmqContext): Promise<GetAllInventoryResponseDto> {
     this.logger.log(`[GATEWAY] Response from Inventory Service: ${JSON.stringify(query)}`);
     // this.logger.log(`[GATEWAY] context: ${JSON.stringify(context)}`);
+    const channel = context.getChannelRef();   // 🧠 Truy cập channel của RabbitMQ
+    const message = context.getMessage();      // 📨 Thông tin message gốc
+    const pattern = context.getPattern();      // 📡 Tên event/pattern
     try {
-      return await this.inventoryService.getPagination(query);
+      const result = await this.inventoryService.getPagination(query);
+      Logger.log('result:', result);
+      // ✅ Xác nhận thành công
+      this.rmqService.ack(context);  // confirm processed done to remove message from queue
+      return result;
     } catch (error) {
       throw error;
     }

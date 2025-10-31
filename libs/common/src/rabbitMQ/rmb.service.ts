@@ -37,6 +37,7 @@ export class RmqService {
                 queue,
                 noAck,
                 persistent: true,
+                prefetchCount: 10, // ✅ optimize performance, Số lượng message "tạm giữ" cho mỗi consumer
                 queueOptions: {
                     durable: true,     // khong mat data khi RabbitMQ restart, save in disk, can save in RAM
                 },

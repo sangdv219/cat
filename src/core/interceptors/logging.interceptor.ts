@@ -18,10 +18,10 @@ export class LoggingInterceptor implements NestInterceptor {
 
     if (ctxType === 'http') {
       const req = context.switchToHttp().getRequest();
-      console.log(`[HTTP] [${req.method}] ${req.url} - Request started`);
+      this.logger.log(`[HTTP] [${method}] ${url} - Request started`);
       return next.handle().pipe(
         tap(() =>
-          this.logger.log(`[HTTP] [${req.method}] ${req.url} - Completed in ${Date.now() - now}ms`,),
+          this.logger.log(`[HTTP] [${method}] ${url} - Completed in ${Date.now() - now}ms`),
         ),
       );
     }
@@ -36,7 +36,7 @@ export class LoggingInterceptor implements NestInterceptor {
       return next.handle().pipe(
         tap(() =>
           this.logger.log(
-            `[RabbitMQ] rpcContext: ${(pattern)} - Completed in ${Date.now() - now}ms`,
+            `[RabbitMQ] rpcContext: ${(pattern)} - Completed in ${Date.now() - now} ms`,
           ),
         ),
       );
