@@ -80,7 +80,8 @@ export class OrderService extends
     if (!order) {
       throw new NotFoundException('Order creation failed!');
     }
-    const orderId: any = (typeof order === 'object' && order !== null && 'id' in order) ? order.id : "";
+
+    const orderId: string = (typeof order === 'object' && order !== null && 'id' in order) ? (order as { id: string }).id : "";
 
     const products = dto.products;
 
@@ -91,9 +92,7 @@ export class OrderService extends
       await this.handleAndInsertOrderItems(product, orderId)
     }
 
-    await this.calculatorAndUpdateAmountOrder(orderId)
-
-    this.eventEmitter.emit('order.completed', { orderId, email: 'sangdv2109@gmail.com' });
+    await this.calculatorAndUpdateAmountOrder(orderId);
   }
 
   async lockAndCheckInventory(productId: string, quantity: number, t: Transaction) {

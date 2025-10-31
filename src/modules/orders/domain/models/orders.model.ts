@@ -1,7 +1,7 @@
 import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { BaseModel } from '@shared/model/base.model';
-import { BelongsTo, Column, DataType, Default, ForeignKey, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
+import { AllowNull, BelongsTo, Column, DataType, Default, ForeignKey, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
 
 export interface IOrder {
   id: string,
@@ -47,8 +47,9 @@ export class OrdersModel extends BaseModel<OrdersModel> implements IOrder {
   declare payment_method: string;
 
   @Default('pending')
-  @Column({ type: DataType.STRING(20) })
-  declare status: string;
+  @AllowNull(false)
+  @Column({ type: DataType.ENUM('PENDING', 'CONFIRM' , 'CANCELLED') })
+  declare status: 'PENDING' | 'CONFIRM' | 'CANCELLED';
 
   @HasMany(() => OrderItemsModel)
   declare orderItems: OrderItemsModel[]
