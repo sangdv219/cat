@@ -26,8 +26,8 @@ import { RmqService } from 'libs/common/src/rabbitMQ/rmb.service';
 export class InventoryAppController {
   private readonly logger = new Logger(InventoryAppController.name);
   constructor(
-    private readonly inventoryService: InventoryService
-    , private readonly rmqService: RmqService
+    private readonly inventoryService: InventoryService,
+    private readonly rmqService: RmqService
   ) { }
 
   @Get()
