@@ -1,150 +1,176 @@
-import { BadRequestException, NotFoundException } from "@nestjs/common";
-import { isUUID } from "class-validator";
-import { UUID } from "crypto";
-import { Op } from "sequelize";
+import { Logger, NotFoundException } from '@nestjs/common';
+import { Op, QueryTypes, Transaction } from 'sequelize';
+import { Sequelize } from "sequelize-typescript";
 
-export class BaseResponse<T = any> {
-    success: boolean;
-    message?: string;
-    data?: T;
-    totalRecord?: number
+interface IPaginationDTO {
+  page: number;
+  limit: number;
+  keyword?: string;
 }
 
-export class UpdateCreateResponse<T = any> {
-    success?: boolean = false;
-    message?: string;
-    data?: Partial<T>
-}
-
-export class DeleteResponse<T> {
-    success?: boolean = false;
-    message?: string;
-    id: string | number;
-}
 export interface IBaseRepository<T> {
-    getAll(): Promise<T[]>;
-    findWithPagination(findWithPagination: IPaginationDTO): Promise<{ items: any, total: number }>;
-    findByField<K extends keyof T>(field: K): Promise<T[K][]>;
-    findOne(id: string): Promise<T | null>;
-    findOneByRaw(condition: Record<string, any>): Promise<T | null>;
-    created(payload: Partial<T>): Promise<T>;
-    updated(id: string, payload: Partial<T>): Promise<T>;
-    deleted(id: string): Promise<T>;
+  findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>;
+  findByFields<K extends keyof T>(field: K, value: T[K], attributes?: string[], exclude?: string[]): Promise<any[]>;
+  findAllByRaw(condition: Record<string, any>, exclude?: string[]): Promise<any[] | null>;
+  findOneByField<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any>;
+  findByPk(id: string, exclude?: string[], raw?: boolean): Promise<T | null>;
+  findByOneByRaw(condition: Record<string, any>, exclude: string[]): Promise<T | null>;
+  create(payload: Partial<T>, options?: { transaction?: Transaction }): Promise<void>;
+  update(id: string, payload: Partial<T>): Promise<any>;
+  delete(id: string): Promise<boolean>;
+  upsert(sequelize: Sequelize, table: string, conflictFields: string[], insertValues: Record<string, any>, updateFields: string[], options?: { transaction: Transaction }): Promise<T>;
 }
+
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
-    public readonly _entityName: string
-    constructor(
-        readonly entityName: string = 'BaseEntity',
-        readonly model
-    ) {
-        this._entityName = entityName
+  public readonly _entityName: string;
+  private readonly logger = new Logger(BaseRepository.name);
+  constructor(
+    readonly entityName: string = 'BaseEntity',
+    readonly model,
+  ) {
+    this._entityName = entityName;
+  }
+
+  async findWithPagination(parameter, exclude = ['']): Promise<{ items: T; total: number }> {
+    const { page = 1, limit = 100, keyword } = parameter;
+
+    const offset = (page - 1) * limit;
+
+    const where = {};
+    if (keyword) {
+      where[Op.or] = [
+        { name: { [Op.iLike]: `%${keyword}%` } },
+        // { email: { [Op.iLike]: `%${keyword}%` } },
+      ];
     }
 
-    logAction(action: string): void {
-        console.log(`[${this._entityName} Repository] Action: ${action}`);
+    const { rows: items, count: total } = await this.model.findAndCountAll({
+      limit,
+      offset,
+      where,
+      order: [['created_at', 'DESC']],
+      attributes: { exclude },
+      raw: true,
+    });
+
+    return { items, total };
+  }
+
+  async findByFields<K extends keyof T>(field: K, value: T[K], attributes?: string[], exclude = ['']): Promise<any[]> {
+    const records = await this.model.findAll({
+      where: { [field as string]: value },
+      raw: true,
+      exclude,
+      attributes: attributes
+    });
+
+    return records as unknown as T[K][];
+  }
+
+  async findOneByField<K extends keyof T>(field: K, value: T[K], exclude = ['']): Promise<any> {
+    const record = await this.model.findOne({
+      where: {
+        [field as string]: value
+      },
+      raw: true,
+      attributes: { exclude },
+    });
+    return record as unknown as T[K];
+  }
+
+  async findByPk(id: string, exclude = [''], raw = true): Promise<T | null> {
+    return this.model.findByPk(id, { ...exclude, raw })
+  }
+
+  async findByOneByRaw(condition) {
+    return this.model.findOne({
+      ...condition,
+      raw: true
+    });
+  }
+
+  async findAllByRaw(condition) {
+    return await this.model.findAll(
+      {
+        ...condition,
+        raw: true
+      }
+    )
+  }
+
+  async create(payload, options?: { transaction?: Transaction }): Promise<any> {
+    const result = await this.model.create(payload, {
+      returning: true,
+      ...options
+    });
+
+    return result.get({ plain: true });
+  }
+
+  async update(id: string, payload: any) {
+    return await this.model.update(payload, {
+      where: { id },
+      returning: true,
+    });
+  }
+
+  async delete(id: string) {
+    const deletedRows = await this.model.destroy({
+      where: { id },
+      individualHooks: true
+    });
+    if (deletedRows === 0) {
+      throw new NotFoundException('Record not found');
     }
+    return Promise.resolve(true);
+  }
 
-    getAll(): Promise<T[]> {
-        return this.model.findAll();
-    }
+  async upsert<T>(sequelize: Sequelize, table: string, conflictFields: string[], insertValues: Record<string, any>, updateFields: string[], options?: { transaction?: Transaction }): Promise<T> {
+    const fields = Object.keys(insertValues);
+    const placeholders = fields.map(f => `:${f}`).join(', ');
+    const updateExpr = updateFields.map(f => `${f} = EXCLUDED.${f}`).join(', ');
+    const conflictExpr = conflictFields.join(', ');
+    const sql = `
+    INSERT INTO ${table} (${fields.join(', ')})
+    VALUES (${placeholders})
+    ON CONFLICT (${conflictExpr})
+    DO UPDATE SET ${updateExpr}
+    RETURNING *;
+  `;
 
-    async findWithPagination(body: IPaginationDTO): Promise<{ items: any, total: number }> {
-        const { page = 1, limit = 10, keyword } = body;
+    const [result] = await sequelize.query(sql, {
+      replacements: insertValues,
+      type: QueryTypes.INSERT,
+      transaction: options?.transaction,
+    });
 
-        const offset = (page - 1) * limit;
+    return result[0] as T;
+  }
 
-        const where: any = {};
-        if (keyword) {
-            where[Op.or] = [
-                { name: { [Op.iLike]: `%${keyword}%` } },
-                { email: { [Op.iLike]: `%${keyword}%` } },
-            ];
-        }
+  async checkDuplicateFieldExcludeId<K extends keyof T>(field: K, value: T[K], excludeId?: string): Promise<boolean> {
+    const condition: any = {
+      [field]: value,
+      id: { [Op.ne]: excludeId },
+    };
 
-        const { rows: items, count: total } = await this.model.findAndCountAll({
-            limit,
-            offset,
-            // where: { is_active: true },
-            order: [['created_at', 'DESC']],
-            attributes: { exclude: [] }
-        });
+    const brand = await this.model.findByPk({
+      where: condition,
+    });
 
-        return { items, total };
-    }
+    return !!brand;
+  }
 
-    async findByField<K extends keyof T>(field: K): Promise<T[K][]> {
-        const records = await this.model.findAll({
-            attributes: [field as string],
-        });
-        return records.map(r => r.getDataValue(field));
-    }
+  async checkExistsField(fields: Record<string, { value: string; mode?: 'like' | 'equal' }>): Promise<boolean> {
+    const orConditions = Object.entries(fields).map(([key, { value, mode = 'equal' }]) => ({
+      [key]: mode === 'like' ? { [Op.iLike]: `%${value}%` } : value,
+    }),
+    );
+    console.log("orConditions: ", orConditions);
 
+    const exists = await this.model.findOne({
+      where: { [Op.or]: orConditions },
+    });
 
-    findOne(id: string): Promise<T | null> {
-        return this.model.findOne({
-            where: { id },
-            attributes: { exclude: [] }
-        });
-    }
-
-    findOneByRaw(condition: Record<string, any>) {
-        return this.model.findOne({
-            ...condition
-        })
-    }
-
-    created(payload): Promise<any> {
-        return this.model.create(payload)
-    }
-
-    updated(id: string, payload: any): Promise<any> {
-        return this.model.update(payload, {
-            where: { id },
-            returning: true,
-        });
-    }
-
-    deleted(id: UUID): Promise<any> {
-        if (!isUUID(id)) {
-            throw new BadRequestException('Invalid UUID format');
-        }
-        const deletedRows = this.model.destroy({
-            where: { id }
-        });
-        if (deletedRows === 0) {
-            throw new NotFoundException('Record not found');
-        }
-        return Promise.resolve(true)
-    }
-
-    async checkDuplicateFieldExcludeId<K extends keyof T>(field: K, value: T[K], excludeId?: string): Promise<boolean> {
-        const condition: any = {
-            [field]: value,
-            id: { [Op.ne]: excludeId }
-        };
-
-        const brand = await this.model.findOne({
-            where: condition
-        });
-
-        return !!brand;
-    }
-
-    async checkExistsField(fields: Record<string, { value: string; mode?: 'like' | 'equal' }>): Promise<boolean> {
-        const orConditions = Object.entries(fields).map(([key, { value, mode = 'equal' }]) => ({
-            [key]: mode === 'like' ? { [Op.iLike]: `%${value}%` } : value,
-        }));
-
-        const exists = await this.model.findOne({
-            where: { [Op.or]: orConditions },
-        });
-
-        return !!exists;
-    }
-
-}
-export interface IPaginationDTO {
-    page: number;
-    limit: number;
-    keyword?: string;
+    return !!exists;
+  }
 }

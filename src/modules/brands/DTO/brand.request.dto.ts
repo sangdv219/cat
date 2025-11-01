@@ -1,54 +1,25 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional
+} from 'class-validator';
 
 export class CreatedBrandRequestDto {
-    @ApiProperty({ description: 'brand', example: 'brand' })
-    @IsNotEmpty({ message: 'Name is required' })
-    name: string;
-    
-    @ApiProperty({ description: 'image', example: '' })
-    @IsOptional()
-    image: string;
-    
-    @IsOptional()
-    @ApiProperty({ description: 'is_public', example: true })
-    @Transform(({ value }) => value === 'true' || value === true)
-    @IsBoolean({ message: 'is_public must be a boolean (true/false)' })
-    is_public: boolean = false;
-    
-    @IsOptional()
-    created_at?: Date;
-    
-    @IsOptional()
-    updated_at?: Date;
-    
-    @IsOptional()
-    deleted_at?: Date;
+  @ApiProperty({ description: 'brand', example: 'brand' })
+  @IsNotEmpty({ message: 'Name is required' })
+  name: string;
+
+  @ApiProperty({ description: 'image', example: '' })
+  @IsOptional()
+  image: string;
+
+  @IsOptional()
+  @ApiProperty({ description: 'is_public', example: true })
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean({ message: 'is_public must be a boolean (true/false)' })
+  is_public: boolean = false;
 }
 
-export class UpdatedBrandRequestDto {
-    @ApiProperty({ description: 'brand', example: 'brand' })
-    @IsOptional()
-    name: string;
-    
-    @ApiProperty({ description: 'image', example: '' })
-    @IsOptional()
-    image: string;
-    
-    @ApiProperty({ description: 'is_public', example: true })
-    @IsOptional()
-    @Transform(({ value }) => value === 'true' || value === true)
-    @IsBoolean({ message: 'is_public must be a boolean (true/false)' })
-    is_public: boolean = false;
-
-    @IsOptional()
-    created_at?: Date;
-
-    @IsOptional()
-    updated_at?: Date;
-
-    @IsOptional()
-    deleted_at?: Date;
-}
-
+export class UpdatedBrandRequestDto extends PartialType(CreatedBrandRequestDto) {}

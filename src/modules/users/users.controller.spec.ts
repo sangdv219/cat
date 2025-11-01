@@ -3,16 +3,16 @@ import { INestApplication } from '@nestjs/common';
 describe('UserAdminController', () => {
   let userController: INestApplication;
 
-    // beforeAll(async () => {
-    // const moduleFixture: TestingModule = await Test.createTestingModule({
-    //   imports: [UserModule, PasswordModule],
-    // }).compile();
+  // beforeAll(async () => {
+  // const moduleFixture: TestingModule = await Test.createTestingModule({
+  //   imports: [UserModule, PasswordModule],
+  // }).compile();
 
-    // userController = moduleFixture.createNestApplication();
-    // userController.useGlobalPipes(new ValidationPipe({ whitelist: true }));
-    // await userController.init();
+  // userController = moduleFixture.createNestApplication();
+  // userController.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  // await userController.init();
   // });
-   afterAll(async () => {
+  afterAll(async () => {
     // await getConnection().close(); // đóng DB
     // await userController.close();
   });
@@ -21,7 +21,6 @@ describe('UserAdminController', () => {
     // const res = await request(userController.getHttpServer())
     //   .get('/admin/users')
     //   .expect(200);
-
     // expect(res.body).toMatchObject({
     //   message: 'Hello World!!',
     //   version: expect.any(String),

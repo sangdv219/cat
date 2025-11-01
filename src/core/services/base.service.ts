@@ -1,126 +1,135 @@
-import { BadRequestException, BeforeApplicationShutdown, ConflictException, NotFoundException, OnApplicationBootstrap, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
-import { BaseResponse, DeleteResponse, IBaseRepository, UpdateCreateResponse } from "../../core/repositories/base.repository";
-import { CacheVersionService } from "@/modules/common/services/cache-version.service";
-import { buildRedisKeyQuery } from "@/shared/redis/helpers/redis-key.helper";
-import { RedisContext } from "@/shared/redis/enums/redis-key.enum";
+import { IBaseRepository } from '@core/repositories/base.repository';
+import {
+  BeforeApplicationShutdown,
+  Logger,
+  NotFoundException,
+  OnApplicationBootstrap,
+  OnModuleDestroy,
+  OnModuleInit
+} from '@nestjs/common';
+import { RedisContext } from '@redis/enums/redis-key.enum';
+import { buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
+import { RedisService } from '@redis/redis.service';
+import { sensitiveFields } from '@shared/config/sensitive-fields.config';
+import { Model } from 'sequelize';
 
-export abstract class BaseService<T> implements OnModuleInit, OnApplicationBootstrap, BeforeApplicationShutdown, OnModuleDestroy {
-    protected abstract entityName: string
-    protected abstract repository: IBaseRepository<T>
-    protected abstract cacheManage: CacheVersionService 
-    protected abstract moduleInit(): Promise<void>;
-    protected abstract bootstrapLogic(): Promise<void>;
-    protected abstract beforeAppShutDown(signal?: string): Promise<void>;
-    protected abstract moduleDestroy(): Promise<void>;
-    protected abstract createImpl(body): any
-    protected abstract updateImpl(id, body): any
+export abstract class BaseService<
+  TEntity,
+  TCreateDto,
+  TUpdateDto,
+  GetByIdResponseDto,
+  GetAllResponseDto
+>
+  implements
+  OnModuleInit,
+  OnApplicationBootstrap,
+  BeforeApplicationShutdown,
+  OnModuleDestroy {
+  protected abstract entityName: string;
+  protected abstract cacheManage: RedisService;
+  protected abstract moduleInit(): Promise<void>;
+  protected abstract bootstrapLogic(): Promise<void>;
+  protected abstract beforeAppShutDown(signal?: string): Promise<void>;
+  protected abstract moduleDestroy(): Promise<void>;
+  private readonly logger = new Logger(BaseService.name);
+  constructor(
+    protected readonly repository: IBaseRepository<TEntity>,
+    protected readonly mapper?: (dto: TCreateDto) => Partial<TEntity>,
+  ) { }
 
-    async onModuleInit() {
-        await this.moduleInit();
+  async onModuleInit() {
+    await this.moduleInit();
+    this.logger.log(`${this.entityName} Service initialized`);
+  }
+
+  async loadPermissionsDefault() {}
+
+  async onApplicationBootstrap() {
+   
+  }
+
+  async beforeApplicationShutdown(signal?: string) {
+    await this.beforeAppShutDown(signal);
+  }
+
+  async onModuleDestroy() {
+    await this.moduleDestroy();
+  }
+
+  // async getPagination(query): Promise<GetAllResponseDto> {
+  async getPagination(query) {
+    const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST, query);
+
+    const cached = await this.cacheManage.get(redisKey);
+
+    const dataCache = cached && JSON.parse(cached);
+
+    if (cached) return dataCache;
+
+    const exclude = sensitiveFields[this.entityName] ?? [];
+
+    const { items, total } = await this.repository.findWithPagination(query, exclude);
+
+    const response = { data: items, totalRecord: total };
+
+    await this.cacheManage.set(redisKey, JSON.stringify(response), 'EX', 30);
+
+    return response as GetAllResponseDto;
+  }
+
+  async create(dto: TCreateDto) {
+    this.cleanCacheRedis()
+    const entity = this.mapper ? this.mapper(dto) : (dto as Partial<TEntity>)
+    Logger.log('entity:', entity);
+
+    return await this.repository.create(entity);
+  }
+
+  async update(id: string, dto: TUpdateDto): Promise<any> {
+    this.cleanCacheRedis()
+    const entity = await this.repository.findByPk(id, [], false) as Model<any, any>
+
+    if (!entity) return null;
+    try {
+      Object.assign(entity, dto)
+      await entity.save()
+      return entity;
+    } catch (error) {
+      this.logger.error('[base.service:97] message', error);
+
     }
+  }
 
-    async onApplicationBootstrap() {
-        await this.bootstrapLogic()
+  async getById(id: string): Promise<GetByIdResponseDto | any> {
+    const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.DETAIL, {}, id);
+
+    const cached = await this.cacheManage.get(redisKey);
+
+    const dataCache = cached && JSON.parse(cached);
+
+    if (cached) return dataCache;
+
+    const exclude = sensitiveFields[this.entityName] ?? [];
+    const entity = await this.repository.findByPk(id, exclude);
+    if (!entity) {
+      throw new NotFoundException(`${this.entityName} with id ${id} not found`);
     }
-    
-    async beforeApplicationShutdown(signal?: string) {
-        await this.beforeAppShutDown(signal)
+    // const dto = plainToInstance<GetByIdResponseDto, any>(GetByIdResponseDto, entity, { excludeExtraneousValues: true });
+    await this.cacheManage.set(redisKey, JSON.stringify(entity), 'EX', 30);
+  }
+
+  async cleanCacheRedis() {
+    try {
+      const keyCacheListByBrand = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST);
+      await this.cacheManage.delCache(keyCacheListByBrand);
+    } catch (error) {
+      this.logger.error(`${error}`);
     }
+  }
 
-    async onModuleDestroy() {
-        await this.moduleDestroy();
-    }
-
-    async getPagination(query): Promise<BaseResponse<T[]>> {
-        const { page = 1, limit = 10 } = query;
-        this.validatePaginationParams(page, limit);
-
-        const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST, query)
-
-        const cached = await this.cacheManage.get(redisKey);
-
-        const dataCache = cached ? JSON.parse(cached) : null;
-
-        if (cached) return dataCache;
-
-        const { items, total } = await this.repository.findWithPagination(query);
-
-        const response = {
-            success: true,
-            data: items,
-            totalRecord: total,
-        }
-
-        await this.cacheManage.set(redisKey, JSON.stringify(response), 'EX', 300);
-
-        return response;
-    }
-
-    async create(body) {
-        await this.createdCommon(body)
-        await this.createImpl(body)
-    }
-
-    async update(id: string, body: any) {
-        await this.updatedCommon(id, body)
-        await this.updateImpl(id, body)
-    }
-
-    protected async createdCommon(body: T): Promise<UpdateCreateResponse<T>> {
-        const keyCacheList = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST)
-        await this.cacheManage.delCache(keyCacheList);
-        try {
-            const result = await this.repository.created({ ...body });
-            return {
-                success: true,
-                data: result
-            }
-        } catch (error) {
-            if (error.name === 'SequelizeUniqueConstraintError') {
-                console.log("error: ", error);
-
-                throw new ConflictException('Value already exists');
-            }
-            throw error;
-        }
-    }
-
-    private validatePaginationParams(page: number, limit: number) {
-        if (page < 1) throw new BadRequestException('Page number must be greater than 0');
-        if (limit < 1) throw new BadRequestException('Limit must be greater than 0');
-        if (limit > 100) throw new BadRequestException('Limit must not exceed 100');
-        if (page > 1000) throw new BadRequestException('Page must not exceed 1000');
-    }
-
-    async getById(id: string): Promise<T | null> {
-        const entity = await this.repository.findOne(id);
-        if (!entity) {
-            throw new NotFoundException(`${this.entityName} with id ${id} not found`);
-        }
-
-        return entity;
-    }
-
-    private async updatedCommon(id: string, body: T): Promise<UpdateCreateResponse<T>> {
-        const keyCacheListByBrand = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST)
-        await this.cacheManage.delCache(keyCacheListByBrand);
-
-        const exists = await this.repository.findOne(id)
-        if (!exists) throw new NotFoundException(`${this.entityName} with id ${id} not found`)
-        const updatedBody = { ...body, updated_at: new Date() };
-        const result = await this.repository.updated(id, updatedBody);
-
-        const updated = result[1][0];
-
-        return {
-            success: true,
-            data: updated as Partial<T>
-        }
-    }
-
-    async delete(id: string): Promise<void> {
-        const keyCacheList = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST)
-        await this.cacheManage.delCache(keyCacheList);
-        await this.repository.deleted(id);
-    }
+  async delete(id: string) {
+    await this.cleanCacheRedis();
+    await this.getById(id);
+    await this.repository.delete(id);
+  }
 }

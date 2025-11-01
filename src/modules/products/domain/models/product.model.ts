@@ -1,60 +1,54 @@
-import { AllowNull, Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table, Unique } from 'sequelize-typescript';
-import { PRODUCT_ENTITY } from '@/modules/products/constants/product.constant';
-import { CategoryModel } from '@/modules/categories/domain/models/category.model';
-import { BrandModel } from '@/modules/brands/domain/models/brand.model';
+import { BrandModel } from '@modules/brands/models/brand.model';
+import { BaseModel } from '@shared/model/base.model';
+import { CategoryModel } from '@modules/categories/domain/models/category.model';
+import { PRODUCT_ENTITY } from '@modules/products/constants/product.constant';
+import { AllowNull, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table, Unique } from 'sequelize-typescript';
 
 @Table({
-    tableName: PRODUCT_ENTITY.TABLE_NAME,
-    timestamps: true,
-    underscored: true,
+  tableName: PRODUCT_ENTITY.TABLE_NAME,
+  timestamps: true,
+  underscored: true,
 })
-export class ProductModel extends Model {
-    @PrimaryKey
-    @Default(DataType.UUIDV4)
-    @Column(DataType.UUIDV4)
-    declare id: string;
+export class ProductModel extends BaseModel<ProductModel> {
+  @PrimaryKey
+  @Default(Sequelize.literal('gen_random_uuid()'))
+  @Column(DataType.UUID)
+  declare id: string;
 
-    @AllowNull(false)
-    @Default('')
-    @Column({ type: DataType.STRING(500) })
-    name: string;
+  @AllowNull(false)
+  @Default('')
+  @Column({ type: DataType.STRING(500) })
+  declare name: string;
 
-    @AllowNull(false)
-    @Column({ type: DataType.DECIMAL })
-    price: string;
+  @AllowNull(false)
+  @Unique(true)
+  @Column({ type: DataType.STRING(500) })
+  declare sku: string;
 
-    @AllowNull(true)
-    @Column({ type: DataType.DECIMAL })
-    promotion_price: string;
+  @AllowNull(false)
+  @Column({ type: DataType.DECIMAL(18, 2) })
+  declare price: string;
 
-    @AllowNull(true)
-    @Unique
-    @Column({ type: DataType.STRING(500) })
-    evaluate: string;
+  @AllowNull(true)
+  @Column({ type: DataType.DECIMAL(18, 2) })
+  declare promotion_price: string;
 
-    @ForeignKey(() => CategoryModel)
-    @AllowNull(true)
-    @Column({ type: DataType.UUIDV4 })
-    categoryId: string;
+  @AllowNull(true)
+  @Column({ type: DataType.INTEGER })
+  declare evaluate: number;
 
-    @ForeignKey(() => BrandModel)
-    @AllowNull(true)
-    @Column({ type: DataType.UUIDV4 })
-    brandId: string;
+  @ForeignKey(() => CategoryModel)
+  @AllowNull(false)
+  @Column({ type: DataType.UUID })
+  declare category_id: string;
 
-    @AllowNull(false)
-    @Default(false)
-    @Column(DataType.BOOLEAN)
-    is_public: boolean;
+  @ForeignKey(() => BrandModel)
+  @AllowNull(false)
+  @Column({ type: DataType.UUID })
+  declare brand_id: string;
 
-
-    @AllowNull(true)
-    @Default(DataType.NOW)
-    @Column(DataType.DATE)
-    created_at: Date;
-
-    @AllowNull(true)
-    @Default(DataType.NOW)
-    @Column(DataType.DATE)
-    updated_at: Date;
+  @AllowNull(false)
+  @Default(false)
+  @Column(DataType.BOOLEAN)
+  declare is_public: boolean;
 }

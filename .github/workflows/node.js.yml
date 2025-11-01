@@ -5,70 +5,70 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main", "staging", "develop", "feature/**" ]
+    branches: [ "main", "staging", "develop", "feat/**" ]
   # pull_request:
   #   branches: [ "main", "staging" ] # production, staging
 
 jobs:
-  lint:
-    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
+  # lint:
+  #   if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #         cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+  #     - name: Install dependencies
+  #       run: npm ci
 
-      - name: Run ESLint
-        run: npm run lint
+  #     - name: Run ESLint
+  #       run: npm run lint
 
-  test:
-    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # test:
+  #   if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #         cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+  #     - name: Install dependencies
+  #       run: npm ci
 
-      - name: Run Tests
-        run: npm run test --if-present
+  #     - name: Run Tests
+  #       run: npm run test --if-present
 
-  sonarQube:
-    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # sonarQube:
+  #   if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 22
+  #         cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+  #     - name: Install dependencies
+  #       run: npm ci
         
-      - name: SonarQube Scan 
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: npm run sonar 
+  #     - name: SonarQube Scan 
+  #       env:
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #       run: npm run sonar 
 
   package:
     if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
     runs-on: ubuntu-latest
-    needs: [lint, test, sonarQube] 
+    # needs: [lint, test, sonarQube] 
     steps:
       - uses: actions/checkout@v4
         

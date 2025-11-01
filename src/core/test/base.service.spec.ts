@@ -1,8 +1,15 @@
-import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { BaseService } from '../services/base.service';
 
 // Mock dependency types
-interface Entity { id: string; name?: string }
+interface Entity {
+  id: string;
+  name?: string;
+}
 
 const buildRedisKeyQuery = jest.fn((...args) => `redis:${args.join(':')}`);
 const RedisContext = { LIST: 'list' } as const;
@@ -10,10 +17,10 @@ const RedisContext = { LIST: 'list' } as const;
 // Mock repository
 const mockRepository = () => ({
   findWithPagination: jest.fn(),
-  created: jest.fn(),
+  create: jest.fn(),
   findOne: jest.fn(),
-  updated: jest.fn(),
-  deleted: jest.fn(),
+  update: jest.fn(),
+  delete: jest.fn(),
   getAll: jest.fn(),
   findByField: jest.fn(),
   findOneByRaw: jest.fn(),
@@ -33,7 +40,7 @@ const mockCacheManage = () => ({
 class TestService extends BaseService<Entity> {
   protected entityName = 'Entity';
   protected repository = mockRepository();
-  protected cacheManage:any = mockCacheManage();
+  protected cacheManage: any = mockCacheManage();
 
   protected async moduleInit() {}
   protected async bootstrapLogic() {}
@@ -41,11 +48,11 @@ class TestService extends BaseService<Entity> {
   protected async moduleDestroy() {}
 
   protected async createImpl(body: Entity) {
-    return { ...body, created: true };
+    return { ...body, create: true };
   }
 
   protected async updateImpl(id: string, body: Entity) {
-    return { ...body, id, updated: true };
+    return { ...body, id, update: true };
   }
 }
 
@@ -89,7 +96,9 @@ describe('BaseService', () => {
 
   describe('getPagination', () => {
     it('lấy từ cache nếu tồn tại', async () => {
-      cache.get.mockResolvedValue(JSON.stringify({ success: true, data: [1], totalRecord: 1 }));
+      cache.get.mockResolvedValue(
+        JSON.stringify({ success: true, data: [1], totalRecord: 1 }),
+      );
       const result = await service.getPagination({ page: 1, limit: 10 });
       expect(cache.get).toHaveBeenCalled();
       expect(result.data).toEqual([1]);
@@ -97,7 +106,10 @@ describe('BaseService', () => {
 
     it('lấy từ repository nếu cache không có', async () => {
       cache.get.mockResolvedValue(null);
-      repository.findWithPagination.mockResolvedValue({ items: [{ id: '1' }], total: 1 });
+      repository.findWithPagination.mockResolvedValue({
+        items: [{ id: '1' }],
+        total: 1,
+      });
       const result = await service.getPagination({ page: 1, limit: 10 });
       expect(repository.findWithPagination).toHaveBeenCalled();
       expect(cache.set).toHaveBeenCalled();
@@ -106,38 +118,52 @@ describe('BaseService', () => {
     });
 
     it('throw BadRequest nếu page/limit không hợp lệ', async () => {
-      await expect(service.getPagination({ page: 0, limit: 10 })).rejects.toBeInstanceOf(BadRequestException);
-      await expect(service.getPagination({ page: 1, limit: 0 })).rejects.toBeInstanceOf(BadRequestException);
-      await expect(service.getPagination({ page: 1, limit: 101 })).rejects.toBeInstanceOf(BadRequestException);
-      await expect(service.getPagination({ page: 1001, limit: 10 })).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.getPagination({ page: 0, limit: 10 }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.getPagination({ page: 1, limit: 0 }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.getPagination({ page: 1, limit: 101 }),
+      ).rejects.toBeInstanceOf(BadRequestException);
+      await expect(
+        service.getPagination({ page: 1001, limit: 10 }),
+      ).rejects.toBeInstanceOf(BadRequestException);
     });
   });
 
   describe('create', () => {
-    it('gọi createdCommon và createImpl', async () => {
-      repository.created.mockResolvedValue({ id: '1' });
+    it('gọi createEntity và createImpl', async () => {
+      repository.create.mockResolvedValue({ id: '1' });
       await service.create({ id: '1' });
-      expect(repository.created).toHaveBeenCalled();
+      expect(repository.create).toHaveBeenCalled();
     });
 
     it('throw Conflict khi duplicate key', async () => {
-      repository.created.mockRejectedValue({ name: 'SequelizeUniqueConstraintError' });
-      await expect(service.create({ id: '1' })).rejects.toBeInstanceOf(ConflictException);
+      repository.create.mockRejectedValue({
+        name: 'SequelizeUniqueConstraintError',
+      });
+      await expect(service.create({ id: '1' })).rejects.toBeInstanceOf(
+        ConflictException,
+      );
     });
   });
 
   describe('update', () => {
     it('update thành công khi entity tồn tại', async () => {
       repository.findOne.mockResolvedValue({ id: '1' });
-      repository.updated.mockResolvedValue([1, [{ id: '1', name: 'Updated' }]]);
-      const result = await service.update('1', { name: 'Updated' });
-      expect(repository.updated).toHaveBeenCalled();
+      repository.update.mockResolvedValue([1, [{ id: '1', name: 'update' }]]);
+      const result = await service.update('1', { name: 'update' });
+      expect(repository.update).toHaveBeenCalled();
       expect(result).toHaveProperty('id', '1');
     });
 
     it('throw NotFound khi entity không tồn tại', async () => {
       repository.findOne.mockResolvedValue(null);
-      await expect(service.update('404', { name: 'X' })).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.update('404', { name: 'X' })).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 
@@ -151,16 +177,18 @@ describe('BaseService', () => {
 
     it('throw NotFound khi không tìm thấy', async () => {
       repository.findOne.mockResolvedValue(null);
-      await expect(service.getById('404')).rejects.toBeInstanceOf(NotFoundException);
+      await expect(service.getById('404')).rejects.toBeInstanceOf(
+        NotFoundException,
+      );
     });
   });
 
   describe('delete', () => {
     it('xóa entity thành công', async () => {
-      repository.deleted.mockResolvedValue(undefined);
+      repository.delete.mockResolvedValue(undefined);
       await service.delete('1');
       expect(cache.delCache).toHaveBeenCalled();
-      expect(repository.deleted).toHaveBeenCalledWith('1');
+      expect(repository.delete).toHaveBeenCalledWith('1');
     });
   });
 });
