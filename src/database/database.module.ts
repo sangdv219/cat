@@ -17,8 +17,8 @@ import { BaseTransactionService } from './transaction.service';
         username: config.get<string>('DB_USER'),
         password: config.get<string>('DB_PASSWORD'),
         database: config.get<string>('DB_DATABASE'),
-        autoLoadModels: true,
-        synchronize: true,
+        autoLoadModels: false,
+        synchronize: false,
         logging: (sql, timing) => {console.log(`[DEBUG SQL] (${timing}ms): ${sql}`)},
         benchmark: true
       }),

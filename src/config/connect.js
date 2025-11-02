@@ -19,10 +19,10 @@ function createSequelizeInstance() {
     });
     sequelize.authenticate()
         .then(() => {
-        console.log('Database connection established successfully.');
+        console.log(`✅ Database ${configService.getOrThrow('DB_DATABASE')} connection established successfully.`);
     })
-        .catch((err) => {
-        console.error('Unable to connect to the database:', err);
+    .catch((err) => {
+       console.error(`🛑 Unable to connect to the database: ${configService.getOrThrow('DB_DATABASE')}`, err);
     });
 }
 //# sourceMappingURL=connect.js.map

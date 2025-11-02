@@ -10,6 +10,7 @@ import { InjectConnection } from '@nestjs/sequelize';
 import { RedisService } from '@redis/redis.service';
 import * as argon2 from 'argon2';
 import { Sequelize } from 'sequelize';
+import { USER_ENTITY } from '@modules/users/constants/user.constant';
 
 @Injectable()
 export class UserService extends
@@ -25,12 +26,11 @@ export class UserService extends
     private readonly sequelize: Sequelize,
     protected repository: PostgresUserRepository,
     protected userRolesRepository: PostgresUserRolesRepository,
-    // protected userPermissionsRepository: PostgresRolePermissionsRepository,
     private readonly userRepository: PostgresUserRepository,
     public cacheManage: RedisService,
   ) {
     super(repository);
-    this.entityName = 'User';
+    this.entityName = USER_ENTITY.NAME;
   }
 
   protected async moduleInit() {
