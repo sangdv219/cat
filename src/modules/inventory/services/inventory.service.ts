@@ -1,8 +1,6 @@
 import { BaseService } from '@core/services/base.service';
 import { InventoryModel } from '@modules/inventory/domain/models/inventory.model';
-import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { RedisService } from '@redis/redis.service';
-import { ProductModel } from '@modules/products/domain/models/product.model';
 import { Injectable, Logger } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { INVENTORY_ENTITY } from '@modules/inventory/constants/inventory.constant';
@@ -23,7 +21,6 @@ export class InventoryService extends
   private inventory: string[] = [];
   constructor(
     protected repository: PostgresInventoryRepository,
-    protected postgresProductRepository: PostgresProductRepository,
     public cacheManage: RedisService,
   ) {
     super(repository);
@@ -72,7 +69,7 @@ export class InventoryService extends
     const inventory = await this.repository.findByOneByRaw({
       where: { [`${field}`]: id },
       include: [{
-        model: ProductModel,
+        // model: ProductModel,
         attributes: ['name', 'price', 'promotion_price', 'evaluate'],
       }],
       raw: true,

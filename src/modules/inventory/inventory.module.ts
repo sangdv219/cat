@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
-import { ProductModule } from '../products/product.module';
 import { InventoryAdminController } from './controller/inventory.admin.controller';
 import { InventoryAppController } from './controller/inventory.app.controller';
 import { InventoryModel } from './domain/models/inventory.model';
@@ -14,7 +13,7 @@ import { RmqModule } from 'libs/common/src/rabbitMQ/rmb.module';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([InventoryModel]), ProductModule, RedisModule, RmqModule.register({name: 'ORDER_SERVICE'}),
+    SequelizeModule.forFeature([InventoryModel]), RedisModule, RmqModule.register({name: 'ORDER_SERVICE'}),
   ],
   controllers: [InventoryAppController, InventoryAdminController],
   providers: [

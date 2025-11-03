@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from '@redis/redis.module';
 import { ClsModule } from 'nestjs-cls';
 import { ChatGateway } from './gateways/chat.gateway';
+import { InventoryModule } from './modules/inventory/inventory.module';
 
 @Module({
   imports: [
@@ -27,8 +28,8 @@ import { ChatGateway } from './gateways/chat.gateway';
     DatabaseModule,
     BullModule,
     AuthModule,
-    UserModule,
-    AuditModule,
+    // UserModule,
+    InventoryModule,
   ],
   providers: [ChatGateway, DatabaseService],
   exports: [DatabaseService],

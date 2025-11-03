@@ -33,21 +33,21 @@ export class InventoryAppController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
-  @EventPattern(EVENT.ORDER_CREATED_EVENT)
+  // @EventPattern(EVENT.ORDER_CREATED_EVENT)
   // async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllInventoryResponseDto> {
-  async getPagination(@Payload() @Query() query: PaginationQueryDto, @Ctx() context: RmqContext): Promise<GetAllInventoryResponseDto> {
+  async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllInventoryResponseDto> {
     this.logger.log(`[GATEWAY] Response from Inventory Service: ${JSON.stringify(query)}`);
     // this.logger.log(`[GATEWAY] context: ${JSON.stringify(context)}`);
-    const channel = context.getChannelRef();   // 🧠 Truy cập channel của RabbitMQ
-    const message = context.getMessage();      // 📨 Thông tin message gốc
-    const pattern = context.getPattern();      // 📡 Tên event/pattern
+    // const channel = context.getChannelRef();   // 🧠 Truy cập channel của RabbitMQ
+    // const message = context.getMessage();      // 📨 Thông tin message gốc
+    // const pattern = context.getPattern();      // 📡 Tên event/pattern
     try {
       const result = await this.inventoryService.getPagination(query);
-      Logger.log('result:', result);
       // ✅ Xác nhận thành công
-      this.rmqService.ack(context);  // confirm processed done to remove message from queue
+      // this.rmqService.ack(context);  // confirm processed done to remove message from queue
       return result;
     } catch (error) {
+      Logger.log('error:', error);
       throw error;
     }
   }
