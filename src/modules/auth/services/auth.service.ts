@@ -1,7 +1,6 @@
 import { LoginDto } from '@modules/auth/DTO/login.dto';
 import { LoginResponseDto } from '@modules/auth/interface/login.interface';
 import { RefreshTokenResponseDto } from '@modules/auth/interface/refreshToken.interface';
-import { PasswordService } from '@modules/password/services/password.service';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
 import { RedisContext, RedisModule } from '@redis/enums/redis-key.enum';
@@ -24,7 +23,6 @@ import { UserService } from '@modules/users/services/user.service';
 export class AuthService implements OnModuleInit {
   private readonly logger = new Logger(AuthService.name);
   constructor(
-    private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
     private readonly OTPService: OTPService,
     @InjectModel(UserModel)
@@ -97,11 +95,7 @@ export class AuthService implements OnModuleInit {
       if (user.deleted_at) {
         throw new GoneException('Account has been delete');
       }
-      const isPasswordValid = await this.passwordService.comparePassword(
-        password,
-        user.password_hash,
-      );
-      if (isPasswordValid) {
+   
         await this.resetFailedLogins(user.id);
         const session_id = uuidv4()
         const rolePermission = await this.userService.getRolePermissionByUserId(user.id);
@@ -169,10 +163,6 @@ export class AuthService implements OnModuleInit {
         this.incrementFailedLogins(user.id);
         throw new UnauthorizedException('Password is not correct');
       }
-    } else {
-      this.incrementFailedLogins(user.id);
-      throw new NotFoundException('User not found');
-    }
   }
 
   async refreshToken(refreshToken: string): Promise<RefreshTokenResponseDto> {

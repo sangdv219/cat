@@ -3,8 +3,8 @@ import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant';
 import { BrandModel } from '@modules/brands/models/brand.model';
 import { Injectable, Logger } from '@nestjs/common';
 import { RedisService } from '@redis/redis.service';
-import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '@modules/brands/dto/brand.request.dto';
-import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '@modules/brands/dto/brand.response.dto';
+import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '@/modules/brands/dto/brand.request.dto';
+import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '@/modules/brands/dto/brand.response.dto';
 import { PostgresBrandRepository } from '../infrastructure/repository/postgres-brand.repository';
 
 @Injectable()

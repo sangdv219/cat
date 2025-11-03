@@ -1,6 +1,5 @@
 import { BaseModel } from '@shared/model/base.model';
 import { BelongsTo, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
-import { OrdersModel } from '../../orders/domain/models/orders.model';
 
 @Table({ tableName: 'payments' })
 export class PaymentsModel extends BaseModel<PaymentsModel> {
@@ -8,13 +7,6 @@ export class PaymentsModel extends BaseModel<PaymentsModel> {
   @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
   declare id: string;
-
-  @ForeignKey(() => OrdersModel)
-  @Column(DataType.UUID)
-  declare order_id: string;
-
-  @BelongsTo(() => OrdersModel)
-  declare order: OrdersModel;
 
   @Column({ type: DataType.DECIMAL(18,2), allowNull: false })
   declare amount: number;
