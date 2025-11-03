@@ -1,7 +1,6 @@
 // src/modules/rbac/rbac.service.ts
 import { PostgresRolePermissionsRepository } from '@modules/associations/repositories/role-permissions.repository';
 import { PermissionsModel } from '@modules/permissions/domain/models/permissions.model';
-import { RolesModel } from '@modules/roles/domain/models/roles.model';
 import { Injectable } from '@nestjs/common';
 import { RedisService } from '@redis/redis.service';
 
@@ -15,18 +14,18 @@ export class RbacService {
   async getPermissionsByRole(role: string): Promise<any> {
     const result = await this.repository.findAllByRaw({
       attributes: ['permission_id', 'role_id'],
-      include: [
-        {
-          model: RolesModel,
-          as: 'roles',
-          attributes: ['name']
-        },
-        {
-          model: PermissionsModel,
-          as: 'permissions',
-          attributes: ['resource', 'action']
-        },
-      ],
+      // include: [
+      //   {
+      //     model: RolesModel,
+      //     as: 'roles',
+      //     attributes: ['name']
+      //   },
+      //   {
+      //     model: PermissionsModel,
+      //     as: 'permissions',
+      //     attributes: ['resource', 'action']
+      //   },
+      // ],
       nest: true
     });
 

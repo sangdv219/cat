@@ -40,12 +40,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @Version('1')
   @Post('login')
-  async loginV1(@Body() body: LoginDto): Promise<LoginResponseDto> {
-    return await this.authService.login(body);
-  }
-  @Post('login')
-  @Version('2')
-  async loginV2(@Body() body: LoginDto): Promise<LoginResponseDto> {
+  async loginV1(@Body() body: LoginDto) {
     return await this.authService.login(body);
   }
   

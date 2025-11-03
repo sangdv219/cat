@@ -1,4 +1,3 @@
-import { RolesModel } from '@modules/roles/domain/models/roles.model';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { BaseModel } from '@shared/model/base.model';
 import { AllowNull, BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript';
@@ -14,11 +13,7 @@ export class UserRolesModel extends BaseModel<UserRolesModel> {
   @BelongsTo(() => UserModel)
   declare user: UserModel;
 
-  @ForeignKey(() => RolesModel)
-  @AllowNull(false)
-  @Column({ type: DataType.UUID })
-  declare role_id: string; // FK đến role
 
-  @BelongsTo(() => RolesModel)
-  declare role: RolesModel;
+
+  
 }

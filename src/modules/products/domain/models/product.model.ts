@@ -1,6 +1,4 @@
-import { BrandModel } from '@modules/brands/models/brand.model';
 import { BaseModel } from '@shared/model/base.model';
-import { CategoryModel } from '@modules/categories/domain/models/category.model';
 import { PRODUCT_ENTITY } from '@modules/products/constants/product.constant';
 import { AllowNull, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table, Unique } from 'sequelize-typescript';
 
@@ -37,15 +35,9 @@ export class ProductModel extends BaseModel<ProductModel> {
   @Column({ type: DataType.INTEGER })
   declare evaluate: number;
 
-  @ForeignKey(() => CategoryModel)
   @AllowNull(false)
   @Column({ type: DataType.UUID })
   declare category_id: string;
-
-  @ForeignKey(() => BrandModel)
-  @AllowNull(false)
-  @Column({ type: DataType.UUID })
-  declare brand_id: string;
 
   @AllowNull(false)
   @Default(false)

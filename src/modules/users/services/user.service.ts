@@ -1,9 +1,9 @@
 import { BaseService } from '@core/services/base.service';
 import { PostgresUserRolesRepository } from '@modules/associations/repositories/user-roles.repository';
 import { UserModel } from '@modules/users/domain/models/user.model';
-import { CreatedUserAuthRequestDto } from '@modules/users/dto/user-auth.request.dto';
-import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@modules/users/dto/user.admin.request.dto';
-import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@modules/users/dto/user.admin.response.dto';
+import { CreatedUserAuthRequestDto } from '@/modules/users/dto/user-auth.request.dto';
+import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@/modules/users/dto/user.admin.request.dto';
+import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@/modules/users/dto/user.admin.response.dto';
 import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/sequelize';

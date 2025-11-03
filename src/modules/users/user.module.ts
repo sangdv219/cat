@@ -1,4 +1,3 @@
-import { PasswordModule } from '@modules/password/password.module';
 import { UserAdminController } from '@modules/users/controller/user.admin.controller';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
@@ -20,7 +19,6 @@ import { SERVICES } from 'libs/common/src/constants/services';
   imports: [
     SequelizeModule.forFeature([UserModel, UserRolesModel, RolePermissionsModel ]),
     AssociationsModule,
-    PasswordModule,
     RmqModule.register({name: SERVICES.ORDER_SERVICE})
   ],
   controllers: [UserAdminController],

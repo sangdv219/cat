@@ -20,10 +20,10 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
-import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@modules/users/dto/user.admin.request.dto';
+import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@/modules/users/dto/user.admin.request.dto';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { UserService } from '@modules/users/services/user.service';
-import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@modules/users/dto/user.admin.response.dto';
+import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@/modules/users/dto/user.admin.response.dto';
 import { JWTAuthGuard } from '@core/guards/jwt.guard';
 import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 import { Ctx, EventPattern, MessagePattern, Payload, TcpContext } from '@nestjs/microservices';
