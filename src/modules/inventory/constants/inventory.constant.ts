@@ -1,4 +1,4 @@
 export const INVENTORY_ENTITY = {
-  NAME: 'inventory',
+  NAME: 'Inventory',
   TABLE_NAME: 'inventory',
 };

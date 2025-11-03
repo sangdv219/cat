@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AbstractInventoryRepository } from '@modules/inventory/domain/abstract/abstract-inventory.repository';
-import { InventoryModel } from '../../domain/models/inventory.model';
-import { INVENTORY_ENTITY } from '../../constants/inventory.constant';
+import { InventoryModel } from '@modules/inventory/domain/models/inventory.model';
+import { INVENTORY_ENTITY } from '@modules/inventory/constants/inventory.constant';
 
 @Injectable()
 export class PostgresInventoryRepository extends AbstractInventoryRepository {
