@@ -1,4 +1,4 @@
-import { ProductResponseDto } from '@modules/products/dto/product.response.dto';
+import { ProductResponseDto } from '@/modules/products/dto/product.response.dto';
 import { Expose } from 'class-transformer';
 
 export class InventoryBaseDto {

@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  OnApplicationShutdown,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, OnApplicationShutdown, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Sequelize } from 'sequelize-typescript';
 
@@ -20,8 +16,6 @@ export class DatabaseService implements OnModuleInit, OnApplicationShutdown {
 
   async onApplicationShutdown(signal?: string) {
     await this.sequelize.close();
-    console.log(
-      `🔥 🔥 🔥 🔥 🔥 onApplicationShutdown called with signal: ${signal} 🔥 🔥 🔥 🔥 🔥`,
-    );
+    console.log(`🔥 🔥 🔥 🔥 🔥 onApplicationShutdown called with signal: ${signal} 🔥 🔥 🔥 🔥 🔥`);
   }
 }

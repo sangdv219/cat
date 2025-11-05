@@ -12,12 +12,11 @@ import { UserModel } from '@modules/users/domain/models/user.model';
 import { PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
 import { OrderService } from '@modules/orders/services/order.service';
 import { AssociationsModule } from '@modules/associations/associations.module';
-import { RbacModule } from '@modules/rbac/rbac.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([OrdersModel, UserModel]), OrderItemsModule, InventoryModule, ProductModule, AssociationsModule, RbacModule,
+    SequelizeModule.forFeature([OrdersModel, UserModel]), OrderItemsModule, InventoryModule, ProductModule, AssociationsModule, 
     EventEmitterModule.forRoot(),
   ],
   controllers: [ OrderAppController ],

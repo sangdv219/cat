@@ -2,8 +2,6 @@ import { LoginDto } from '@modules/auth/DTO/login.dto';
 import { LoginResponseDto } from '@modules/auth/interface/login.interface';
 import { RefreshTokenResponseDto } from '@modules/auth/interface/refreshToken.interface';
 import { PasswordService } from '@modules/password/services/password.service';
-import { UserModel } from '@modules/users/domain/models/user.model';
-import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
 import { RedisContext, RedisModule } from '@redis/enums/redis-key.enum';
 import { buildRedisKey, buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
 import { findCacheByEmail, scanlAlKeys } from '@shared/utils/common.util';
@@ -18,7 +16,9 @@ import { BullService } from '@bull/bull.service';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
 import { RedisService } from '@redis/redis.service';
-import { UserService } from '@modules/users/services/user.service';
+import { PostgresUserRepository } from '@/modules/users/repository/user.admin.repository';
+import { UserService } from '@/modules/users/services/user.service';
+import { UserModel } from '@/modules/users/domain/models/user.model';
 
 @Injectable()
 export class AuthService implements OnModuleInit {

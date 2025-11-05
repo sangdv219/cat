@@ -3,7 +3,7 @@ import { JWTAuthGuard } from '@core/guards/jwt.guard';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@shared/dto/common';
-import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@modules/products/dto/product.request.dto';
+import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@/modules/products/dto/product.request.dto';
 import { ProductService } from '@modules/products/services/product.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {

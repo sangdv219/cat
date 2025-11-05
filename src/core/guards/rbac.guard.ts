@@ -7,7 +7,6 @@ import { buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
 import { RedisService } from '@redis/redis.service';
 import { RESOURCE_KEY } from '@core/decorators/resource.decorator';
 import { ACTION_KEY } from '@core/decorators/action.decorator';
-import { RbacService } from '@/modules/rbac/rbac.service';
 
 @Injectable()
 export class RbacGuard implements CanActivate {
@@ -18,7 +17,6 @@ export class RbacGuard implements CanActivate {
         @Inject('TokenSecretResolver')
         private readonly tokenSecretResolver: TokenSecretResolver,
         private readonly cacheManager: RedisService,
-        private readonly rbacService: RbacService,
 
     ) { }
 
@@ -45,18 +43,18 @@ export class RbacGuard implements CanActivate {
             context.getClass(),
         ]);
 
-        const mergePermissions: any[] = [];
-        for (const role of rolesCache) {
-            const permissions: any[] = await this.rbacService.getPermissionsByRole(role);
-            mergePermissions.push(...permissions);
-        }
+        // const mergePermissions: any[] = [];
+        // for (const role of rolesCache) {
+        //     const permissions: any[] = await this.rbacService.getPermissionsByRole(role);
+        //     mergePermissions.push(...permissions);
+        // }
 
-        if (!resource || !action) throw new ForbiddenException(`Forbidden: Missing defined permission [${resource}.${action}]`);
+        // if (!resource || !action) throw new ForbiddenException(`Forbidden: Missing defined permission [${resource}.${action}]`);
 
-        const hasResource = mergePermissions.some((p: any) => resource.includes(p.resource));
-        const hasAction = mergePermissions.some((p: any) => action.includes(p.action));
+        // const hasResource = mergePermissions.some((p: any) => resource.includes(p.resource));
+        // const hasAction = mergePermissions.some((p: any) => action.includes(p.action));
         
-        if (!hasResource || !hasAction) throw new ForbiddenException(`Forbidden: Missing permission [${resource}.${action}]`);
+        // if (!hasResource || !hasAction) throw new ForbiddenException(`Forbidden: Missing permission [${resource}.${action}]`);
 
         return true;
     }
