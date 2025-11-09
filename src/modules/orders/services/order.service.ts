@@ -16,6 +16,7 @@ import { RedisService } from '@redis/redis.service';
 import { plainToInstance } from 'class-transformer';
 import { QueryTypes, Sequelize, Transaction } from 'sequelize';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import crypto from 'crypto';
 
 @Injectable()
 export class OrderService extends
@@ -178,7 +179,7 @@ export class OrderService extends
 
   async upsertOrdersTable(dto: CreatedOrderRequestDto) {
     const { user_id, discount_amount, shipping_fee, shipping_address, payment_method } = dto;
-    const order_code = this.generateOrderCode();
+     const order_code = this.generateOrderCode(dto.user_id, dto.products.map(p => p.product_id).join('-'));
     
     return await this.sequelize.query(
       `INSERT INTO orders(order_code, user_id, discount_amount, payment_method, shipping_fee, shipping_address)
@@ -263,13 +264,12 @@ export class OrderService extends
     )
   }
 
-  generateOrderCode(): string {
+ generateOrderCode(userId: string, productId: string): string {
     const prefix = 'ORD';
-    const now = new Date();
-    const datePart = now.toISOString().replace(/[-:tz.]/g, '').slice(0, 14);
-    const randomPart = Math.random().toString(20).substring(2, 8).toUpperCase();
-    return `${prefix}-${datePart}-${randomPart}`;
-  };
+    const base = `${userId}:${productId}`;
+    const hash = crypto.createHash('md5').update(base).digest('hex').slice(0, 8);
+    return `${prefix}-${hash.toUpperCase()}`;
+  }
 
   async deleteOrderItems(id: string) {
     this.cleanCacheRedis()
