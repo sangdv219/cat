@@ -1,7 +1,6 @@
 import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
-import { UserModel } from '@modules/users/domain/models/user.model';
 import { BaseModel } from '@shared/model/base.model';
-import { BelongsTo, Column, DataType, Default, ForeignKey, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
+import { BelongsTo, Column, CreatedAt, DataType, Default, ForeignKey, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
 
 export interface IOrder {
   id: string,
@@ -21,12 +20,12 @@ export class OrdersModel extends BaseModel<OrdersModel> implements IOrder {
   @Column({ type: DataType.UUID })
   declare id: string;
 
-  @ForeignKey(() => UserModel)
+  // @ForeignKey(() => UserModel)
   @Column({ type: DataType.UUID })
   declare user_id: string;
 
-  @BelongsTo(() => UserModel)
-  declare user: UserModel;
+  // @BelongsTo(() => UserModel)
+  // declare user: UserModel;
 
   @Column({ type: DataType.DECIMAL(18, 2) })
   declare subtotal: string //(tổng giá trị các item, chưa tính ship, chưa trừ voucher)
@@ -43,12 +42,12 @@ export class OrdersModel extends BaseModel<OrdersModel> implements IOrder {
   @Column({ type: DataType.STRING(100) })
   declare shipping_address: string;
 
-  @Column({ type: DataType.STRING(20) })
-  declare payment_method: string;
+  @Column({ type: DataType.ENUM('CREDIT_CARD', 'PAYPAL', 'BANK_TRANSFER', 'CASH_ON_DELIVERY') })
+  declare payment_method: 'CREDIT_CARD' | 'PAYPAL' | 'BANK_TRANSFER' | 'CASH_ON_DELIVERY';
 
-  @Default('pending')
-  @Column({ type: DataType.STRING(20) })
-  declare status: string;
+  @Default('PENDING')
+  @Column({ type: DataType.ENUM('PENDING', 'CONFIRM' , 'CANCELLED') })
+  declare status: 'PENDING' | 'CONFIRM' | 'CANCELLED';
 
   @HasMany(() => OrderItemsModel)
   declare orderItems: OrderItemsModel[]

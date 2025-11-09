@@ -1,4 +1,0 @@
-import { BaseRepository } from '@core/repositories/base.repository';
-import { PermissionsModel } from '@modules/permissions/domain/models/permissions.model';
-
-export abstract class AbstractPermissionsRepository extends BaseRepository<PermissionsModel> {}

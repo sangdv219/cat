@@ -14,21 +14,16 @@ module.exports = {
         allowNull: false,
         unique: true
       },
-      user_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'users', // bảng users
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
-      },
-      status: {
-        type: Sequelize.STRING(10),
-        allowNull: false,
-        defaultValue: 'PENDING',
-      },
+      // user_id: {
+      //   type: Sequelize.UUID,
+      //   allowNull: false,
+      //   references: {
+      //     model: 'users', // bảng users
+      //     key: 'id',
+      //   },
+      //   onUpdate: 'CASCADE',
+      //   onDelete: 'CASCADE'
+      // },
       subtotal: {
         type: Sequelize.DECIMAL(18,2),
         allowNull: true,
@@ -49,9 +44,14 @@ module.exports = {
         type: Sequelize.STRING(100),
         allowNull: false,
       },
+      status: {
+        type: Sequelize.ENUM('PENDING', 'CONFIRM', 'CANCELLED'),
+        allowNull: false,
+        defaultValue: 'PENDING',
+      },
       payment_method: {
         allowNull: false,
-        type: Sequelize.STRING(100),
+        type: Sequelize.ENUM('CREDIT_CARD', 'PAYPAL', 'BANK_TRANSFER', 'CASH_ON_DELIVERY'),
       },
       created_at: {
         allowNull: false,

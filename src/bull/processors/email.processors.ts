@@ -1,5 +1,4 @@
 // src/bull/processors/order.processor.ts
-import { EmailService } from '@modules/auth/services/mail.service';
 import { Process, Processor } from '@nestjs/bull';
 import { HttpException, Logger } from '@nestjs/common';
 import { Job } from 'bull';
@@ -8,14 +7,13 @@ import { Job } from 'bull';
 export class EmailProsessor {
     private readonly logger = new Logger(EmailProsessor.name);
     constructor(
-        private readonly emailService: EmailService
     ) { }
     @Process('send-email') // name job
     async handleSendEmail(job: Job, token?: string) {
         const {email, otp} = job.data
         try {
-            await this.emailService.sendRegistrationEmail(email, otp)
-            this.logger.log("✅ Email success:");
+            // await this.emailService.sendRegistrationEmail(email, otp)
+            // this.logger.log("✅ Email success:");
 
             return { status: 'ok' };
         } catch (error) {

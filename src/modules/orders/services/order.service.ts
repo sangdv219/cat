@@ -1,21 +1,21 @@
 import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
 import { BullService } from '@bull/bull.service';
 import { BaseService } from '@core/services/base.service';
-import { InventoryService } from '@modules/inventory/services/inventory.service';
+// import { InventoryService } from '@modules/inventory/services/inventory.service';
 import { PostgresOrderItemsRepository } from '@modules/order-items/infrastructure/repository/postgres-order-items.repository';
 import { ORDER_ENTITY } from '@modules/orders/constants/order.constant';
 import { OrdersModel } from '@modules/orders/domain/models/orders.model';
 import { CreatedOrderItemRequestDto, CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
 import { GetAllOrderResponseDto, GetByIdOrderResponseDto, GetByIdOrderResponseDtoV2 } from '@modules/orders/dto/order.response.dto';
 import { PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
-import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
-import { UserModel } from '@modules/users/domain/models/user.model';
+// import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/sequelize';
 import { RedisService } from '@redis/redis.service';
 import { plainToInstance } from 'class-transformer';
 import { QueryTypes, Sequelize, Transaction } from 'sequelize';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import crypto from 'crypto';
 
 @Injectable()
 export class OrderService extends
@@ -31,9 +31,9 @@ export class OrderService extends
     private readonly sequelize: Sequelize,
     public cacheManage: RedisService,
     protected repository: PostgresOrderRepository,
-    protected productRepository: PostgresProductRepository,
+    // protected productRepository: PostgresProductRepository,
     protected orderItemsRepository: PostgresOrderItemsRepository,
-    public inventoryService: InventoryService,
+    // public inventoryService: InventoryService,
     private readonly bullService: BullService,
     private eventEmitter: EventEmitter2
   ) {
@@ -45,7 +45,7 @@ export class OrderService extends
     // Logger.log('✅ Init Order cache...');
 
   }
- 
+
   protected async bootstrapLogic(): Promise<void> {
     // Logger.log(
     //   '👉 OnApplicationBootstrap: OrderService bootstrap: preloading cache...',
@@ -84,16 +84,23 @@ export class OrderService extends
 
     const products = dto.products;
 
-    for (const el of products) {
-      const result = await this.productRepository.findByPk(el.product_id)
-      if (!result) throw new NotFoundException('Product not found !')
-      const product = { ...el, price: result.price }
-      await this.handleAndInsertOrderItems(product, orderId)
-    }
+    // for (const el of products) {
+    //   const result = await this.productRepository.findByPk(el.product_id)
+    //   if (!result) throw new NotFoundException('Product not found !')
+    //   const product = { ...el, price: result.price }
+    //   await this.handleAndInsertOrderItems(product, orderId)
+    // }
 
     await this.calculatorAndUpdateAmountOrder(orderId)
 
     this.eventEmitter.emit('order.completed', { orderId, email: 'sangdv2109@gmail.com' });
+  }
+
+  generateOrderCode(userId: string, productId: string): string {
+    const prefix = 'ORD';
+    const base = `${userId}:${productId}`;
+    const hash = crypto.createHash('md5').update(base).digest('hex').slice(0, 8);
+    return `${prefix}-${hash.toUpperCase()}`;
   }
 
   async lockAndCheckInventory(productId: string, quantity: number, t: Transaction) {
@@ -179,9 +186,11 @@ export class OrderService extends
 
   async upsertOrdersTable(dto: CreatedOrderRequestDto) {
     const { user_id, discount_amount, shipping_fee, shipping_address, payment_method } = dto;
+    const order_code = this.generateOrderCode(dto.user_id, dto.products.map(p => p.product_id).join('-'));
+
     return await this.sequelize.query(
-      `INSERT INTO orders(user_id, discount_amount, payment_method, shipping_fee, shipping_address)
-       VALUES(:user_id, :discount_amount, :payment_method, :shipping_fee, :shipping_address)
+      `INSERT INTO orders(user_id, discount_amount, payment_method, shipping_fee, shipping_address, order_code)
+       VALUES(:user_id, :discount_amount, :payment_method, :shipping_fee, :shipping_address, :order_code)
        ON CONFLICT(user_id)
        DO UPDATE SET
           subtotal = 0, 
@@ -189,6 +198,7 @@ export class OrderService extends
         RETURNING *`,
       {
         replacements: {
+          order_code: order_code,
           user_id: user_id,
           discount_amount: discount_amount,
           shipping_fee: shipping_fee,
@@ -214,15 +224,15 @@ export class OrderService extends
     });
   }
 
-  async getById(id: string): Promise<GetByIdOrderResponseDto> {
-    const Order = await this.repository.findByPk(id);
-    if (!Order) throw new TypeError('Order not found');
-    const OrderId = Order.id;
-    const products = await this.productRepository.findOneByField('id', OrderId);
-    Order['products'] = products;
-    const dto = plainToInstance(GetByIdOrderResponseDto, Order, { excludeExtraneousValues: true });
-    return dto;
-  }
+  // async getById(id: string): Promise<GetByIdOrderResponseDto> {
+  //   const Order = await this.repository.findByPk(id);
+  //   if (!Order) throw new TypeError('Order not found');
+  //   const OrderId = Order.id;
+  //   const products = await this.productRepository.findOneByField('id', OrderId);
+  //   Order['products'] = products;
+  //   const dto = plainToInstance(GetByIdOrderResponseDto, Order, { excludeExtraneousValues: true });
+  //   return dto;
+  // }
 
   async calculatorOrder(idOrderItem: string, order_id: string, t: Transaction) {
     await this.sequelize.query(
@@ -278,7 +288,7 @@ export class OrderService extends
     const order = await this.repository.findByOneByRaw({
       where: { id },
       include: [{
-        model: UserModel,
+        // model: UserModel,
         // attributes: {exclude: ['password_hash', 'created_by']}
         attributes: ['name', 'email', 'phone', 'age', 'gender', 'avatar']
       },
@@ -293,7 +303,7 @@ export class OrderService extends
   @OnEvent('auth.login')
   async getRevenue() {
     Logger.log('====>getRevenue:');
-    
+
     const SequelizeQuery = await this.repository.findAllByRaw({
       attributes: [
         'id',
@@ -307,7 +317,7 @@ export class OrderService extends
       ],
       include: [
         {
-          model: UserModel,
+          // model: UserModel,
           attributes: [],
         },
         {

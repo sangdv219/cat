@@ -1,5 +1,5 @@
 import { OrdersModel } from '@modules/orders/domain/models/orders.model';
-import { ProductModel } from '@modules/products/domain/models/product.model';
+// import { ProductModel } from '@modules/products/domain/models/product.model';
 import { BaseModel } from '@shared/model/base.model';
 import { AllowNull, BelongsTo, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
 import { ORDER_ITEMS_ENTITY } from '@modules/order-items/constants/order-items.constant';
@@ -23,13 +23,13 @@ export class OrderItemsModel extends BaseModel<OrderItemsModel> {
   @BelongsTo(() => OrdersModel)
   declare orders: OrdersModel;
 
-  @ForeignKey(() => ProductModel)
-  @AllowNull(false)
-  @Column({ type: DataType.UUID })
-  declare product_id: string; // FK đến orderItems
+  // @ForeignKey(() => ProductModel)
+  // @AllowNull(false)
+  // @Column({ type: DataType.UUID })
+  // declare product_id: string; // FK đến orderItems
 
-  @BelongsTo(() => ProductModel)
-  declare products: ProductModel;
+  // @BelongsTo(() => ProductModel)
+  // declare products: ProductModel;
 
   @Default(1)
   @Column(DataType.INTEGER)

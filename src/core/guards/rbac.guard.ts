@@ -1,4 +1,3 @@
-import { TokenSecretResolver } from '@modules/auth/interface/tokenSecret.interface';
 import { CanActivate, ExecutionContext, ForbiddenException, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -15,7 +14,6 @@ export class RbacGuard implements CanActivate {
         private readonly jwtService: JwtService,
         private readonly reflector: Reflector,
         @Inject('TokenSecretResolver')
-        private readonly tokenSecretResolver: TokenSecretResolver,
         private readonly cacheManager: RedisService,
 
     ) { }

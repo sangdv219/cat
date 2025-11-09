@@ -1,12 +1,10 @@
 // import path from 'path';
-import { EmailService } from '@modules/auth/services/mail.service';
 import { ConfigService } from '@nestjs/config';
 import { Job, Worker } from 'bullmq';
 
 // const processorFile = path.join(__dirname, 'email-processor.js');
 
 const configService = new ConfigService();
-const emailService = new EmailService(configService);
 export const emailWorker = new Worker(
     'email-queue',
     async (job: Job, token?: string) => {
@@ -15,8 +13,8 @@ export const emailWorker = new Worker(
         // try {
             if (job.name === 'sendMail') {
                 const { to, otp } = job.data;
-                await emailService.sendRegistrationEmail(to, otp);
-                console.log(`📧 ---Sending email to--- ${to} with subject: ${otp}`);
+                // await emailService.sendRegistrationEmail(to, otp);
+                // console.log(`📧 ---Sending email to--- ${to} with subject: ${otp}`);
                 // TODO: gọi service gửi email thật
             }
 

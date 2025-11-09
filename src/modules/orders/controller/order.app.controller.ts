@@ -1,7 +1,6 @@
 import { Action } from '@core/decorators/action.decorator';
 import { Resource } from '@core/decorators/resource.decorator';
 import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
-import { JWTAuthGuard } from '@core/guards/jwt.guard';
 import { RbacGuard } from '@core/guards/rbac.guard';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
@@ -41,7 +40,6 @@ export class OrderAppController {
   @Resource('order')
   @Action('read')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JWTAuthGuard, RbacGuard)
   @CacheTTL(60)
   async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllOrderResponseDto> {
     try {
@@ -52,7 +50,6 @@ export class OrderAppController {
   }
 
   @Version('1')
-  @UseGuards(JWTAuthGuard, RbacGuard)
   @Get('getRevenue')
   @Resource('order:revenue')
   @Action('read')
