@@ -3,7 +3,6 @@ import { BaseResponseInterceptor } from '@core/interceptors/base-response.interc
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@shared/dto/common';
 import { BaseGetResponse } from '@shared/interface/common';
-import { CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,

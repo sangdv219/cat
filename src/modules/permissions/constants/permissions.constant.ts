@@ -1,4 +1,5 @@
-export const ROLES_ENTITY = {
+export const PERMISSION_ENTITY = {
   NAME: 'permissions',
   TABLE_NAME: 'permissions',
 };
+    

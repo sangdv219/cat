@@ -1,15 +1,14 @@
-import { InjectModel } from '@nestjs/sequelize';
-import { Injectable } from '@nestjs/common';
-import { ORDER_ITEMS_ENTITY } from '@modules/order-items/constants/order-items.constant';
-import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
 import { AbstractOrderItemsRepository } from '@modules/order-items/domain/abstract/abstract-order-items.repository';
+import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class PostgresOrderItemsRepository extends AbstractOrderItemsRepository {
-  private static readonly ENTITY_NAME = ORDER_ITEMS_ENTITY.NAME;
+  private static readonly searchableFields = ['quantity', 'price', 'discount', 'final_price', 'note'];
   constructor(@InjectModel(OrderItemsModel)
     protected readonly orderItemsModel: typeof OrderItemsModel,
   ) {
-    super(PostgresOrderItemsRepository.ENTITY_NAME, orderItemsModel);
+    super(orderItemsModel, PostgresOrderItemsRepository.searchableFields);
   }
 }

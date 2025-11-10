@@ -1,6 +1,6 @@
 import { GetAllPermissionsResponseDto, GetByIdPermissionsResponseDto } from '@modules/permissions/dto/permissions.response.dto';
 import { BaseService } from '@core/services/base.service';
-import { ROLES_ENTITY } from '@modules/permissions/constants/permissions.constant';
+import { PERMISSION_ENTITY } from '@modules/permissions/constants/permissions.constant';
 import { PermissionsModel } from '@modules/permissions/domain/models/permissions.model';
 import { PostgresPermissionsRepository } from '@modules/permissions/infrastructure/repository/postgres-permissions.repository';
 import { Injectable, Logger } from '@nestjs/common';
@@ -26,7 +26,7 @@ export class PermissionsService extends
     protected permissionsRepository: PostgresPermissionsRepository,
   ) {
     super(repository);
-    this.entityName = ROLES_ENTITY.NAME;
+    this.entityName = PERMISSION_ENTITY.NAME;
   }
 
   protected async moduleInit() {

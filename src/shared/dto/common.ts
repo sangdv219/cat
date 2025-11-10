@@ -24,4 +24,17 @@ export class PaginationQueryDto {
   @Type(() => String)
   @IsString()
   keyword: string;
+
+  @IsOptional()
+  @ApiPropertyOptional({ example: '', description: 'Order by field' })
+  @Type(() => String)
+  @IsString()
+  orderBy: string;
+
+  @IsOptional()
+  @ApiPropertyOptional({ example: '', description: 'Order direction' })
+  @Type(() => String)
+  @IsString()
+  orderDirection: 'ASC' | 'DESC';
+
 }

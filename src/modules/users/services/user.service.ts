@@ -37,13 +37,14 @@ export class UserService extends
     this.users = ['Iphone', 'Galaxy'];
   }
 
-  protected async bootstrapLogic(): Promise<void> { }
+  protected async bootstrapLogic(): Promise<void> {
+    Logger.log(`🛑 repository--------->`, this.repository);
+    Logger.log(this.repository);
+   }
 
   protected async beforeAppShutDown(signal): Promise<void> {
     this.stopJob();
-    Logger.log(
-      `🛑 beforeApplicationShutdown: UserService cleanup before shutdown.`,
-    );
+    Logger.log(`🛑 beforeApplicationShutdown: UserService cleanup before shutdown.`);
   }
 
   private async stopJob() {
