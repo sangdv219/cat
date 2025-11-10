@@ -1,4 +1,5 @@
 import { Logger, NotFoundException } from '@nestjs/common';
+import { FindAndCountOptions, WhereOptions } from '@sequelize/core';
 import { Op, QueryTypes, Transaction } from 'sequelize';
 import { Sequelize } from "sequelize-typescript";
 
@@ -6,6 +7,9 @@ interface IPaginationDTO {
   page: number;
   limit: number;
   keyword?: string;
+  orderBy?: string;
+  orderDirection?: 'ASC' | 'DESC';
+  fillter?: Record<string, any>;
 }
 
 export interface IBaseRepository<T> {
@@ -22,40 +26,51 @@ export interface IBaseRepository<T> {
 }
 
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
-  public readonly _entityName: string;
-  private readonly logger = new Logger(BaseRepository.name);
   constructor(
-    readonly entityName: string = 'BaseEntity',
     readonly model,
-  ) {
-    this._entityName = entityName;
-  }
+    protected searchableFields: string[] = []
+  ) {}
 
   async findWithPagination(parameter, exclude = ['']): Promise<{ items: T; total: number }> {
-    const { page = 1, limit = 100, keyword } = parameter;
+    const { page = 1, limit = 100, keyword, orderBy = 'created_at', orderDirection = 'DESC', filters = {} } = parameter;
 
     const offset = (page - 1) * limit;
 
-    const where = {};
-    if (keyword) {
-      where[Op.or] = [
-        { name: { [Op.iLike]: `%${keyword}%` } },
-        // { email: { [Op.iLike]: `%${keyword}%` } },
-      ];
-    }
+    const where: WhereOptions = this.buildWhereClause(keyword, filters);
 
-    const { rows: items, count: total } = await this.model.findAndCountAll({
+    const options: FindAndCountOptions = {
       limit,
       offset,
       where,
-      order: [['created_at', 'DESC']],
+      order: [[orderBy, orderDirection]],
       attributes: { exclude },
       raw: true,
-    });
+    };
+
+    const { rows: items, count: total } = await this.model.findAndCountAll(options);
 
     return { items, total };
   }
 
+  private buildWhereClause(keyword?: string, filters?: Record<string, any>): WhereOptions {
+    const where: WhereOptions = {};
+
+    if (keyword && this.searchableFields.length > 0) {
+      (where as any)[Op.or as any] = this.searchableFields.map((field) => ({
+        [field]: { [Op.iLike]: `%${keyword}%` },
+      }));
+    }
+
+    if (filters && Object.keys(filters).length > 0) {
+      for (const [key, value] of Object.entries(filters)) {
+        if (value !== undefined && value !== null && value !== '') {
+          where[key] = value;
+        }
+      }
+    }
+
+    return where;
+  }
   async findByFields<K extends keyof T>(field: K, value: T[K], attributes?: string[], exclude = ['']): Promise<any[]> {
     const records = await this.model.findAll({
       where: { [field as string]: value },

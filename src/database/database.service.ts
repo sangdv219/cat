@@ -4,7 +4,10 @@ import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnApplicationShutdown {
-  constructor(private readonly sequelize: Sequelize, private readonly configService: ConfigService) {}
+  constructor(
+    private readonly sequelize: Sequelize, 
+    private readonly configService: ConfigService
+  ) {}
   async onModuleInit() {
     try {
       await this.sequelize.authenticate();

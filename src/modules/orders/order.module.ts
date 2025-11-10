@@ -8,12 +8,13 @@ import { PostgresOrderRepository } from '@modules/orders/infrastructure/reposito
 import { OrderService } from '@modules/orders/services/order.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RmqModule } from 'libs/common/src/rabbitMQ/rmb.module';
+import { SERVICES } from 'libs/common/src/constants/services';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([OrdersModel]), OrderItemsModule, 
     EventEmitterModule.forRoot(),
-    RmqModule.register({ name: 'ORDER_SERVICE' }),
+    RmqModule.register({ name: SERVICES.ORDER_SERVICE }),
   ],
   controllers: [OrderAppController],
   providers: [

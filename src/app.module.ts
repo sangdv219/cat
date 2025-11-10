@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from '@redis/redis.module';
 import { ClsModule } from 'nestjs-cls';
 import { ChatGateway } from './gateways/chat.gateway';
+import { OrderModule } from '@modules/orders/order.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ChatGateway } from './gateways/chat.gateway';
     RedisModule.forRootAsync(),
     DatabaseModule,
     BullModule,
+    OrderModule,
     AuditModule,
   ],
   providers: [ChatGateway, DatabaseService],
