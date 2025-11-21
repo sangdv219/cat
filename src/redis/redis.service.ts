@@ -1,7 +1,8 @@
 import { REDIS_TOKEN } from '@redis/redis.module';
-import { Inject } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
 
+@Injectable()
 export class RedisService {
   constructor(
     @Inject(REDIS_TOKEN)
