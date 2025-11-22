@@ -59,6 +59,6 @@ async function bootstrap() {
   await app.listen(configService.getOrThrow('PORT'));  //swagger works only on HTTP server
 
   console.log(`🚀 HTTP server running on port http://localhost:${configService.getOrThrow('PORT')}/api#/ --micro product`);
-  console.log(`🚀 TCP microservice running on port ${configService.getOrThrow('USER_SERVICE_PORT')}`);
+  console.log(`🚀 TCP microservice running on port ${configService.getOrThrow('PRODUCT_SERVICE_PORT')}`);
 }
 bootstrap();
