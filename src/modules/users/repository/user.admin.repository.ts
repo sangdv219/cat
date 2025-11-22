@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { AbstractUserRepository } from '../abstract/user.admin.abstract';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { USER_ENTITY } from '../constants/user.constant';
+import { BaseRepository } from '@/core/repositories/base.repository';
+
+abstract class AbstractUserRepository extends BaseRepository<UserModel> {}
 
 @Injectable()
 export class PostgresUserRepository extends AbstractUserRepository {

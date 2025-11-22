@@ -1,4 +1,4 @@
-import { LoginDto } from '@modules/auth/DTO/login.dto';
+import { LoginDto } from '@/modules/auth/dto/login.dto';
 import { LoginResponseDto } from '@modules/auth/interface/login.interface';
 import { RefreshTokenResponseDto } from '@modules/auth/interface/refreshToken.interface';
 import { UserModel } from '@modules/users/domain/models/user.model';
@@ -10,7 +10,7 @@ import { GoneException, Inject, Injectable, Logger, NotFoundException, OnModuleI
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
-import { RegisterDto } from '@modules/auth/DTO/register.dto';
+import { RegisterDto } from '@/modules/auth/dto/register.dto';
 import { OTPService } from '@modules/auth/services/OTP.service';
 import { REDIS_TOKEN } from '@redis/redis.module';
 import { BullService } from '@bull/bull.service';
