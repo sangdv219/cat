@@ -13,7 +13,7 @@ const configService = new ConfigService();
 async function bootstrap() {
   // Create a hybrid application: HTTP + Microservice
   const app = await NestFactory.create(AppModule);
-   const rmqService = app.get<RmqService>(RmqService);
+  const rmqService = app.get<RmqService>(RmqService);
   // Attach TCP microservice
   // app.connectMicroservice<MicroserviceOptions>({
   //   transport: Transport.TCP,
