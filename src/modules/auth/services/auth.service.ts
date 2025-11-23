@@ -1,23 +1,21 @@
 import { LoginDto } from '@/modules/auth/dto/login.dto';
-import { LoginResponseDto } from '@modules/auth/interface/login.interface';
+import { RegisterDto } from '@/modules/auth/dto/register.dto';
+import { BullService } from '@bull/bull.service';
 import { RefreshTokenResponseDto } from '@modules/auth/interface/refreshToken.interface';
+import { OTPService } from '@modules/auth/services/OTP.service';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
-import { RedisContext, RedisModule } from '@redis/enums/redis-key.enum';
-import { buildRedisKey, buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
-import { findCacheByEmail, scanlAlKeys } from '@shared/utils/common.util';
+import { UserService } from '@modules/users/services/user.service';
 import { GoneException, Inject, Injectable, Logger, NotFoundException, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
-import { RegisterDto } from '@/modules/auth/dto/register.dto';
-import { OTPService } from '@modules/auth/services/OTP.service';
+import { RedisContext, RedisModule } from '@redis/enums/redis-key.enum';
+import { buildRedisKey } from '@redis/helpers/redis-key.helper';
 import { REDIS_TOKEN } from '@redis/redis.module';
-import { BullService } from '@bull/bull.service';
-import Redis from 'ioredis';
-import { v4 as uuidv4 } from 'uuid';
 import { RedisService } from '@redis/redis.service';
-import { UserService } from '@modules/users/services/user.service';
+import { findCacheByEmail, scanlAlKeys } from '@shared/utils/common.util';
+import Redis from 'ioredis';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
