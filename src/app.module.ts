@@ -1,9 +1,6 @@
-import { AuditModule } from '@audit/audit.module';
 import { BullModule } from '@bull/bull.module';
 import { DatabaseModule } from '@database/database.module';
 import { DatabaseService } from '@database/database.service';
-import { AuthModule } from '@modules/auth/auth.module';
-import { UserModule } from '@modules/users/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -27,7 +24,6 @@ import { ProductModule } from './modules/products/product.module';
     RedisModule.forRootAsync(),
     DatabaseModule,
     BullModule,
-    AuthModule,
     ProductModule,
   ],
   providers: [ChatGateway, DatabaseService],

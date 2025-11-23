@@ -5,8 +5,8 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
-import { ProductAdminController } from './controller/product.admin.controller';
-import { ProductAppController } from './controller/product.app.controller';
+import { ProductAdminController } from '@modules/products/controller/product.admin.controller';
+import { ProductAppController } from '@modules/products/controller/product.app.controller';
 import { RedisModule } from '@redis/redis.module';
 import { RedisService } from '@redis/redis.service';
 

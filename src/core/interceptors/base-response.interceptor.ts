@@ -25,6 +25,7 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
             .pipe(
                 map(value => value && ({ records: value })),
                 catchError((err) => {
+                    console.error('Error intercepted:', err);
                     if (err instanceof HttpException) {
                         const status = err.getStatus();
                         const errorResponse = err.getResponse();
@@ -62,7 +63,7 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                             {
                                 statusCode: status,
                                 message: err.parent.detail || err.message,
-                              timestamp: new Date().toLocaleString(),
+                                timestamp: new Date().toLocaleString(),
                             },
                             HttpStatus.CONFLICT
                         ));
@@ -72,7 +73,7 @@ export class BaseResponseInterceptor<T> implements NestInterceptor<T, BaseRespon
                         {
                             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
                             message: "Internal Server Error",
-                          timestamp: new Date().toLocaleString(),
+                            timestamp: new Date().toLocaleString(),
                         },
                         HttpStatus.INTERNAL_SERVER_ERROR
                     )

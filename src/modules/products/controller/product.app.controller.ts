@@ -15,21 +15,21 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../dto/product.response.dto';
+import { GetAllProductResponseDto, GetByIdProductResponseDto } from '@modules/products/dto/product.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller({ path:'app/products', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class ProductAppController {
-  constructor(private readonly userService: ProductService) { }
+  constructor(private readonly productService: ProductService) { }
 
   @Get()
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
   async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllProductResponseDto> {
     try {
-      return await this.userService.getPagination(query);
+      return await this.productService.getPagination(query);
     } catch (error) {
       throw error;
     }
@@ -38,7 +38,7 @@ export class ProductAppController {
   @Get(':id')
   async getProductById(@Param('id') id: string): Promise<GetByIdProductResponseDto | null> {
     try {
-      return await this.userService.getById(id);
+      return await this.productService.getById(id);
     } catch (error) {
       throw error;
     }

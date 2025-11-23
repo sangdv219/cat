@@ -80,7 +80,6 @@ export abstract class BaseService<
   async create(dto: TCreateDto) {
     this.cleanCacheRedis()
     const entity = this.mapper ? this.mapper(dto) : (dto as Partial<TEntity>)
-    Logger.log('entity:', entity);
 
     return await this.repository.create(entity);
   }

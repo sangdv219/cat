@@ -17,11 +17,11 @@ import { SERVICES } from 'libs/common/src/constants/services';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([UserModel, UserRolesModel, RolePermissionsModel ]),
+    SequelizeModule.forFeature([UserModel, UserRolesModel, RolePermissionsModel]),
     AssociationsModule,
     RmqModule.register({name: SERVICES.ORDER_SERVICE})
   ],
-  controllers: [UserAdminController],
+  // controllers: [UserAdminController],
   providers: [
     PostgresUserRepository,
     UserService,

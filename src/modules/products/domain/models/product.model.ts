@@ -11,7 +11,7 @@ export class ProductModel extends BaseModel<ProductModel> {
   @PrimaryKey
   @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
-  declare id: string;
+  declare product_id: string;
 
   @AllowNull(false)
   @Default('')

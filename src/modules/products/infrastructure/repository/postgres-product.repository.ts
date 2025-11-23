@@ -1,9 +1,10 @@
 import { ProductModel } from '@modules/products/domain/models/product.model';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { AbstractProductRepository } from '@modules/products/domain/abstract/abstract-product.repository';
 import { PRODUCT_ENTITY } from '@modules/products/constants/product.constant';
+import { BaseRepository } from '@/core/repositories/base.repository';
 
+export abstract class AbstractProductRepository extends BaseRepository<ProductModel> {}
 @Injectable()
 export class PostgresProductRepository extends AbstractProductRepository {
   private static readonly ENTITY_NAME = PRODUCT_ENTITY.NAME;
