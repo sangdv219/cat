@@ -15,7 +15,6 @@ export class TcpModule {
                             options: { host, port },
                         })
                 }
-
             ],
             exports: [name]
         }

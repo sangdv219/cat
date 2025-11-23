@@ -1,6 +1,6 @@
-import { BaseModel } from '@shared/model/base.model';
 import { PRODUCT_ENTITY } from '@modules/products/constants/product.constant';
-import { AllowNull, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table, Unique } from 'sequelize-typescript';
+import { BaseModel } from '@shared/model/base.model';
+import { AllowNull, Column, DataType, Default, PrimaryKey, Sequelize, Table, Unique } from 'sequelize-typescript';
 
 @Table({
   tableName: PRODUCT_ENTITY.TABLE_NAME,

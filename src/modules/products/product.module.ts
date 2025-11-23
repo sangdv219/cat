@@ -9,9 +9,16 @@ import { ProductAdminController } from '@modules/products/controller/product.adm
 import { ProductAppController } from '@modules/products/controller/product.app.controller';
 import { RedisModule } from '@redis/redis.module';
 import { RedisService } from '@redis/redis.service';
+import { TcpModule } from 'libs/common/src/tcp/tcp.module';
+import { ConfigService } from '@nestjs/config';
+import { SERVICES } from 'libs/common/src/constants/services';
 
 @Module({
-  imports: [SequelizeModule.forFeature([ProductModel]), RedisModule],
+  imports: [SequelizeModule.forFeature([ProductModel]), RedisModule, 
+    TcpModule.register({ //register to call other service
+      name: SERVICES.PRODUCT_SERVICE, //token name
+      host: process.env.PRODUCT_SERVICE_HOST || 'localhost', 
+      port: (config: ConfigService) => config.get<number>('PRODUCT_SERVICE_PORT') || 3001 }) ],
   controllers: [ProductAppController, ProductAdminController],
   providers: [
     PostgresProductRepository,

@@ -25,6 +25,16 @@ async function bootstrap() {
   //   },
   // });
 
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.TCP,
+    options: {
+      host: 'localhost',
+      port: configService.getOrThrow('PRODUCT_SERVICE_PORT'),
+      retryAttempts: 5,
+      retryDelay: 1000,
+    },
+  });
+
   app.connectMicroservice<MicroserviceOptions>(rmqService.getOptions(`${SERVICES.USER_SERVICE}_QUEUE`));
   // Global pipes for validation
   app.useGlobalPipes(
@@ -55,7 +65,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   // Start microservice + HTTP server
-  await app.startAllMicroservices();
+  await app.startAllMicroservices(); // -----Important to start microservices------
   await app.listen(configService.getOrThrow('PORT'));  //swagger works only on HTTP server
 
   console.log(`🚀 HTTP server running on port http://localhost:${configService.getOrThrow('PORT')}/api#/ --micro product`);

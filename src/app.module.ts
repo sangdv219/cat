@@ -30,3 +30,4 @@ import { ProductModule } from './modules/products/product.module';
   exports: [DatabaseService],
 })
 export class AppModule {}
+
