@@ -12,7 +12,7 @@ COPY --from=builder /app/dist ./dist
 # COPY --from=builder /app/.env .env
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
-CMD ["node", "dist/main"]
+CMD ["node", "dist//src/main"]
 # ARG DB_HOST
 # ARG DB_PORT
 # ARG DB_USER
