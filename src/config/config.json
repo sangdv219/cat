@@ -2,7 +2,7 @@
   "development": {
     "username": "sangduong",
     "password": 210919,
-    "database": "iam_db",
+    "database": "product_db",
     "host": "localhost",
     "dialect": "postgres"
   },
