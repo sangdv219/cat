@@ -57,7 +57,7 @@ export class CreatedOrderRequestDto {
   @IsNotEmpty({ message: 'shipping_address is required', always: true })
   shipping_address: string;
   
-  @ApiProperty({ description: 'payment_method', example: 'cash' })
+  @ApiProperty({ description: 'payment_method', example: 'CREDIT_CARD' })
   @IsNotEmpty({ message: 'payment_method is required', always: true })
   payment_method: string;
 

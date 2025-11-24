@@ -15,7 +15,7 @@ import { RedisService } from '@redis/redis.service';
 import { plainToInstance } from 'class-transformer';
 import { QueryTypes, Sequelize, Transaction } from 'sequelize';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import { SERVICES } from 'libs/common/src/constants/services';
 import { ClientProxy } from '@nestjs/microservices';
 import { CMD } from 'libs/common/src/constants/event';
@@ -82,12 +82,12 @@ export class OrderService extends
   }
 
   async implementsOrder(dto: CreatedOrderRequestDto) {
-    // const order: OrdersModel | unknown = await this.upsertOrdersTable(dto);
+    const order: OrdersModel | unknown = await this.upsertOrdersTable(dto);
 
-    // if (!order) {
-    //   throw new NotFoundException('Order creation failed!');
-    // }
-    // const orderId: any = (typeof order === 'object' && order !== null && 'id' in order) ? order.id : "";
+    if (!order) {
+      throw new NotFoundException('Order creation failed!');
+    }
+    const orderId: any = (typeof order === 'object' && order !== null && 'id' in order) ? order.id : "";
 
     const products = dto.products;
 
@@ -96,7 +96,7 @@ export class OrderService extends
       Logger.log('product from product service:', result);
       if (!result) throw new NotFoundException('Product not found !')
       const product = { ...el, price: result.price }
-      // await this.handleAndInsertOrderItems(product, orderId)
+      await this.handleAndInsertOrderItems(product, orderId)
     }
 
     // await this.calculatorAndUpdateAmountOrder(orderId)
@@ -199,7 +199,7 @@ export class OrderService extends
     return await this.sequelize.query(
       `INSERT INTO orders(user_id, discount_amount, payment_method, shipping_fee, shipping_address, order_code)
        VALUES(:user_id, :discount_amount, :payment_method, :shipping_fee, :shipping_address, :order_code)
-       ON CONFLICT(user_id)
+       ON CONFLICT(order_code)
        DO UPDATE SET
           subtotal = 0, 
           total_amount = 0

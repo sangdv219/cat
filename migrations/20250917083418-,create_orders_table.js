@@ -14,6 +14,10 @@ module.exports = {
         allowNull: false,
         unique: true
       },
+      user_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+      },
       // user_id: {
       //   type: Sequelize.UUID,
       //   allowNull: false,
