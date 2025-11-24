@@ -14,16 +14,6 @@ async function bootstrap() {
   // Create a hybrid application: HTTP + Microservice
   const app = await NestFactory.create(AppModule);
   const rmqService = app.get<RmqService>(RmqService);
-  // Attach TCP microservice
-  // app.connectMicroservice<MicroserviceOptions>({
-  //   transport: Transport.TCP,
-  //   options: {
-  //     host: 'localhost',
-  //     port: configService.getOrThrow('USER_SERVICE_PORT'),
-  //     retryAttempts: 5,
-  //     retryDelay: 1000,
-  //   },
-  // });
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
