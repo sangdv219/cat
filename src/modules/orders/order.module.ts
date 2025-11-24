@@ -9,12 +9,19 @@ import { OrderService } from '@modules/orders/services/order.service';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { RmqModule } from 'libs/common/src/rabbitMQ/rmb.module';
 import { SERVICES } from 'libs/common/src/constants/services';
+import { TcpModule } from 'libs/common/src/tcp/tcp.module';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([OrdersModel]), OrderItemsModule, 
+    SequelizeModule.forFeature([OrdersModel]),
+    TcpModule.register({ //register to call other service
+      name: SERVICES.PRODUCT_SERVICE, //token name
+      host: process.env.PRODUCT_SERVICE_HOST || 'localhost', 
+      port: (config: ConfigService) => config.get<number>('PRODUCT_SERVICE_PORT')}),
+    OrderItemsModule, 
     EventEmitterModule.forRoot(),
-    RmqModule.register({ name: SERVICES.ORDER_SERVICE }),
+    RmqModule.register({ name: SERVICES.PRODUCT_SERVICE }),
   ],
   controllers: [OrderAppController],
   providers: [
