@@ -10,6 +10,6 @@ export class PostgresRolePermissionsRepository extends AbstractRolePermissionsRe
   constructor(@InjectModel(RolePermissionsModel)
     protected readonly rolePermissionsModel: typeof RolePermissionsModel,
   ) {
-    super(PostgresRolePermissionsRepository.ENTITY_NAME, rolePermissionsModel);
+    super(rolePermissionsModel);
   }
 }

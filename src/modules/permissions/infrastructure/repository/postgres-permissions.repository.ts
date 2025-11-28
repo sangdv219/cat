@@ -6,10 +6,9 @@ import { AbstractPermissionsRepository } from '@modules/permissions/domain/abstr
 
 @Injectable()
 export class PostgresPermissionsRepository extends AbstractPermissionsRepository {
-  private static readonly ENTITY_NAME = ROLES_ENTITY.NAME;
   constructor(@InjectModel(PermissionsModel)
     protected readonly permissionModel: typeof PermissionsModel,
   ) {
-    super(PostgresPermissionsRepository.ENTITY_NAME, permissionModel);
+    super(permissionModel);
   }
 }
