@@ -18,7 +18,8 @@ import { SERVICES } from 'libs/common/src/constants/services';
     TcpModule.register({ //register to call other service
       name: SERVICES.PRODUCT_SERVICE, //token name
       host: process.env.PRODUCT_SERVICE_HOST || 'localhost', 
-      port: (config: ConfigService) => config.get<number>('PRODUCT_SERVICE_PORT') || 3001 }) ],
+      port: process.env.PRODUCT_SERVICE_PORT,
+    })],
   controllers: [ProductAppController, ProductAdminController],
   providers: [
     PostgresProductRepository,
