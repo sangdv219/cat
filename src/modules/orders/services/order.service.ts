@@ -1,8 +1,6 @@
-import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
 import { BullService } from '@bull/bull.service';
 import { BaseService } from '@core/services/base.service';
 import { InventoryService } from '@modules/inventory/services/inventory.service';
-import { PostgresOrderItemsRepository } from '@modules/order-items/infrastructure/repository/postgres-order-items.repository';
 import { ORDER_ENTITY } from '@modules/orders/constants/order.constant';
 import { OrdersModel } from '@modules/orders/domain/models/orders.model';
 import { CreatedOrderItemRequestDto, CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
@@ -16,6 +14,7 @@ import { RedisService } from '@redis/redis.service';
 import { plainToInstance } from 'class-transformer';
 import { QueryTypes, Sequelize, Transaction } from 'sequelize';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class OrderService extends
@@ -32,7 +31,6 @@ export class OrderService extends
     public cacheManage: RedisService,
     protected repository: PostgresOrderRepository,
     protected productRepository: PostgresProductRepository,
-    protected orderItemsRepository: PostgresOrderItemsRepository,
     public inventoryService: InventoryService,
     private readonly bullService: BullService,
     private eventEmitter: EventEmitter2
@@ -75,24 +73,13 @@ export class OrderService extends
   }
 
   async implementsOrder(dto: CreatedOrderRequestDto) {
-    const order: OrdersModel | unknown = await this.upsertOrdersTable(dto);
-
-    if (!order) {
-      throw new NotFoundException('Order creation failed!');
-    }
-
-    const orderId: string = (typeof order === 'object' && order !== null && 'id' in order) ? (order as { id: string }).id : "";
-
     const products = dto.products;
-
     for (const el of products) {
       const result = await this.productRepository.findByPk(el.product_id)
       if (!result) throw new NotFoundException('Product not found !')
       const product = { ...el, price: result.price }
-      await this.handleAndInsertOrderItems(product, orderId)
+      await this.handleAndInsertOrderItems(product, dto)
     }
-
-    await this.calculatorAndUpdateAmountOrder(orderId);
   }
 
   async lockAndCheckInventory(productId: string, quantity: number, t: Transaction) {
@@ -129,39 +116,16 @@ export class OrderService extends
     );
   }
 
-  async unsertOrderItemTable(orderId: string | false, dto, t: Transaction) {
-    const { product_id, quantity, price, discount, note } = dto
-    const finalPrice = price * quantity * (1 - discount / 100)
-
-    await this.sequelize.query(
-      `INSERT INTO order_items(order_id, product_id, quantity, price, discount, final_price, note)
-       VALUES(:orderId, :productId, :quantity, :price, :discount, :finalPrice, :note)
-       ON CONFLICT(product_id)
-       DO UPDATE SET
-          quantity = order_items.quantity + EXCLUDED.quantity,
-          final_price = order_items.price * (order_items.quantity + EXCLUDED.quantity) * (1 - EXCLUDED.discount / 100)
-            `,
-      {
-        replacements: { orderId: orderId, productId: product_id, quantity: quantity, price: price, discount: discount, finalPrice: finalPrice, note: note ?? "" },
-        transaction: t,
-        type: QueryTypes.SELECT,
-        plain: true
-      }
-    );
-  };
-
-  async calculatorAndUpdateAmountOrder(orderId: string) {
-    const orderItem = await this.orderItemsRepository.findByFields('order_id', orderId, ['final_price'])
+  async calculatorAndUpdateAmountOrder(orderId: string, t: Transaction) {
     const order = await this.repository.findByPk(orderId)
+    Logger.log('orderId___________:', orderId);
+    Logger.log('order*******', order);
     if (!order) throw new NotFoundException('Order not found !')
     const shipping_fee = order?.shipping_fee || 300000;
     const discountAmount = order?.discount_amount;
     let subTotal = 0;
-    for (const el of orderItem) {
-      subTotal += Number(el.final_price)
-    }
 
-    const totalAmount = subTotal - (Number(shipping_fee) + Number(discountAmount));
+    const totalAmount = subTotal + Number(shipping_fee) - Number(discountAmount);
     await this.sequelize.query(
       `UPDATE orders
           SET subtotal = :subtotal,
@@ -171,22 +135,23 @@ export class OrderService extends
       {
         replacements: { subtotal: subTotal, totalAmount: totalAmount, orderId: orderId },
         type: QueryTypes.UPDATE,
+        transaction: t,
         plain: true
       }
     )
   }
 
-  async upsertOrdersTable(dto: CreatedOrderRequestDto) {
+  async upsertOrdersTable(dto: CreatedOrderRequestDto, t: Transaction): Promise<any> {
     const { user_id, discount_amount, shipping_fee, shipping_address, payment_method } = dto;
-    const order_code = this.generateOrderCode();
-    
+    const order_code = this.generateOrderCode(dto.user_id, dto.products.map(p => p.product_id).join('-'));
+
     return await this.sequelize.query(
       `INSERT INTO orders(order_code, user_id, discount_amount, payment_method, shipping_fee, shipping_address)
        VALUES(:order_code, :user_id, :discount_amount, :payment_method, :shipping_fee, :shipping_address)
        ON CONFLICT(order_code)
        DO UPDATE SET
           subtotal = 0, 
-          total_amount = 0
+          total_amount = 0 
         RETURNING *`,
       {
         replacements: {
@@ -197,22 +162,34 @@ export class OrderService extends
           payment_method: payment_method,
           shipping_address: shipping_address,
         },
+        transaction: t,
         type: QueryTypes.SELECT,
         plain: true
       }
     );
   }
 
-  async handleAndInsertOrderItems(dto: CreatedOrderItemRequestDto, orderId: string): Promise<any> {
-    const { product_id, quantity } = dto
+  async handleAndInsertOrderItems(product: CreatedOrderItemRequestDto, dto: CreatedOrderRequestDto): Promise<any> {
+    const { product_id, quantity } = product
+    let orderId: string
     return await this.sequelize.transaction(async (t: Transaction) => {
       // 1. Lock row + check tồn kho
       await this.lockAndCheckInventory(product_id, quantity, t)
       // 2. Giảm stock và trả lại record mới
       await this.decreaseStockInventory(product_id, quantity, t)
-      // 3. Add order-item
-      await this.unsertOrderItemTable(orderId, dto, t)
 
+      // 3. Add orders
+      const order: OrdersModel | unknown = await this.upsertOrdersTable(dto, t);
+
+      if (!order) {
+        throw new NotFoundException('Order creation failed!');
+      }
+
+      Logger.log('order:$$$$', order);
+      orderId = (typeof order === 'object' && order !== null && 'id' in order) ? (order as { id: string }).id : "";
+      // 4. Upsert order_items
+      // 5. Tính toán lại tổng đơn hàng và cập nhật vào bảng orders
+      // await this.calculatorAndUpdateAmountOrder(orderId, t);
     });
   }
 
@@ -263,41 +240,20 @@ export class OrderService extends
     )
   }
 
-  generateOrderCode(): string {
+  generateOrderCode(userId: string, productId: string): string {
     const prefix = 'ORD';
-    const now = new Date();
-    const datePart = now.toISOString().replace(/[-:tz.]/g, '').slice(0, 14);
-    const randomPart = Math.random().toString(20).substring(2, 8).toUpperCase();
-    return `${prefix}-${datePart}-${randomPart}`;
+    const base = `${userId}:${productId}`;
+    const hash = crypto.createHash('md5').update(base).digest('hex').slice(0, 8);
+    return `${prefix}-${hash.toUpperCase()}`;
   };
 
   async deleteOrderItems(id: string) {
     this.cleanCacheRedis()
-    return await this.sequelize.transaction(async (t: Transaction) => {
-      const orderItems = await this.orderItemsRepository.findByPk(id);
-      if (!orderItems) throw new NotFoundException('OrderItems not found!')
-      const { order_id } = orderItems || {}
-      await this.calculatorOrder(id, order_id, t)
-      await this.destroyRowOrderItems(id, t)
-    })
+  
   }
 
   async getOrderByIdv2(id: string) {
-    const products = await this.orderItemsRepository.findByFields('order_id', id, ['quantity', 'price', 'discount', 'final_price', 'note']);
 
-    const order = await this.repository.findByOneByRaw({
-      where: { id },
-      include: [{
-        model: UserModel,
-        // attributes: {exclude: ['password_hash', 'created_by']}
-        attributes: ['name', 'email', 'phone', 'age', 'gender', 'avatar']
-      },
-      ],
-      raw: true,
-      nest: true
-    })
-    order['products'] = products
-    return plainToInstance<GetByIdOrderResponseDtoV2, any>(GetByIdOrderResponseDtoV2, order, { excludeExtraneousValues: true });
   }
 
   @OnEvent('auth.login')
@@ -321,7 +277,6 @@ export class OrderService extends
           attributes: [],
         },
         {
-          model: OrderItemsModel,
           attributes: [],
         }
       ],

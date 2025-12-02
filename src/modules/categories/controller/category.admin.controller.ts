@@ -3,7 +3,7 @@ import { JWTAuthGuard } from '@core/guards/jwt.guard';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@shared/dto/common';
-import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/dto/category.request.dto';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@/modules/categories/dto/category.request.dto';
 import { CategoryService } from '@modules/categories/services/category.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
@@ -22,7 +22,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@modules/categories/dto/category.response.dto';
+import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@/modules/categories/dto/category.response.dto';
 import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')

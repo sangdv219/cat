@@ -4,10 +4,10 @@ import { RedisService } from '@redis/redis.service';
 import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable, Logger } from '@nestjs/common';
 import { CATEGORY_ENTITY } from '@modules/categories/constants/category.constant';
-import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/dto/category.request.dto';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@/modules/categories/dto/category.request.dto';
 import { PostgresCategoryRepository } from '@modules/categories/infrastructure/repository/postgres-category.repository';
 import { plainToInstance } from 'class-transformer';
-import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@modules/categories/dto/category.response.dto';
+import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@/modules/categories/dto/category.response.dto';
 
 @Injectable()
 export class CategoryService extends 

@@ -1,4 +1,3 @@
-import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { BaseModel } from '@shared/model/base.model';
 import { AllowNull, BelongsTo, Column, DataType, Default, ForeignKey, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
@@ -54,7 +53,4 @@ export class OrdersModel extends BaseModel<OrdersModel> implements IOrder {
   @AllowNull(false)
   @Column({ type: DataType.ENUM('PENDING', 'CONFIRM' , 'CANCELLED') })
   declare status: 'PENDING' | 'CONFIRM' | 'CANCELLED';
-
-  @HasMany(() => OrderItemsModel)
-  declare orderItems: OrderItemsModel[]
 }

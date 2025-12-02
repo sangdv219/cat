@@ -77,9 +77,9 @@ export class OrderAppController {
   }
   @Version('2')
   @Get(':id')
-  async getOrderByIdv2(@Param('id') id: string): Promise<GetByIdOrderResponseDtoV2 | null> {
+  async getOrderByIdv2(@Param('id') id: string) {
     try {
-      return await this.orderService.getOrderByIdv2(id);
+
     } catch (error) {
       throw error;
     }

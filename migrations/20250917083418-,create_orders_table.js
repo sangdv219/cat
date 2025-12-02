@@ -74,6 +74,11 @@ module.exports = {
         type: Sequelize.STRING,
       },
     });
+    await queryInterface.addIndex('orders', ['user_id'], {
+      unique: true,
+      name: 'idx_orders_user_id',
+      include: ['status', 'subtotal', 'discount_amount', 'shipping_fee', 'total_amount', 'shipping_address', 'payment_method', 'updated_at', 'created_by', 'created_by']
+    });
   },
 
   async down(queryInterface, Sequelize) {
