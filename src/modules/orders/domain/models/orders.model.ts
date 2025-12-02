@@ -1,6 +1,6 @@
 import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
 import { BaseModel } from '@shared/model/base.model';
-import { BelongsTo, Column, CreatedAt, DataType, Default, ForeignKey, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
+import { Column, DataType, Default, HasMany, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
 
 export interface IOrder {
   id: string,

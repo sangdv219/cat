@@ -18,7 +18,9 @@ import { ConfigService } from '@nestjs/config';
     TcpModule.register({ //register to call other service
       name: SERVICES.PRODUCT_SERVICE, //token name
       host: process.env.PRODUCT_SERVICE_HOST || 'localhost', 
-      port: (config: ConfigService) => config.get<number>('PRODUCT_SERVICE_PORT')}),
+      // port: (config: ConfigService) => config.get<number>('PRODUCT_SERVICE_PORT')}),
+      port: 3002,
+    }),
     OrderItemsModule, 
     EventEmitterModule.forRoot(),
     RmqModule.register({ name: SERVICES.PRODUCT_SERVICE }),

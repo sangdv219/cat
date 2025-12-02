@@ -7,13 +7,16 @@ import { CreatedOrderItemRequestDto, CreatedOrderRequestDto, UpdatedOrderRequest
 import { GetAllOrderResponseDto, GetByIdOrderResponseDto, GetByIdOrderResponseDtoV2 } from '@modules/orders/dto/order.response.dto';
 import { PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
 // import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
-import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectConnection } from '@nestjs/sequelize';
 import { RedisService } from '@redis/redis.service';
 import { plainToInstance } from 'class-transformer';
 import { QueryTypes, Sequelize, Transaction } from 'sequelize';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
+import { SERVICES } from 'libs/common/src/constants/services';
+import { ClientProxy } from '@nestjs/microservices';
+import { CMD } from 'libs/common/src/constants/event';
 
 @Injectable()
 export class OrderService extends
@@ -32,7 +35,10 @@ export class OrderService extends
     // protected productRepository: PostgresProductRepository,
     // public inventoryService: InventoryService,
     private readonly bullService: BullService,
-    private eventEmitter: EventEmitter2
+    private eventEmitter: EventEmitter2,
+    @Inject(SERVICES.PRODUCT_SERVICE)
+    private readonly productClient: ClientProxy,
+
   ) {
     super(repository);
     this.entityName = ORDER_ENTITY.NAME;
@@ -68,7 +74,8 @@ export class OrderService extends
 
   async checkout(dto: CreatedOrderRequestDto) {
     this.cleanCacheRedis()
-    return await this.bullService.addOrderJob(dto);
+    return await this.implementsOrder(dto);
+    // return await this.bullService.addOrderJob(dto);
   }
 
   async implementsOrder(dto: CreatedOrderRequestDto) {
@@ -81,16 +88,17 @@ export class OrderService extends
 
     const products = dto.products;
 
-    // for (const el of products) {
-    //   const result = await this.productRepository.findByPk(el.product_id)
-    //   if (!result) throw new NotFoundException('Product not found !')
-    //   const product = { ...el, price: result.price }
-    //   await this.handleAndInsertOrderItems(product, orderId)
-    // }
+    for (const el of products) {
+      const result = await this.productClient.send({ cmd: CMD.GET_PRODUCT_INFO }, el.product_id).toPromise();
+      Logger.log('product from product service:', result);
+      if (!result) throw new NotFoundException('Product not found !')
+      const product = { ...el, price: result.price }
+      await this.handleAndInsertOrderItems(product, orderId)
+    }
 
-    await this.calculatorAndUpdateAmountOrder(orderId)
+    // await this.calculatorAndUpdateAmountOrder(orderId)
 
-    this.eventEmitter.emit('order.completed', { orderId, email: 'sangdv2109@gmail.com' });
+    // this.eventEmitter.emit('order.completed', { orderId, email: 'sangdv2109@gmail.com' });
   }
 
   generateOrderCode(userId: string, productId: string): string {
@@ -185,7 +193,7 @@ export class OrderService extends
     return await this.sequelize.query(
       `INSERT INTO orders(user_id, discount_amount, payment_method, shipping_fee, shipping_address, order_code)
        VALUES(:user_id, :discount_amount, :payment_method, :shipping_fee, :shipping_address, :order_code)
-       ON CONFLICT(user_id)
+       ON CONFLICT(order_code)
        DO UPDATE SET
           subtotal = 0, 
           total_amount = 0
