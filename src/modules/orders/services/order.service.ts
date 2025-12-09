@@ -155,26 +155,26 @@ export class OrderService extends
     const orderItem = await this.orderItemsRepository.findByFields('order_id', orderId, ['final_price'])
     const order = await this.repository.findByPk(orderId)
     if (!order) throw new NotFoundException('Order not found !')
-    const shipping_fee = order?.shipping_fee || 300000;
+    // const shipping_fee = order?.shipping_fee || 300000;
     const discountAmount = order?.discount_amount;
     let subTotal = 0;
     for (const el of orderItem) {
       subTotal += Number(el.final_price)
     }
 
-    const totalAmount = subTotal - (Number(shipping_fee) + Number(discountAmount));
-    await this.sequelize.query(
-      `UPDATE orders
-          SET subtotal = :subtotal,
-              total_amount = :totalAmount
-          WHERE id = :orderId
-      `,
-      {
-        replacements: { subtotal: subTotal, totalAmount: totalAmount, orderId: orderId },
-        type: QueryTypes.UPDATE,
-        plain: true
-      }
-    )
+    // const totalAmount = subTotal - (Number(shipping_fee) + Number(discountAmount));
+    // await this.sequelize.query(
+    //   `UPDATE orders
+    //       SET subtotal = :subtotal,
+    //           total_amount = :totalAmount
+    //       WHERE id = :orderId
+    //   `,
+    //   {
+    //     replacements: { subtotal: subTotal, totalAmount: totalAmount, orderId: orderId },
+    //     type: QueryTypes.UPDATE,
+    //     plain: true
+    //   }
+    // )
   }
 
   async upsertOrdersTable(dto: CreatedOrderRequestDto) {

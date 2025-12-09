@@ -14,10 +14,13 @@ import { OrderService } from '@modules/orders/services/order.service';
 import { AssociationsModule } from '@modules/associations/associations.module';
 import { RbacModule } from '@modules/rbac/rbac.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { PaymentMethodModel } from '@models/payment_methods.model';
+import { ShippingMethodModel } from '@models/shipping_methods.model';
+import { WarehouseModel } from '@models/warehouses.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([OrdersModel, UserModel]), OrderItemsModule, InventoryModule, ProductModule, AssociationsModule, RbacModule,
+    SequelizeModule.forFeature([OrdersModel, UserModel, PaymentMethodModel, ShippingMethodModel, WarehouseModel]), OrderItemsModule, InventoryModule, ProductModule, AssociationsModule, RbacModule,
     EventEmitterModule.forRoot(),
   ],
   controllers: [ OrderAppController ],

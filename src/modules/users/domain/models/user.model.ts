@@ -29,7 +29,11 @@ export class UserModel extends BaseModel<UserModel> {
 
   @AllowNull(false)
   @Column({ type: DataType.STRING(500) })
-  declare name: string;
+  declare fullname: string;
+
+  @AllowNull(false)
+  @Column({ type: DataType.STRING(500) })
+  declare ascii_name: string;
 
   @AllowNull(true)
   @Column(DataType.TEXT)
