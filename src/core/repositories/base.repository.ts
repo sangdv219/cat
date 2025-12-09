@@ -9,7 +9,6 @@ export interface IPaginationDTO {
   keyword?: string;
   orderBy?: string;
   orderDirection?: 'ASC' | 'DESC';
-  fillter?: Record<string, any>;
 }
 
 export interface IBaseRepository<T> {
@@ -180,7 +179,6 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       [key]: mode === 'like' ? { [Op.iLike]: `%${value}%` } : value,
     }),
     );
-    console.log("orConditions: ", orConditions);
 
     const exists = await this.model.findOne({
       where: { [Op.or]: orConditions },

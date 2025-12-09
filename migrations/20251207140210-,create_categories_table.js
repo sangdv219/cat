@@ -3,17 +3,23 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('brands', {
+    await queryInterface.createTable('categories', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('gen_random_uuid()'),
         allowNull: false,
         primaryKey: true
       },
+
       name: {
         type: Sequelize.STRING(500),
         allowNull: false,
         defaultValue: Sequelize.name
+      },
+
+      ascii_name: {
+        type: Sequelize.STRING(500),
+        allowNull: true,
       },
 
       image: {
@@ -48,15 +54,14 @@ module.exports = {
       },
 
     });
-    await queryInterface.addIndex('brands', ['name'], {
+    await queryInterface.addIndex('categories', ['ascii_name'], {
       unique: true,
-      name: 'idx_brands_name',
-      include: ['is_public', 'image', 'created_at', 'updated_at', 'created_by', 'created_by']
+      name: 'idx_categories_ascii_name',
+      include: ['is_public', 'created_at', 'updated_at', 'created_by', 'created_by']
     });
-
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('brands');
+    await queryInterface.dropTable('categories');
   }
 };

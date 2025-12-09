@@ -2,54 +2,32 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('order_items', {
+    await queryInterface.createTable('warehouses', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('gen_random_UUID()'),
         allowNull: false,
         primaryKey: true,
       },
-      order_id: {
-        type: Sequelize.UUID,
+      code: { // WH_HCM, WH_HN
+        type: Sequelize.STRING(50),
         allowNull: false,
-        references: {
-          model: 'orders', 
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        unique: true
       },
-      product_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'products', 
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'RESTRICT',
-      },
-      quantity: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        defaultValue: 1,
-      },
-      price: {
-        type: Sequelize.DECIMAL(18,2),
+      address: {
+        type: Sequelize.TEXT,
         allowNull: false,
       },
-      discount: {
-        type: Sequelize.DECIMAL(18,2),
+      name: {
+        type: Sequelize.STRING(100),
         allowNull: false,
       },
-      final_price: {
-        type: Sequelize.DECIMAL(18,2),
+      is_active: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
+        defaultValue: true,
       },
-      note: {
-        type: Sequelize.STRING(200),
-        allowNull: true,
-      },
+
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,
@@ -74,6 +52,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('order_items');
+    await queryInterface.dropTable('warehouses');
   },
 };

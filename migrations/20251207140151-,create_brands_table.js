@@ -3,40 +3,60 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('audit_logs', {
+    await queryInterface.createTable('brands', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('gen_random_uuid()'),
         allowNull: false,
-        primaryKey: true,
+        primaryKey: true
       },
-      table_name: {
-        type: Sequelize.STRING(20),
+      name: {
+        type: Sequelize.STRING(500),
+        allowNull: false,
+        defaultValue: Sequelize.name
+      },
+
+      ascii_name: {
+        type: Sequelize.STRING(500),
+        allowNull: true,
+      },
+
+      banner_link: {
+        type: Sequelize.STRING(500),
+        allowNull: true,
+      },
+
+      total_rating: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+        defaultValue: 0,
+      },
+
+      avg_rating: {
+        type: Sequelize.DECIMAL(3, 2),
+        allowNull: true,
+        defaultValue: 0.0,
+      },
+
+      is_app_visible: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
+      },
+
+      image_link: {
+        type: Sequelize.STRING(500),
+        allowNull: true,
+      },
+
+      is_public: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
       },
-      record_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
-      },
-      action: {
-        type: Sequelize.STRING(20),
-        allowNull: false,
-      },
-      old_data: {
-        type: Sequelize.JSONB,
+
+      description: {
+        type: Sequelize.TEXT,
         allowNull: true,
-      },
-      new_data: {
-        allowNull: true,
-        type: Sequelize.JSONB,
-      },
-      diff: {
-        allowNull: true,
-        type: Sequelize.JSONB,
-      },
-      changed_fields: {
-        allowNull: true,
-        type: Sequelize.JSONB,
       },
       created_at: {
         allowNull: false,
@@ -58,15 +78,16 @@ module.exports = {
         defaultValue: null,
         type: Sequelize.STRING,
       },
+
     });
-    await queryInterface.sequelize.query(`
-      CREATE INDEX idx_audit_log_recent_created_at
-      ON audit_logs (created_at DESC)
-    `);
+    await queryInterface.addIndex('brands', ['ascii_name'], {
+      unique: true,
+      name: 'idx_brands_ascii_name',
+    });
+
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('audit_logs');
-    await queryInterface.sequelize.query(`DROP INDEX IF EXISTS idx_audit_log_recent_created_at;`);
+    await queryInterface.dropTable('brands');
   }
 };

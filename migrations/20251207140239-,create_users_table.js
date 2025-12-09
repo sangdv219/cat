@@ -1,5 +1,7 @@
 'use strict';
 
+const { last } = require('rxjs');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -10,10 +12,15 @@ module.exports = {
         allowNull: false,
         primaryKey: true
       },
-      name: {
+      fullname: {
         type: Sequelize.STRING(500),
         allowNull: false,
         defaultValue: Sequelize.name
+      },
+
+      ascii_name: {
+        type: Sequelize.STRING(500),
+        allowNull: true,
       },
 
       password_hash: {
@@ -112,9 +119,13 @@ module.exports = {
         type: Sequelize.STRING,
       },
     });
-    await queryInterface.addIndex('users', ['name', 'phone'], {
+     await queryInterface.addIndex('users', ['ascii_name'], {
       unique: true,
-      name: 'idx_users_name_phone',
+      name: 'idx_users_ascii_name',
+    });
+    await queryInterface.addIndex('users', ['phone'], {
+      unique: true,
+      name: 'idx_users_phone',
       include: ['avatar', 'age', 'gender', 'email', 'is_root', 'is_active', 'created_at', 'updated_at', 'created_by', 'created_by']
     });
     await queryInterface.addIndex('users', ['email'], {

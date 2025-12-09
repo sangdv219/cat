@@ -2,28 +2,22 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('categories', {
+  async up (queryInterface, Sequelize) {
+     await queryInterface.createTable('cancel_reasons', {
       id: {
         type: Sequelize.UUID,
-        defaultValue: Sequelize.literal('gen_random_uuid()'),
+        defaultValue: Sequelize.literal('gen_random_UUID()'),
         allowNull: false,
-        primaryKey: true
+        primaryKey: true,
       },
-      name: {
-        type: Sequelize.STRING(500),
+      name: { 
+        type: Sequelize.STRING(100),
         allowNull: false,
-        defaultValue: Sequelize.name
       },
-
-      image: {
-        type: Sequelize.STRING(500),
-        allowNull: true,
-      },
-
-      is_public: {
-        type: Sequelize.BOOLEAN,
+      code: { 
+        type: Sequelize.STRING(100),
         allowNull: false,
+        unique: true
       },
 
       created_at: {
@@ -46,16 +40,10 @@ module.exports = {
         defaultValue: null,
         type: Sequelize.STRING,
       },
-
-    });
-    await queryInterface.addIndex('users', ['name'], {
-      unique: true,
-      name: 'idx_categories_name',
-      include: ['is_public', 'created_at', 'updated_at', 'created_by', 'created_by']
     });
   },
 
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('categories');
+  async down (queryInterface, Sequelize) {
+    await queryInterface.dropTable('cancel_reasons');
   }
 };

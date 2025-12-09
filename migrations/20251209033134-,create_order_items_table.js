@@ -1,64 +1,65 @@
 'use strict';
 
+/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('orders', {
+    await queryInterface.createTable('order_items', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.literal('gen_random_UUID()'),
         allowNull: false,
         primaryKey: true,
       },
-      order_code: {
-        type: Sequelize.STRING(50),
-        allowNull: false,
-        unique: true
-      },
-      user_id: {
+      order_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'users', // bảng users
+          model: 'orders', 
           key: 'id',
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
       },
-      status: {
-        type: Sequelize.STRING(10),
+      product_id: {
+        type: Sequelize.UUID,
         allowNull: false,
-        defaultValue: 'PENDING',
+        references: {
+          model: 'products', 
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT',
       },
-      subtotal: {
+      price: {
         type: Sequelize.DECIMAL(18,2),
-        allowNull: true,
-      },
-      discount_amount: {
-        type: Sequelize.DECIMAL(18,2),
-        allowNull: true,
-      },
-      shipping_fee: {
-        type: Sequelize.DECIMAL(18,2),
-        allowNull: true,
-      },
-      total_amount: {
-        type: Sequelize.DECIMAL(18,2),
-        allowNull: true,
-      },
-      shipping_address: {
-        type: Sequelize.STRING(100),
         allowNull: false,
       },
-      payment_method: {
+      original_price: {
+        type: Sequelize.DECIMAL(18,2),
         allowNull: false,
-        type: Sequelize.STRING(100),
+      },
+      promotion_price: {
+        type: Sequelize.DECIMAL(18,2),
+        allowNull: false,
+      },
+      quantity: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+      },
+      discount: {
+        type: Sequelize.DECIMAL(18,2),
+        allowNull: false,
+      },
+      note: {
+        type: Sequelize.STRING(200),
+        allowNull: true,
+      },
+      vat: {
+        type: Sequelize.INTEGER(),
+        allowNull: true,
       },
       created_at: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('NOW()'),
-      },
-      updated_at: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('NOW()'),
@@ -68,15 +69,10 @@ module.exports = {
         defaultValue: null,
         type: Sequelize.STRING,
       },
-      updated_by: {
-        allowNull: true,
-        defaultValue: null,
-        type: Sequelize.STRING,
-      },
     });
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('orders');
+    await queryInterface.dropTable('order_items');
   },
 };
