@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { AbstractBrandRepository } from '../../abstract/abstract-branch.repository';
-import { BrandModel } from '../../models/brand.model';
+import { BaseRepository } from '@core/repositories/base.repository';
+import { BrandModel } from '@modules/brands/models/brand.model';
 
+
+export abstract class AbstractBrandRepository extends BaseRepository<BrandModel> {}
 @Injectable()
 export class PostgresBrandRepository extends AbstractBrandRepository {
   private static readonly searchableFields = ['name'];

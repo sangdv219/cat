@@ -3,7 +3,7 @@ import { JWTAuthGuard } from '@core/guards/jwt.guard';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@shared/dto/common';
-import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '@/modules/brands/dto/brand.request.dto';
+import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '@modules/brands/dto/brand.request.dto';
 import { BrandService } from '@modules/brands/services/brand.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
@@ -22,7 +22,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '@/modules/brands/dto/brand.response.dto';
+import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '@modules/brands/dto/brand.response.dto';
 import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
