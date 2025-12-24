@@ -27,7 +27,7 @@ export class ProductModel extends BaseModel<ProductModel> {
 
   @AllowNull(false)
   @Column({ type: DataType.DECIMAL(18, 2) })
-  declare price: string;
+  declare price: number;
 
   @AllowNull(true)
   @Column({ type: DataType.DECIMAL(18, 2) })

@@ -1,4 +1,3 @@
-// base.model.ts
 import { ClsServiceManager } from 'nestjs-cls';
 import { AfterCreate, AfterDestroy, AfterUpdate, AllowNull, BeforeCreate, BeforeUpdate, Column, CreatedAt, DataType, Default, Model, UpdatedAt } from 'sequelize-typescript';
 
@@ -7,19 +6,20 @@ export abstract class BaseModel<T extends {}> extends Model<T> {
     @Default(null)
     @Column(DataType.STRING)
     declare created_by: string;
-
+    
     @AllowNull(true)
     @Default(null)
     @Column(DataType.STRING)
-    declare updated_by: string;
-
+    declare updated_by?: string;
+    
     @CreatedAt
     @Column({ field: 'created_at' })
     declare created_at: Date;
-
+    
     @UpdatedAt
+    @AllowNull(true)
     @Column({ field: 'updated_at' })
-    declare updated_at: Date;
+    declare updated_at?: Date;
 
     @BeforeCreate
     static async setCreatedBy(instance: BaseModel<any>) {
