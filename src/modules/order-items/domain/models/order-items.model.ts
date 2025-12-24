@@ -36,14 +36,14 @@ export class OrderItemsModel extends BaseModel<OrderItemsModel> {
   declare quantity: number;
 
   @Column({type: DataType.DECIMAL(18,2)})
-  declare price: string;
+  declare price: number;
   
   @Default(0)
   @Column({type: DataType.DECIMAL(18,2)})
-  declare discount: string;  
+  declare discount: number;  
   
   @Column({type: DataType.DECIMAL(18,2)})
-  declare final_price: string;  
+  declare final_price: number;  
 
   @AllowNull(true)
   @Column({ type: DataType.STRING(200) })

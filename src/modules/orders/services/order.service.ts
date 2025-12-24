@@ -16,7 +16,9 @@ import { RedisService } from '@redis/redis.service';
 import { plainToInstance } from 'class-transformer';
 import { QueryTypes, Sequelize, Transaction } from 'sequelize';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
-import crypto from 'crypto';
+import * as crypto from 'crypto';
+import { PricingStrategyFactory } from '@/domain/pricing/factory';
+import { PricingType } from '@/core/enum/pg-error-codes.enum';
 
 @Injectable()
 export class OrderService extends
@@ -31,14 +33,14 @@ export class OrderService extends
     @InjectConnection()
     private readonly sequelize: Sequelize,
     public cacheManage: RedisService,
-    protected repository: PostgresOrderRepository,
+    protected orderRepository: PostgresOrderRepository,
     protected productRepository: PostgresProductRepository,
     protected orderItemsRepository: PostgresOrderItemsRepository,
     public inventoryService: InventoryService,
     private readonly bullService: BullService,
     private eventEmitter: EventEmitter2
   ) {
-    super(repository);
+    super(orderRepository);
     this.entityName = ORDER_ENTITY.NAME;
   }
 
@@ -76,24 +78,24 @@ export class OrderService extends
   }
 
   async implementsOrder(dto: CreatedOrderRequestDto) {
-    const order: OrdersModel | unknown = await this.upsertOrdersTable(dto);
+    const order: OrdersModel | unknown = await this.insertOrdersTable(dto);
 
     if (!order) {
       throw new NotFoundException('Order creation failed!');
     }
 
-    const orderId: string = (typeof order === 'object' && order !== null && 'id' in order) ? (order as { id: string }).id : "";
+    // const orderId: string = (typeof order === 'object' && order !== null && 'id' in order) ? (order as { id: string }).id : "";
 
-    const products = dto.products;
+    // const products = dto.products;
 
-    for (const el of products) {
-      const result = await this.productRepository.findByPk(el.product_id)
-      if (!result) throw new NotFoundException('Product not found !')
-      const product = { ...el, price: result.price }
-      await this.handleAndInsertOrderItems(product, orderId)
-    }
+    // for (const el of products) {
+    //   const result = await this.productRepository.findByPk(el.product_id)
+    //   if (!result) throw new NotFoundException('Product not found !')
+    //   const product = { ...el, price: result.price }
+    //   await this.handleAndInsertOrderItems(product, orderId)
+    // }
 
-    await this.calculatorAndUpdateAmountOrder(orderId);
+    // await this.calculatorAndUpdateAmountOrder(orderId);
   }
 
   async lockAndCheckInventory(productId: string, quantity: number, t: Transaction) {
@@ -130,7 +132,7 @@ export class OrderService extends
     );
   }
 
-  async unsertOrderItemTable(orderId: string | false, dto, t: Transaction) {
+  async insertOrderItemTable(orderId: string | false, dto, t: Transaction) {
     const { product_id, quantity, price, discount, note } = dto
     const finalPrice = price * quantity * (1 - discount / 100)
 
@@ -153,7 +155,7 @@ export class OrderService extends
 
   async calculatorAndUpdateAmountOrder(orderId: string) {
     const orderItem = await this.orderItemsRepository.findByFields('order_id', orderId, ['final_price'])
-    const order = await this.repository.findByPk(orderId)
+    const order = await this.orderRepository.findByPk(orderId)
     if (!order) throw new NotFoundException('Order not found !')
     // const shipping_fee = order?.shipping_fee || 300000;
     const discountAmount = order?.discount_amount;
@@ -177,31 +179,17 @@ export class OrderService extends
     // )
   }
 
-  async upsertOrdersTable(dto: CreatedOrderRequestDto) {
-    const { user_id, discount_amount, shipping_fee, shipping_address, payment_method } = dto;
-     const order_code = this.generateOrderCode(dto.user_id, dto.products.map(p => p.product_id).join('-'));
-    
-    return await this.sequelize.query(
-      `INSERT INTO orders(order_code, user_id, discount_amount, payment_method, shipping_fee, shipping_address)
-       VALUES(:order_code, :user_id, :discount_amount, :payment_method, :shipping_fee, :shipping_address)
-       ON CONFLICT(order_code)
-       DO UPDATE SET
-          subtotal = 0, 
-          total_amount = 0
-        RETURNING *`,
-      {
-        replacements: {
-          order_code: order_code,
-          user_id: user_id,
-          discount_amount: discount_amount,
-          shipping_fee: shipping_fee,
-          payment_method: payment_method,
-          shipping_address: shipping_address,
-        },
-        type: QueryTypes.SELECT,
-        plain: true
-      }
-    );
+  async insertOrdersTable(dto: CreatedOrderRequestDto) {
+    const now = new Date();
+    const { products, provisional_amount, shipping_amount, discount_amount, ...rest } = dto;
+    const code = this.generateOrderCode(now, products.map(p => p.product_id).join('-'));
+
+    const strategy = PricingStrategyFactory.create(PricingType.NORMAL);
+
+    const total_amount = strategy.caculatePrice({ provisional: provisional_amount, shipping: shipping_amount, discount: discount_amount }); 
+
+    const subtotal = provisional_amount;
+    return await this.orderRepository.create({ ...rest, code, total_amount, subtotal, discount_amount, provisional_amount, shipping_amount });
   }
 
   async handleAndInsertOrderItems(dto: CreatedOrderItemRequestDto, orderId: string): Promise<any> {
@@ -212,20 +200,11 @@ export class OrderService extends
       // 2. Giảm stock và trả lại record mới
       await this.decreaseStockInventory(product_id, quantity, t)
       // 3. Add order-item
-      await this.unsertOrderItemTable(orderId, dto, t)
-
+      await this.insertOrderItemTable(orderId, dto, t)
     });
   }
 
-  async getById(id: string): Promise<GetByIdOrderResponseDto> {
-    const Order = await this.repository.findByPk(id);
-    if (!Order) throw new TypeError('Order not found');
-    const OrderId = Order.id;
-    const products = await this.productRepository.findOneByField('id', OrderId);
-    Order['products'] = products;
-    const dto = plainToInstance(GetByIdOrderResponseDto, Order, { excludeExtraneousValues: true });
-    return dto;
-  }
+ 
 
   async calculatorOrder(idOrderItem: string, order_id: string, t: Transaction) {
     await this.sequelize.query(
@@ -264,9 +243,9 @@ export class OrderService extends
     )
   }
 
- generateOrderCode(userId: string, productId: string): string {
+  generateOrderCode(recent: Date, productId: string): string {
     const prefix = 'ORD';
-    const base = `${userId}:${productId}`;
+    const base = `${recent}:${productId}`;
     const hash = crypto.createHash('md5').update(base).digest('hex').slice(0, 8);
     return `${prefix}-${hash.toUpperCase()}`;
   }
@@ -285,7 +264,7 @@ export class OrderService extends
   async getOrderByIdv2(id: string) {
     const products = await this.orderItemsRepository.findByFields('order_id', id, ['quantity', 'price', 'discount', 'final_price', 'note']);
 
-    const order = await this.repository.findByOneByRaw({
+    const order = await this.orderRepository.findByOneByRaw({
       where: { id },
       include: [{
         model: UserModel,
@@ -304,7 +283,7 @@ export class OrderService extends
   async getRevenue() {
     Logger.log('====>getRevenue:');
 
-    const SequelizeQuery = await this.repository.findAllByRaw({
+    const SequelizeQuery = await this.orderRepository.findAllByRaw({
       attributes: [
         'id',
         [Sequelize.col('user.name'), 'name'],
@@ -339,5 +318,15 @@ export class OrderService extends
     )
 
     return rawQuery;
+  }
+
+  async getById(id: string): Promise<GetByIdOrderResponseDto> {
+    const Order = await this.orderRepository.findByPk(id);
+    if (!Order) throw new TypeError('Order not found');
+    const OrderId = Order.id;
+    const products = await this.productRepository.findOneByField('id', OrderId);
+    Order['products'] = products;
+    const dto = plainToInstance(GetByIdOrderResponseDto, Order, { excludeExtraneousValues: true });
+    return dto;
   }
 }

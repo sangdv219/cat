@@ -14,7 +14,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'orders', 
+          model: 'orders',
           key: 'id',
         },
         onUpdate: 'CASCADE',
@@ -24,22 +24,22 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'products', 
+          model: 'products',
           key: 'id',
         },
         onUpdate: 'CASCADE',
         onDelete: 'RESTRICT',
       },
       price: {
-        type: Sequelize.DECIMAL(18,2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       original_price: {
-        type: Sequelize.DECIMAL(18,2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       promotion_price: {
-        type: Sequelize.DECIMAL(18,2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       quantity: {
@@ -48,7 +48,7 @@ module.exports = {
         defaultValue: 1,
       },
       discount: {
-        type: Sequelize.DECIMAL(18,2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       note: {
@@ -57,6 +57,10 @@ module.exports = {
       },
       vat: {
         type: Sequelize.INTEGER(),
+        allowNull: true,
+      },
+      tax_code: {
+        type: Sequelize.STRING(50),
         allowNull: true,
       },
       created_at: {

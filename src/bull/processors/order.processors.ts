@@ -25,7 +25,7 @@ export class OrderProcessor {
                 this.logger.error(`Order failed: ${status} - ${JSON.stringify(response)}`);
                 throw error;
             }
-            throw new Error('error from job =>',error);
+            throw new Error('Error from job =>', error);
         }
     }
 }

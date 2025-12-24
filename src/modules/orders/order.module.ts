@@ -17,10 +17,11 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { PaymentMethodModel } from '@models/payment_methods.model';
 import { ShippingMethodModel } from '@models/shipping_methods.model';
 import { WarehouseModel } from '@models/warehouses.model';
+import { CancelReasonModel } from '@/models/cancel_reason.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([OrdersModel, UserModel, PaymentMethodModel, ShippingMethodModel, WarehouseModel]), OrderItemsModule, InventoryModule, ProductModule, AssociationsModule, RbacModule,
+    SequelizeModule.forFeature([OrdersModel, UserModel, PaymentMethodModel, ShippingMethodModel, WarehouseModel, CancelReasonModel]), OrderItemsModule, InventoryModule, ProductModule, AssociationsModule, RbacModule,
     EventEmitterModule.forRoot(),
   ],
   controllers: [ OrderAppController ],

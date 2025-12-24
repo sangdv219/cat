@@ -97,10 +97,6 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'RESTRICT',
       },
-      tax_code: {
-        type: Sequelize.STRING(50),
-        allowNull: true,
-      },
       sale_by: {
         type: Sequelize.STRING(100),
         allowNull: true,
@@ -121,9 +117,15 @@ module.exports = {
         type: Sequelize.JSONB,
         allowNull: true,
       },
-      cancel_reason: {
-        type: Sequelize.STRING(100),
-        allowNull: true,
+      cancel_reason_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'cancel_reasons',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT',
       },
       created_at: {
         allowNull: false,
