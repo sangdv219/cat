@@ -19,6 +19,8 @@ import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import * as crypto from 'crypto';
 import { PricingStrategyFactory } from '@/domain/pricing/factory';
 import { PricingType } from '@/core/enum/pg-error-codes.enum';
+import { SinglyLinkedList } from '@/core/data-structures/singly-linked-list';
+import { DoublyLinkedList } from '@/core/data-structures/doubly-linked-list';
 
 @Injectable()
 export class OrderService extends
@@ -186,7 +188,7 @@ export class OrderService extends
 
     const strategy = PricingStrategyFactory.create(PricingType.NORMAL);
 
-    const total_amount = strategy.caculatePrice({ provisional: provisional_amount, shipping: shipping_amount, discount: discount_amount }); 
+    const total_amount = strategy.caculatePrice({ provisional: provisional_amount, shipping: shipping_amount, discount: discount_amount });
 
     const subtotal = provisional_amount;
     return await this.orderRepository.create({ ...rest, code, total_amount, subtotal, discount_amount, provisional_amount, shipping_amount });
@@ -203,8 +205,6 @@ export class OrderService extends
       await this.insertOrderItemTable(orderId, dto, t)
     });
   }
-
- 
 
   async calculatorOrder(idOrderItem: string, order_id: string, t: Transaction) {
     await this.sequelize.query(
@@ -328,5 +328,34 @@ export class OrderService extends
     Order['products'] = products;
     const dto = plainToInstance(GetByIdOrderResponseDto, Order, { excludeExtraneousValues: true });
     return dto;
+  }
+
+  excuteDoublyList() {
+    const start = process.hrtime.bigint();
+
+    // Thực thi thuật toán
+    // expensiveTask();
+    // for (let i = 0; i < 4000000000; i++) {
+    //   Math.sqrt(i);
+    // }
+    const a = new SinglyLinkedList<number>();
+    const b = new DoublyLinkedList<number>();
+    for (let i = 0; i < 1000; i++) {
+      a.append(i);
+      // b.append(i);
+    }
+    a.getTail();
+    // b.display();
+    Logger.log(`Kích thước danh sách liên kết đơn: ${a.getHead()?.data}`);
+    // Logger.log(`Kích thước danh sách liên kết đôi: ${b.getSize()}`);
+    const end = process.hrtime.bigint();
+    // Kết quả trả về là kiểu BigInt (tính bằng nanoseconds)
+    const durationInMs = Number(end - start) / 1_000_000;
+    const durationInMs2 = Number(end - start) / 1_000_000_000;
+    Logger.log(`Thời gian thực thi bằng nano giây: ${durationInMs} ms`);
+    Logger.log(`Thời gian thực thi bằng giây: ${durationInMs2.toFixed(2)} s`);
+
+
+    return { message: 'This is excuteDoublyList' };
   }
 }
