@@ -9,9 +9,8 @@ import {
     ForeignKey,
     BelongsTo,
 } from 'sequelize-typescript';
-import { literal } from 'sequelize';
 import { OrdersModel } from './orders.model';
-import { ProductModel } from '@models/products.model';
+import { ProductModel } from '@modules/products/domain/models/product.model';
 
 
 interface OrderItemsAttributes {
@@ -37,7 +36,7 @@ interface OrderItemsAttributes {
 export class OrderItemsModel extends Model<OrderItemsAttributes> {
     // --- ID ---
     @PrimaryKey
-    @Default(literal('gen_random_uuid()'))
+    @Default(DataType.UUIDV4) // Ánh xạ 'gen_random_uuid()'
     @AllowNull(false)
     @Column(DataType.UUID)
     declare id: string;
@@ -99,13 +98,13 @@ export class OrderItemsModel extends Model<OrderItemsAttributes> {
     @AllowNull(true)
     @Column(DataType.INTEGER)
     declare vat: number;
-    
+
     @AllowNull(true)
     @Column(DataType.STRING(50))
     declare tax_code?: string;
 
     @AllowNull(false)
-    @Default(literal('NOW()'))
+    @Default(DataType.NOW)
     @Column(DataType.DATE)
     declare created_at: Date;
 

@@ -1,4 +1,4 @@
 export const ORDER_ENTITY = {
-  NAME: 'Order',
-  TABLE_NAME: 'Orders',
+  NAME: 'orders',
+  TABLE_NAME: 'orders',
 };

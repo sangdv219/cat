@@ -1,7 +1,8 @@
 import { literal } from 'sequelize';
 import { AllowNull, Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table, Unique } from 'sequelize-typescript';
+import { ORDER_ENTITY } from '@modules/orders/constants/order.constant';
 
-interface OrderAttributes {
+interface IOrder {
   id: string;
   code: string;
   user_id: string;
@@ -28,11 +29,11 @@ interface OrderAttributes {
   cancel_reason?: string;
 }
 @Table({
-  tableName: 'orders',
+  tableName: ORDER_ENTITY.TABLE_NAME,
   timestamps: false,
   underscored: true
 })
-export class OrdersModel extends Model<OrderAttributes> {
+export class OrdersModel extends Model<IOrder> {
   @PrimaryKey
   @Default(literal('gen_random_uuid()'))
   @AllowNull(false)

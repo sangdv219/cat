@@ -125,4 +125,15 @@ export class OrderAppController {
     }
   }
 
+  @Version('99')
+  @Get('ExcuteDoublyList')
+  async ExcuteDoublyList() {
+    try {
+      return await this.orderService.excuteDoublyList();
+    } catch (error) {
+      throw error;
+    }
+  }
+
+
 }
