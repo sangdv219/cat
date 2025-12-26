@@ -100,7 +100,6 @@ export abstract class BaseService<
   
   async getById(id: string): Promise<GetByIdResponseDto | any> {
     const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.DETAIL, {}, id);
-    Logger.log('this.repository:=======>', this.repository);
 
     const cached = await this.cacheManage.get(redisKey);
 
