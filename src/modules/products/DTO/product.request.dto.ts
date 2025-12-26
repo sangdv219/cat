@@ -1,10 +1,10 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsDateString,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsOptional,
   IsString,
   IsUUID,
@@ -14,14 +14,6 @@ import {
 } from 'class-validator';
 
 export class CreatedProductRequestDto {
-  @ApiProperty({ 
-    description: 'ID duy nhất của sản phẩm (UUID)', 
-    example: '550e8400-e29b-41d4-a716-446655440000' 
-  })
-  @IsUUID()
-  @IsOptional() // Thường null khi Create, có khi Update
-  declare id: string;
-
   @ApiProperty({ description: 'Tên sản phẩm', example: 'iPhone 15 Pro Max' })
   @IsNotEmpty({ message: 'Name is required' })
   @IsString()
@@ -126,6 +118,7 @@ export class CreatedProductRequestDto {
     example: { color: 'Titan Blue', storage: '256GB' } 
   })
   @IsOptional()
+  @IsObject() // Chặt chẽ hơn so với việc không có decorator
   declare attributes?: object;
 
   @ApiPropertyOptional({ description: 'Mô tả chi tiết sản phẩm' })
@@ -133,23 +126,46 @@ export class CreatedProductRequestDto {
   @IsString()
   declare description?: string;
 
-  // --- Foreign Keys ---
-  @ApiProperty({ description: 'ID nhóm hàng (Goods ID)', example: 'uuid-goods-123' })
-  @IsUUID()
-  declare goods_id: string;
+  // @ApiProperty({ description: 'ID nhóm hàng (Goods ID)', example: 'uuid-goods-123' })
+  // @IsUUID()
+  // @IsNotEmpty()
+  // declare goods_id: string;
 
-  @ApiProperty({ description: 'ID danh mục sản phẩm', example: 'uuid-category-456' })
+  @ApiProperty({ description: 'Nội dung HTML chi tiết', example: '<p>Sản phẩm rất tốt</p>' })
+  @IsOptional()
+  @IsString()
+  declare html_content?: string;
+
+  @ApiProperty({ description: 'Sản phẩm thuộc chiến dịch', default: false })
+  @IsOptional()
+  @IsBoolean()
+  declare is_campaign?: boolean;
+
+  @ApiProperty({ description: 'Trạng thái công khai', default: true })
+  @IsBoolean()
+  declare is_public: boolean;
+
+  @ApiPropertyOptional({ description: 'Đánh giá sơ bộ' })
+  @IsOptional()
+  @IsString()
+  declare evaluate?: string;
+  // --- Foreign Keys ---
+  // @ApiProperty({ description: 'ID nhóm hàng (Goods ID)', example: 'uuid-goods-123' })
+  // @IsUUID()
+  // declare goods_id: string;
+
+  @ApiProperty({ description: 'ID danh mục sản phẩm', example: 'fa69a453-508c-443d-ab71-c2178a31bca9' })
   @IsUUID()
   declare category_id: string;
 
-  @ApiProperty({ description: 'ID thương hiệu', example: 'uuid-brand-789' })
+  @ApiProperty({ description: 'ID thương hiệu', example: 'c421ec6b-e8fd-4f17-a1b4-0c84c46b0b24' })
   @IsUUID()
   declare brand_id: string;
 
-  @ApiPropertyOptional({ description: 'ID sản phẩm cha (nếu là biến thể)', example: '' })
-  @IsOptional()
-  @IsUUID()
-  declare parent_id?: string;
+  // @ApiPropertyOptional({ description: 'ID sản phẩm cha (nếu là biến thể)'})
+  // @IsOptional()
+  // // @IsUUID()
+  // declare parent_id?: string;
 }
 
 export class UpdatedProductRequestDto extends PartialType(CreatedProductRequestDto) {}
