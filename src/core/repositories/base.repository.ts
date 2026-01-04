@@ -1,11 +1,14 @@
-import { Logger, NotFoundException } from '@nestjs/common';
+import { NotFoundException } from '@nestjs/common';
+import { FindAndCountOptions, WhereOptions } from '@sequelize/core';
 import { Op, QueryTypes, Transaction } from 'sequelize';
 import { Sequelize } from "sequelize-typescript";
 
-interface IPaginationDTO {
+export interface IPaginationDTO {
   page: number;
   limit: number;
   keyword?: string;
+  orderBy?: string;
+  orderDirection?: 'ASC' | 'DESC';
 }
 
 export interface IBaseRepository<T> {
@@ -13,47 +16,60 @@ export interface IBaseRepository<T> {
   findByFields<K extends keyof T>(field: K, value: T[K], attributes?: string[], exclude?: string[]): Promise<any[]>;
   findAllByRaw(condition: Record<string, any>, exclude?: string[]): Promise<any[] | null>;
   findOneByField<K extends keyof T>(field: K, value: T[K], exclude: string[]): Promise<any>;
-  findByPk(id: string, exclude?: string[], raw?: boolean): Promise<T | null>;
+  findByPk(id: string, exclude?: string[], raw?: boolean, options?: { transaction?: Transaction }): Promise<T | null>;
   findByOneByRaw(condition: Record<string, any>, exclude: string[]): Promise<T | null>;
-  create(payload: Partial<T>, options?: { transaction?: Transaction }): Promise<void>;
-  update(id: string, payload: Partial<T>): Promise<any>;
+  create(entity: Partial<T>, options?: { transaction?: Transaction }): Promise<void>;
+  update(id: string, entity: Partial<T>): Promise<any>;
   delete(id: string): Promise<boolean>;
+  bulkCreate(entities: Partial<T>[], options?: { transaction?: Transaction }): Promise<void>;
   upsert(sequelize: Sequelize, table: string, conflictFields: string[], insertValues: Record<string, any>, updateFields: string[], options?: { transaction: Transaction }): Promise<T>;
 }
 
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
-  public readonly _entityName: string;
-  private readonly logger = new Logger(BaseRepository.name);
   constructor(
-    readonly entityName: string = 'BaseEntity',
     readonly model,
-  ) {
-    this._entityName = entityName;
-  }
+    protected searchableFields: string[] = []
+  ) {}
 
   async findWithPagination(parameter, exclude = ['']): Promise<{ items: T; total: number }> {
-    const { page = 1, limit = 100, keyword } = parameter;
+    const { page = 1, limit = 100, keyword, orderBy = 'created_at', orderDirection = 'DESC', filters = {} } = parameter;
 
     const offset = (page - 1) * limit;
 
-    const where = {};
-    if (keyword) {
-      where[Op.or] = [
-        { name: { [Op.iLike]: `%${keyword}%` } },
-        // { email: { [Op.iLike]: `%${keyword}%` } },
-      ];
-    }
+    const where: WhereOptions = this.buildWhereClause(keyword, filters);
 
-    const { rows: items, count: total } = await this.model.findAndCountAll({
+    const options: FindAndCountOptions = {
       limit,
       offset,
       where,
-      order: [['created_at', 'DESC']],
+      order: [[orderBy, orderDirection]],
       attributes: { exclude },
       raw: true,
-    });
+    };
+
+    const { rows: items, count: total } = await this.model.findAndCountAll(options);
 
     return { items, total };
+  }
+
+  private buildWhereClause(keyword?: string, filters?: Record<string, any>): WhereOptions {
+    const where: WhereOptions = {};
+
+    if (keyword && this.searchableFields.length > 0) {
+      (where as any)[Op.or as any] = this.searchableFields.map((field) => ({
+        [field]: { [Op.iLike]: `%${keyword}%` },
+      }));
+    }
+
+    if (filters && Object.keys(filters).length > 0) {
+      for (const [key, value] of Object.entries(filters)) {
+        if (value !== undefined && value !== null && value !== '') {
+          where[key] = value;
+        }
+      }
+    }
+
+    return where;
   }
 
   async findByFields<K extends keyof T>(field: K, value: T[K], attributes?: string[], exclude = ['']): Promise<any[]> {
@@ -78,8 +94,8 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return record as unknown as T[K];
   }
 
-  async findByPk(id: string, exclude = [''], raw = true): Promise<T | null> {
-    return this.model.findByPk(id, { ...exclude, raw })
+  async findByPk(id: string, exclude = [''], raw = true, options?: { transaction?: Transaction }): Promise<T | null> {
+    return this.model.findByPk(id, { ...exclude, raw, transaction: options?.transaction })
   }
 
   async findByOneByRaw(condition) {
@@ -98,17 +114,17 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     )
   }
 
-  async create(payload, options?: { transaction?: Transaction }): Promise<any> {
-    const result = await this.model.create(payload, {
+  async create(entity, options?: { transaction?: Transaction }): Promise<any> {
+    const result = await this.model.create(entity, {
       returning: true,
-      ...options
+      transaction: options?.transaction,
     });
 
     return result.get({ plain: true });
   }
 
-  async update(id: string, payload: any) {
-    return await this.model.update(payload, {
+  async update(id: string, entity: any) {
+    return await this.model.update(entity, {
       where: { id },
       returning: true,
     });
@@ -147,6 +163,34 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     return result[0] as T;
   }
 
+  async bulkCreate(entities: Partial<T>[], options?: { transaction?: Transaction }): Promise<void> {
+    return this.model.bulkCreate(entities, {
+      transaction: options?.transaction,
+    });
+  }
+
+  async bulkUpdate(entities: (Partial<T> & { id?: string })[], options?: { transaction?: Transaction }): Promise<void> {
+    const updatePromises = entities.map(entity => {
+      const { id, ...updateData } = entity;
+      if (!id) {
+        return Promise.resolve();
+      }
+      return this.model.update(updateData, {
+        where: { id },
+        transaction: options?.transaction,
+      });
+    });
+
+    await Promise.all(updatePromises);
+  }
+  
+  async bulkDelete(ids: string[], options?: { transaction?: Transaction }): Promise<void> {
+    await this.model.destroy({
+      where: { id: { [Op.in]: ids } },
+      transaction: options?.transaction,
+    });
+  } 
+  
   async checkDuplicateFieldExcludeId<K extends keyof T>(field: K, value: T[K], excludeId?: string): Promise<boolean> {
     const condition: any = {
       [field]: value,
@@ -165,7 +209,6 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
       [key]: mode === 'like' ? { [Op.iLike]: `%${value}%` } : value,
     }),
     );
-    console.log("orConditions: ", orConditions);
 
     const exists = await this.model.findOne({
       where: { [Op.or]: orConditions },

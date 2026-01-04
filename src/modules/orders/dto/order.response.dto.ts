@@ -12,6 +12,39 @@ export class OrderBaseDto {
 
   @Expose()
   status: string;
+  
+  @Expose()
+  note: string;
+
+  @Expose()
+  shipping_address: string;
+
+  @Expose()
+  discount_amount: string;
+
+  @Expose()
+  provisional_amount: string;
+
+  @Expose()
+  shipping_amount: string;  
+
+  @Expose()
+  payment_method_id: string;
+
+  @Expose()
+  shipping_method_id: string;
+
+  @Expose()
+  warehouse_id: string;
+
+  @Expose()
+  channel: string;
+
+  @Expose()
+  voucher_applied: string;
+
+  @Expose()
+  extra_data: string;
 
   @Expose()
   total_amount: string;

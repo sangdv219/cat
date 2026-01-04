@@ -1,0 +1,37 @@
+@dotenv = .env.development
+@baseUrl = http://localhost:{{$dotenv PORT}}
+@ContentType = application/json
+
+@token = {{$dotenv TOKEN}}
+### Get User Admin
+# POST {{baseUrl}}/user-admin
+POST {{baseUrl}}/api/v1/app/orders/checkout
+Content-Type: {{ContentType}}
+Authorization: Bearer {{token}} 
+
+{
+  "user_id": "aecd7bd1-21ab-4548-b5dd-f9859649bee0",
+  "channel": "",
+  "voucher_applied": "",
+  "extra_data": "",
+  "note": "Giao giờ hành chánh",
+  "discount_amount": 100000,
+  "provisional_amount": 30000,
+  "shipping_amount": 30000,
+  "payment_method_id": "b672ecdb-d018-49d4-9898-707b990784fd",
+  "shipping_method_id": "a4a5fd8b-d230-4a08-90ec-7acf1d783ca2",
+  "warehouse_id": "4a392db1-a6a5-4564-b1fd-274895ba2298",
+  "cancel_reason_id": "d61e8b06-2d2e-4314-bc25-3088c268fd33",
+  "status": "PENDING",
+  "products": [
+    {
+      "product_id": "b8eedb6a-8949-4271-aaed-8b1ac77810b6",
+      "quantity": 10,
+      "discount": 10,
+      "note": "Giao giờ hành chánh",
+      "vat": "8%",
+      "tax_code": "VAT8",
+      "price": 100000
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { IBaseRepository } from '@core/repositories/base.repository';
+import { IBaseRepository, IPaginationDTO } from '@core/repositories/base.repository';
 import {
   BeforeApplicationShutdown,
   Logger,
@@ -56,9 +56,8 @@ export abstract class BaseService<
     await this.moduleDestroy();
   }
 
-  // async getPagination(query): Promise<GetAllResponseDto> {
-  async getPagination(query) {
-    const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST, query);
+  async getPagination(query:IPaginationDTO) {
+    const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST, query as unknown as Record<string, string>);
 
     const cached = await this.cacheManage.get(redisKey);
 
@@ -80,15 +79,14 @@ export abstract class BaseService<
   async create(dto: TCreateDto) {
     this.cleanCacheRedis()
     const entity = this.mapper ? this.mapper(dto) : (dto as Partial<TEntity>)
-    Logger.log('entity:', entity);
-
+    
     return await this.repository.create(entity);
   }
-
+  
   async update(id: string, dto: TUpdateDto): Promise<any> {
     this.cleanCacheRedis()
     const entity = await this.repository.findByPk(id, [], false) as Model<any, any>
-
+    
     if (!entity) return null;
     try {
       Object.assign(entity, dto)
@@ -96,10 +94,10 @@ export abstract class BaseService<
       return entity;
     } catch (error) {
       this.logger.error('[base.service:97] message', error);
-
+      
     }
   }
-
+  
   async getById(id: string): Promise<GetByIdResponseDto | any> {
     const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.DETAIL, {}, id);
 

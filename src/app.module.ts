@@ -15,7 +15,6 @@ import { RedisModule } from '@redis/redis.module';
 import { AuditModule } from '@audit/audit.module';
 import { ClsModule } from 'nestjs-cls';
 import { AnalyticsModule } from '@modules/analytics/analytics.module';
-import { OrderItemsModule } from '@modules/order-items/orderItems.module';
 import { RolesModule } from '@modules/roles/roles.module';
 import { PermissionsModule } from '@modules/permissions/permissions.module';
 import { AssociationsModule } from '@modules/associations/associations.module';
@@ -42,7 +41,6 @@ import { ChatGateway } from './gateways/chat.gateway';
     CategoryModule,
     ProductModule,
     OrderModule,
-    OrderItemsModule,
     InventoryModule,
     RolesModule,
     PermissionsModule,

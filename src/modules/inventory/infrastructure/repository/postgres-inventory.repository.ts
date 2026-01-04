@@ -1,16 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { CATEGORY_ENTITY } from '@modules/categories/constants/category.constant';
-import { AbstractInventoryRepository } from '../../domain/abstract/abstract-inventory.repository';
-import { InventoryModel } from '../../domain/models/inventory.model';
+import { AbstractInventoryRepository } from '@modules/inventory/domain/abstract/abstract-inventory.repository';
+import { InventoryModel } from '@modules/inventory/domain/models/inventory.model';
 
 @Injectable()
 export class PostgresInventoryRepository extends AbstractInventoryRepository {
-  private static readonly ENTITY_NAME = CATEGORY_ENTITY.NAME;
+  private static readonly searchableFields = ['stock'];
   constructor(
     @InjectModel(InventoryModel)
-    protected readonly categoryModel: typeof InventoryModel,
+    protected readonly inventoryModel: typeof InventoryModel,
   ) {
-    super(PostgresInventoryRepository.ENTITY_NAME, categoryModel);
+    super(inventoryModel, PostgresInventoryRepository.searchableFields);
   }
 }

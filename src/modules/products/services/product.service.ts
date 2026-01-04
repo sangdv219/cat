@@ -20,11 +20,12 @@ GetAllProductResponseDto> {
         protected repository: PostgresProductRepository,
         public cacheManage: RedisService,
     ) {
-        super(repository, (dto) => ({
-            ...dto,
-            price: dto.price.toFixed(2),
-            promotion_price: dto.price.toFixed(2) 
-        }));
+        // super(repository, (dto) => ({
+        //     ...dto,
+        //     price: dto.price.toFixed(2),
+        //     promotion_price: dto.price.toFixed(2) 
+        // }));
+        super(repository)
         this.entityName = PRODUCT_ENTITY.NAME;
     }
 

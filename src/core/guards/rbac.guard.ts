@@ -46,16 +46,14 @@ export class RbacGuard implements CanActivate {
         ]);
 
         const mergePermissions: any[] = [];
+        
         for (const role of rolesCache) {
             const permissions: any[] = await this.rbacService.getPermissionsByRole(role);
             mergePermissions.push(...permissions);
         }
-
-        Logger.log('resource:', resource);
-        Logger.log('action:', action);
         
         if (!resource || !action) throw new ForbiddenException(`Forbidden: Missing defined permission [${resource}.${action}]`);
-
+        
         const hasResource = mergePermissions.some((p: any) => resource.includes(p.resource));
         const hasAction = mergePermissions.some((p: any) => action.includes(p.action));
         

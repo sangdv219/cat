@@ -37,13 +37,14 @@ export class UserService extends
     this.users = ['Iphone', 'Galaxy'];
   }
 
-  protected async bootstrapLogic(): Promise<void> { }
+  protected async bootstrapLogic(): Promise<void> {
+    Logger.log(`🛑 repository--------->`, this.repository);
+    Logger.log(this.repository);
+   }
 
   protected async beforeAppShutDown(signal): Promise<void> {
     this.stopJob();
-    Logger.log(
-      `🛑 beforeApplicationShutdown: UserService cleanup before shutdown.`,
-    );
+    Logger.log(`🛑 beforeApplicationShutdown: UserService cleanup before shutdown.`);
   }
 
   private async stopJob() {
@@ -117,7 +118,7 @@ export class UserService extends
         JOIN roles r ON r.id = rp.role_id
         JOIN user_roles ur ON ur.role_id = r.id
         JOIN users u ON u.id = ur.user_id
-        WHERE u.id = '63965d46-5979-4c17-ad7e-98fa9a2333ef';
+        WHERE u.id = :userId;
       `,
     {
       replacements: { userId },

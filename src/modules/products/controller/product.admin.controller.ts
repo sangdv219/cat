@@ -23,7 +23,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../dto/product.response.dto';
-import { UserContextInterceptor } from '@/core/interceptors/user-context.interceptor';
+import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
 @Controller({ path: 'admin/products', version: '1' })
