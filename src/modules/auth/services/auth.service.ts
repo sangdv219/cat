@@ -106,19 +106,21 @@ export class AuthService implements OnModuleInit {
         const session_id = uuidv4()
         const rolePermission = await this.userService.getRolePermissionByUserId(user.id);
         const rolePermissions = {};
+        Logger.log('###session_id:', session_id);
 
         const normalizePermissions = (rows) => {
           const result: any = { roles: new Set(), permissions: {} };
           for (const row of rows) {
             result.roles.add(row.role_name);
             if (!result.permissions[row.resource])
-              result.permissions[row.resource] = {};
-            result.permissions[row.resource][row.permission_action] = true;
+                result.permissions[row.resource] = {};
+                result.permissions[row.resource][row.permission_action] = true;
           }
           result.roles = [...result.roles];
           return result;
         }
 
+        
         const normalizePermissionsRoleDefault = (rows) => {
           const roleMap = new Map();
           for (const item of rows) {
@@ -138,11 +140,14 @@ export class AuthService implements OnModuleInit {
           ];
         }
 
+        
+        
         if (rolePermission && rolePermission.length) {
           Object.assign(rolePermissions, normalizePermissions(rolePermission))
         } else {
           rolePermissions['roles'] = ['USER']
         }
+
 
         const redisKey = buildRedisKeyQuery('auth', RedisContext.SESSION, {}, session_id);
         

@@ -1,33 +1,8 @@
-import { literal } from 'sequelize';
 import { AllowNull, Column, DataType, Default, ForeignKey, Model, PrimaryKey, Table, Unique } from 'sequelize-typescript';
 import { ORDER_ENTITY } from '@modules/orders/constants/order.constant';
+import { IOrder } from '../../interface/order.interface';
 
-interface IOrder {
-  id: string;
-  code: string;
-  user_id: string;
-  status: string;
-  subtotal?: number;
-  discount_amount?: number;
-  provisional_amount?: number;
-  shipping_amount?: number;
-  total_amount?: number;
-  customer_address: string;
-  customer_phone: string;
-  customer_name: string;
-  customer_email: string;
-  payment_method_id: string;
-  shipping_method_id: string;
-  shipping_address: string;
-  warehouse_id: string;
-  tax_code?: string;
-  sale_by?: string;
-  note?: string;
-  channel: string;
-  voucher_applied?: string;
-  extra_data?: object;
-  cancel_reason?: string;
-}
+
 @Table({
   tableName: ORDER_ENTITY.TABLE_NAME,
   timestamps: false,
@@ -35,7 +10,7 @@ interface IOrder {
 })
 export class OrdersModel extends Model<IOrder> {
   @PrimaryKey
-  @Default(literal('gen_random_uuid()'))
+  @Default(DataType.UUIDV4)
   @AllowNull(false)
   @Column(DataType.UUID)
   declare id: string;
@@ -106,10 +81,6 @@ export class OrdersModel extends Model<IOrder> {
   declare status: 'PENDING' | 'CONFIRM' | 'CANCELLED';
 
   @AllowNull(true)
-  @Column(DataType.STRING(100))
-  declare sale_by?: string;
-
-  @AllowNull(true)
   @Column(DataType.STRING(200))
   declare note?: string;
 
@@ -155,41 +126,6 @@ export class OrdersModel extends Model<IOrder> {
   // --- THÔNG TIN KHÁCH HÀNG & GIAO HÀNG ---
 
   @AllowNull(false)
-  @Column(DataType.STRING(255))
-  declare customer_address: string;
-
-  @AllowNull(false)
-  @Column(DataType.STRING(20))
-  declare customer_phone: string;
-
-  @AllowNull(false)
-  @Column(DataType.STRING(100))
-  declare customer_name: string;
-
-  @AllowNull(false)
-  @Column(DataType.STRING(100))
-  declare customer_email: string;
-
-  @AllowNull(false)
   @Column(DataType.STRING(100))
   declare shipping_address: string; // Có vẻ bị trùng với customer_address, nhưng tôi giữ nguyên theo định nghĩa gốc
-
-  // // --- Định nghĩa mối quan hệ (Tùy chọn) ---
-  // @BelongsTo(() => UserModel, 'user_id')
-  // declare user?: UserModel;
-
-  // @BelongsTo(() => PaymentMethodModel, 'payment_method_id')
-  // declare paymentMethod?: PaymentMethodModel;
-
-  // @BelongsTo(() => ShippingMethodModel, 'shipping_method_id')
-  // declare shippingMethod?: ShippingMethodModel;
-
-  // @BelongsTo(() => WarehouseModel, 'warehouse_id')
-  // declare warehouse?: WarehouseModel;
-
-  // @BelongsTo(() => CancelReasonModel, 'cancel_reason_id')
-  // declare cancel_reason?: CancelReasonModel;
-
-  // @HasMany(() => OrderItemsModel)
-  // declare orderItems: OrderItemsModel[];
 }

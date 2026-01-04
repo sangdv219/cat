@@ -30,15 +30,7 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'RESTRICT',
       },
-      price: {
-        type: Sequelize.DECIMAL(18, 2),
-        allowNull: false,
-      },
-      original_price: {
-        type: Sequelize.DECIMAL(18, 2),
-        allowNull: false,
-      },
-      promotion_price: {
+      final_price: {
         type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },

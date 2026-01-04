@@ -1,26 +1,25 @@
-import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
+import { DoublyLinkedList } from '@core/data-structures/doubly-linked-list';
+import { SinglyLinkedList } from '@core/data-structures/singly-linked-list';
+import { PricingType } from '@core/enum/pg-error-codes.enum';
+import { PricingStrategyFactory } from '@/domain/pricing/factory';
 import { BullService } from '@bull/bull.service';
 import { BaseService } from '@core/services/base.service';
 import { InventoryService } from '@modules/inventory/services/inventory.service';
-import { PostgresOrderItemsRepository } from '@modules/order-items/infrastructure/repository/postgres-order-items.repository';
 import { ORDER_ENTITY } from '@modules/orders/constants/order.constant';
 import { OrdersModel } from '@modules/orders/domain/models/orders.model';
-import { CreatedOrderItemRequestDto, CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
-import { GetAllOrderResponseDto, GetByIdOrderResponseDto, GetByIdOrderResponseDtoV2 } from '@modules/orders/dto/order.response.dto';
-import { PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
+import { CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
+import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '@modules/orders/dto/order.response.dto';
+import { PostgresOrderItemsRepository, PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
 import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
-import { UserModel } from '@modules/users/domain/models/user.model';
 import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectConnection } from '@nestjs/sequelize';
 import { RedisService } from '@redis/redis.service';
 import { plainToInstance } from 'class-transformer';
-import { QueryTypes, Sequelize, Transaction } from 'sequelize';
-import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import * as crypto from 'crypto';
-import { PricingStrategyFactory } from '@/domain/pricing/factory';
-import { PricingType } from '@/core/enum/pg-error-codes.enum';
-import { SinglyLinkedList } from '@/core/data-structures/singly-linked-list';
-import { DoublyLinkedList } from '@/core/data-structures/doubly-linked-list';
+import { QueryTypes, Sequelize, Transaction, where } from 'sequelize';
+import { IOrder, IOrderItems, IOrderItemsEntity } from '../interface/order.interface';
+import { IProduct } from '@modules/products/domain/models/product.model';
 
 @Injectable()
 export class OrderService extends
@@ -36,8 +35,8 @@ export class OrderService extends
     private readonly sequelize: Sequelize,
     public cacheManage: RedisService,
     protected orderRepository: PostgresOrderRepository,
-    protected productRepository: PostgresProductRepository,
     protected orderItemsRepository: PostgresOrderItemsRepository,
+    protected productRepository: PostgresProductRepository,
     public inventoryService: InventoryService,
     private readonly bullService: BullService,
     private eventEmitter: EventEmitter2
@@ -80,24 +79,55 @@ export class OrderService extends
   }
 
   async implementsOrder(dto: CreatedOrderRequestDto) {
-    const order: OrdersModel | unknown = await this.insertOrdersTable(dto);
+    const orderItems: IOrderItems[] = dto.items;
+    orderItems.sort((a, b) => a.product_id.localeCompare(b.product_id));
+    const productIds = orderItems.map(item => item.product_id);
+    const products = await this.productRepository.findAllByRaw({
+      where: { id: productIds },
+      attributes: ['id', 'promotion_price'],
+    });
 
-    if (!order) {
-      throw new NotFoundException('Order creation failed!');
-    }
+    return await this.sequelize.transaction(async (t: Transaction) => {
+      const { order, subtotal }: { order: IOrder, subtotal: number } = await this.insertOrdersTable(dto, t);
+      const orderId: string = (typeof order === 'object' && order !== null && 'id' in order) ? (order as { id: string }).id : "";
+      const orderItemPayloads: IOrderItemsEntity[] = [];
 
-    // const orderId: string = (typeof order === 'object' && order !== null && 'id' in order) ? (order as { id: string }).id : "";
 
-    // const products = dto.products;
+      const productMap = new Map<string, IProduct>(products.map(p => [p.id, p]));
 
-    // for (const el of products) {
-    //   const result = await this.productRepository.findByPk(el.product_id)
-    //   if (!result) throw new NotFoundException('Product not found !')
-    //   const product = { ...el, price: result.price }
-    //   await this.handleAndInsertOrderItems(product, orderId)
-    // }
-
-    // await this.calculatorAndUpdateAmountOrder(orderId);
+      for (const oi of orderItems) {
+        if (productMap.has(oi.product_id) === false) {
+          throw new NotFoundException(`Product with ID ${oi.product_id} not found!`);
+        } else {
+          await this.decreaseStockInventory(oi.product_id, oi.quantity, t)
+          const VATAmount = oi.vat ? (productMap.get(oi.product_id)?.promotion_price! * 1.1) : productMap.get(oi.product_id)?.promotion_price;
+          const price = productMap.get(oi.product_id)?.promotion_price!;
+          orderItemPayloads.push({
+            order_id: orderId,
+            product_id: oi.product_id,
+            discount: oi.discount,
+            quantity: oi.quantity,
+            note: oi.note,
+            promotion_price: price,
+            original_price: price,
+            final_price: VATAmount as number * oi.quantity,
+            vat: oi.vat,
+            tax_code: oi.tax_code,
+          });
+        }
+      }
+      const sumItems = orderItemPayloads.reduce(
+        (s, i) => s + i.final_price, 0
+      );
+      const EPS = 0.0001;
+      Logger.log('Math.abs(sumItems - subtotal):', Math.abs(sumItems - subtotal));
+      
+      if (Math.abs(sumItems - subtotal) > EPS) {
+        throw new HttpException('Subtotal mismatch', HttpStatus.BAD_REQUEST);
+      }
+      // // 4. Add order-item
+      await this.orderItemsRepository.bulkCreate(orderItemPayloads, { transaction: t })
+    });
   }
 
   async lockAndCheckInventory(productId: string, quantity: number, t: Transaction) {
@@ -121,10 +151,12 @@ export class OrderService extends
   }
 
   async decreaseStockInventory(productId: string, quantity: number, t: Transaction) {
-    await this.sequelize.query(
+   const [result] = await this.sequelize.query(
       `UPDATE inventory
            SET stock = stock - :quantity
-           WHERE product_id = :productId`,
+           WHERE product_id = :productId
+           AND stock >= :quantity
+           RETURNING stock`,
       {
         replacements: { productId: productId, quantity: quantity },
         transaction: t,
@@ -132,78 +164,25 @@ export class OrderService extends
         plain: true
       }
     );
-  }
 
-  async insertOrderItemTable(orderId: string | false, dto, t: Transaction) {
-    const { product_id, quantity, price, discount, note } = dto
-    const finalPrice = price * quantity * (1 - discount / 100)
-
-    await this.sequelize.query(
-      `INSERT INTO order_items(order_id, product_id, quantity, price, discount, final_price, note)
-       VALUES(:orderId, :productId, :quantity, :price, :discount, :finalPrice, :note)
-       ON CONFLICT(product_id)
-       DO UPDATE SET
-          quantity = order_items.quantity + EXCLUDED.quantity,
-          final_price = order_items.price * (order_items.quantity + EXCLUDED.quantity) * (1 - EXCLUDED.discount / 100)
-            `,
-      {
-        replacements: { orderId: orderId, productId: product_id, quantity: quantity, price: price, discount: discount, finalPrice: finalPrice, note: note ?? "" },
-        transaction: t,
-        type: QueryTypes.SELECT,
-        plain: true
-      }
-    );
-  };
-
-  async calculatorAndUpdateAmountOrder(orderId: string) {
-    const orderItem = await this.orderItemsRepository.findByFields('order_id', orderId, ['final_price'])
-    const order = await this.orderRepository.findByPk(orderId)
-    if (!order) throw new NotFoundException('Order not found !')
-    // const shipping_fee = order?.shipping_fee || 300000;
-    const discountAmount = order?.discount_amount;
-    let subTotal = 0;
-    for (const el of orderItem) {
-      subTotal += Number(el.final_price)
+    if(!result){
+      throw new HttpException('Not enough stock to decrease', HttpStatus.CONFLICT);
     }
-
-    // const totalAmount = subTotal - (Number(shipping_fee) + Number(discountAmount));
-    // await this.sequelize.query(
-    //   `UPDATE orders
-    //       SET subtotal = :subtotal,
-    //           total_amount = :totalAmount
-    //       WHERE id = :orderId
-    //   `,
-    //   {
-    //     replacements: { subtotal: subTotal, totalAmount: totalAmount, orderId: orderId },
-    //     type: QueryTypes.UPDATE,
-    //     plain: true
-    //   }
-    // )
   }
 
-  async insertOrdersTable(dto: CreatedOrderRequestDto) {
+
+  async insertOrdersTable(dto: CreatedOrderRequestDto, t: Transaction): Promise<{ subtotal: number, order: IOrder }> {
     const now = new Date();
-    const { products, provisional_amount, shipping_amount, discount_amount, ...rest } = dto;
-    const code = this.generateOrderCode(now, products.map(p => p.product_id).join('-'));
+    const { items, provisional_amount, shipping_amount, discount_amount, ...rest } = dto;
+    const code = this.generateOrderCode(now, items.map(p => p.product_id).join('-'));
 
     const strategy = PricingStrategyFactory.create(PricingType.NORMAL);
 
     const total_amount = strategy.caculatePrice({ provisional: provisional_amount, shipping: shipping_amount, discount: discount_amount });
 
     const subtotal = provisional_amount;
-    return await this.orderRepository.create({ ...rest, code, total_amount, subtotal, discount_amount, provisional_amount, shipping_amount });
-  }
-
-  async handleAndInsertOrderItems(dto: CreatedOrderItemRequestDto, orderId: string): Promise<any> {
-    const { product_id, quantity } = dto
-    return await this.sequelize.transaction(async (t: Transaction) => {
-      // 1. Lock row + check tồn kho
-      await this.lockAndCheckInventory(product_id, quantity, t)
-      // 2. Giảm stock và trả lại record mới
-      await this.decreaseStockInventory(product_id, quantity, t)
-      // 3. Add order-item
-      await this.insertOrderItemTable(orderId, dto, t)
-    });
+    const order = await this.orderRepository.create({ ...rest, code, total_amount, subtotal, discount_amount, provisional_amount, shipping_amount }, { transaction: t });
+    return { subtotal, order };
   }
 
   async calculatorOrder(idOrderItem: string, order_id: string, t: Transaction) {
@@ -255,70 +234,70 @@ export class OrderService extends
     return await this.sequelize.transaction(async (t: Transaction) => {
       const orderItems = await this.orderItemsRepository.findByPk(id);
       if (!orderItems) throw new NotFoundException('OrderItems not found!')
-      const { order_id } = orderItems || {}
-      await this.calculatorOrder(id, order_id, t)
-      await this.destroyRowOrderItems(id, t)
+      // const { order_id } = orderItems || {}
+      // await this.calculatorOrder(id, order_id, t)
+      // await this.destroyRowOrderItems(id, t)
     })
   }
 
-  async getOrderByIdv2(id: string) {
-    const products = await this.orderItemsRepository.findByFields('order_id', id, ['quantity', 'price', 'discount', 'final_price', 'note']);
+  // async getOrderByIdv2(id: string) {
+  //   const products = await this.orderItemsRepository.findByFields('order_id', id, ['quantity', 'price', 'discount', 'final_price', 'note']);
 
-    const order = await this.orderRepository.findByOneByRaw({
-      where: { id },
-      include: [{
-        model: UserModel,
-        // attributes: {exclude: ['password_hash', 'created_by']}
-        attributes: ['name', 'email', 'phone', 'age', 'gender', 'avatar']
-      },
-      ],
-      raw: true,
-      nest: true
-    })
-    order['products'] = products
-    return plainToInstance<GetByIdOrderResponseDtoV2, any>(GetByIdOrderResponseDtoV2, order, { excludeExtraneousValues: true });
-  }
+  //   const order = await this.orderRepository.findByOneByRaw({
+  //     where: { id },
+  //     include: [{
+  //       model: UserModel,
+  //       // attributes: {exclude: ['password_hash', 'created_by']}
+  //       attributes: ['name', 'email', 'phone', 'age', 'gender', 'avatar']
+  //     },
+  //     ],
+  //     raw: true,
+  //     nest: true
+  //   })
+  //   order['products'] = products
+  //   return plainToInstance<GetByIdOrderResponseDtoV2, any>(GetByIdOrderResponseDtoV2, order, { excludeExtraneousValues: true });
+  // }
 
-  @OnEvent('auth.login')
-  async getRevenue() {
-    Logger.log('====>getRevenue:');
+  // @OnEvent('auth.login')
+  // async getRevenue() {
+  //   Logger.log('====>getRevenue:');
 
-    const SequelizeQuery = await this.orderRepository.findAllByRaw({
-      attributes: [
-        'id',
-        [Sequelize.col('user.name'), 'name'],
-        [Sequelize.fn('SUM', Sequelize.col('orderItems.final_price')), 'total_price'],
-        [Sequelize.fn('COUNT',
-          Sequelize.fn('DISTINCT', Sequelize.col('OrdersModel.id'))
-        ),
-          'total_order'
-        ],
-      ],
-      include: [
-        {
-          model: UserModel,
-          attributes: [],
-        },
-        {
-          model: OrderItemsModel,
-          attributes: [],
-        }
-      ],
-      group: ['OrdersModel.id', 'user.name'],
-    })
+  //   const SequelizeQuery = await this.orderRepository.findAllByRaw({
+  //     attributes: [
+  //       'id',
+  //       [Sequelize.col('user.name'), 'name'],
+  //       [Sequelize.fn('SUM', Sequelize.col('orderItems.final_price')), 'total_price'],
+  //       [Sequelize.fn('COUNT',
+  //         Sequelize.fn('DISTINCT', Sequelize.col('OrdersModel.id'))
+  //       ),
+  //         'total_order'
+  //       ],
+  //     ],
+  //     include: [
+  //       {
+  //         model: UserModel,
+  //         attributes: [],
+  //       },
+  //       {
+  //         model: OrderItemsModel,
+  //         attributes: [],
+  //       }
+  //     ],
+  //     group: ['OrdersModel.id', 'user.name'],
+  //   })
 
-    const rawQuery = await this.sequelize.query(
-      `SELECT o.id, u.name, 
-      SUM(oi.final_price) AS total_price, 
-      COUNT(DISTINCT o.id) AS total_order 
-      FROM public.orders o
-      JOIN public.users u ON u.id = o.user_id
-      JOIN public.order_items oi ON oi.order_id = o.id 
-      GROUP BY o.id, u.name;`
-    )
+  //   const rawQuery = await this.sequelize.query(
+  //     `SELECT o.id, u.name, 
+  //     SUM(oi.final_price) AS total_price, 
+  //     COUNT(DISTINCT o.id) AS total_order 
+  //     FROM public.orders o
+  //     JOIN public.users u ON u.id = o.user_id
+  //     JOIN public.order_items oi ON oi.order_id = o.id 
+  //     GROUP BY o.id, u.name;`
+  //   )
 
-    return rawQuery;
-  }
+  //   return rawQuery;
+  // }
 
   async getById(id: string): Promise<GetByIdOrderResponseDto> {
     const Order = await this.orderRepository.findByPk(id);
@@ -358,4 +337,5 @@ export class OrderService extends
 
     return { message: 'This is excuteDoublyList' };
   }
+
 }

@@ -47,22 +47,6 @@ module.exports = {
         type: Sequelize.DECIMAL(18, 2),
         allowNull: true,
       },
-      customer_address: {
-        type: Sequelize.STRING(255),
-        allowNull: false,
-      },
-      customer_phone: {
-        type: Sequelize.STRING(20),
-        allowNull: false,
-      },
-      customer_name: {
-        type: Sequelize.STRING(100),
-        allowNull: false,
-      },
-      customer_email: {
-        type: Sequelize.STRING(100),
-        allowNull: false,
-      },
       payment_method_id: {
         type: Sequelize.UUID,
         allowNull: false,
@@ -96,10 +80,6 @@ module.exports = {
         },
         onUpdate: 'CASCADE',
         onDelete: 'RESTRICT',
-      },
-      sale_by: {
-        type: Sequelize.STRING(100),
-        allowNull: true,
       },
       note: {
         type: Sequelize.STRING(200),

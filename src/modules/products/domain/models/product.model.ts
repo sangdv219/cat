@@ -2,14 +2,14 @@ import { PRODUCT_ENTITY } from '@modules/products/constants/product.constant';
 import { BaseModel } from '@shared/model/base.model';
 import { AllowNull, Column, DataType, Default, ForeignKey, PrimaryKey, Table, Unique } from 'sequelize-typescript';
 
-interface IProduct {
+export interface IProduct {
   id: string;
   name: string;
   ascii_name?: string;
   sku: string;
   barcode?: string;
   price: number;
-  promotion_price?: number;
+  promotion_price: number;
   flashsale_start_date?: Date;
   flashsale_end_date?: Date;
   percent_discount?: number;
@@ -31,7 +31,7 @@ interface IProduct {
   attributes?: object; // JSONB
   description?: string;
   evaluate?: string;
-  goods_id: string;
+  goods_id?: string;
   category_id: string;
   brand_id: string;
   parent_id?: string;
@@ -76,7 +76,7 @@ export class ProductModel extends BaseModel<IProduct> {
 
   @AllowNull(true)
   @Column(DataType.DECIMAL(18, 2))
-  declare promotion_price?: number; 
+  declare promotion_price: number; 
 
   @AllowNull(true)
   @Column(DataType.DATE)

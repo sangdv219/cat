@@ -6,7 +6,7 @@ import { RbacGuard } from '@core/guards/rbac.guard';
 import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
-import { GetAllOrderResponseDto, GetByIdOrderResponseDto, GetByIdOrderResponseDtoV2 } from '@modules/orders/dto/order.response.dto';
+import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '@modules/orders/dto/order.response.dto';
 import { OrderService } from '@modules/orders/services/order.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
@@ -51,20 +51,20 @@ export class OrderAppController {
     }
   }
 
-  @Version('1')
-  @UseGuards(JWTAuthGuard, RbacGuard)
-  @Get('getRevenue')
-  @Resource('order:revenue')
-  @Action('read')
-  @HttpCode(HttpStatus.OK)
-  @CacheTTL(60)
-  async getRevenue(): Promise<unknown> {
-    try {
-      return await this.orderService.getRevenue();
-    } catch (error) {
-      throw error;
-    }
-  }
+  // @Version('1')
+  // @UseGuards(JWTAuthGuard, RbacGuard)
+  // @Get('getRevenue')
+  // @Resource('order:revenue')
+  // @Action('read')
+  // @HttpCode(HttpStatus.OK)
+  // @CacheTTL(60)
+  // async getRevenue(): Promise<unknown> {
+  //   try {
+  //     return await this.orderService.getRevenue();
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
   @Version('1')
   @Get(':id')
@@ -75,15 +75,15 @@ export class OrderAppController {
       throw error;
     }
   }
-  @Version('2')
-  @Get(':id')
-  async getOrderByIdv2(@Param('id') id: string): Promise<GetByIdOrderResponseDtoV2 | null> {
-    try {
-      return await this.orderService.getOrderByIdv2(id);
-    } catch (error) {
-      throw error;
-    }
-  }
+  // @Version('2')
+  // @Get(':id')
+  // async getOrderByIdv2(@Param('id') id: string): Promise<GetByIdOrderResponseDtoV2 | null> {
+  //   try {
+  //     return await this.orderService.getOrderByIdv2(id);
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
   @HttpCode(HttpStatus.CREATED)
   @Post('checkout')

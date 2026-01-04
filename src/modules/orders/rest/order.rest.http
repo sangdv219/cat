@@ -11,16 +11,10 @@ Authorization: Bearer {{token}}
 
 {
   "user_id": "aecd7bd1-21ab-4548-b5dd-f9859649bee0",
-  "sale_by": "Ng Van A",
   "channel": "",
   "voucher_applied": "",
   "extra_data": "",
   "note": "Giao giờ hành chánh",
-  "customer_phone": "0987654321",
-  "customer_name": "0987654321",
-  "customer_address": "123 Le Loi, Da Nang",
-  "customer_email": "test@gmail.com",
-  "shipping_address": "123 Le Loi, Da Nang",
   "discount_amount": 100000,
   "provisional_amount": 30000,
   "shipping_amount": 30000,
@@ -31,14 +25,12 @@ Authorization: Bearer {{token}}
   "status": "PENDING",
   "products": [
     {
-      "product_id": "7314a58f-7493-4fa8-a0c5-5976a672598c",
+      "product_id": "b8eedb6a-8949-4271-aaed-8b1ac77810b6",
       "quantity": 10,
       "discount": 10,
       "note": "Giao giờ hành chánh",
       "vat": "8%",
       "tax_code": "VAT8",
-      "promotion_price": 100000,
-      "original_price": 100000,
       "price": 100000
     }
   ]

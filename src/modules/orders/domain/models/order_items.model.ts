@@ -9,31 +9,32 @@ import {
     ForeignKey,
     BelongsTo,
 } from 'sequelize-typescript';
-import { OrdersModel } from './orders.model';
+import { OrdersModel } from '@modules/orders/domain/models/orders.model';
 import { ProductModel } from '@modules/products/domain/models/product.model';
+import { ORDER_ITEM_ENTITY } from '@modules/orders/constants/order.constant';
 
 
-interface OrderItemsAttributes {
+interface IOrderItems {
     id: string;
     order_id: string;
     product_id: string;
-    price: number;
+    final_price: number;
     original_price: number;
     promotion_price: number;
     quantity: number;
     discount: number;
     note?: string;
-    vat?: number;
+    vat: number;
     created_at: Date;
     created_by?: string;
 }
 
 @Table({
-    tableName: 'order_items', // Thay thế bằng tên bảng thực tế của bạn
-    timestamps: true,
+    tableName: ORDER_ITEM_ENTITY.NAME, // Thay thế bằng tên bảng thực tế của bạn
+    timestamps: false,
     underscored: true, // Tắt updated_at tự động (vì bạn không định nghĩa nó)
 })
-export class OrderItemsModel extends Model<OrderItemsAttributes> {
+export class OrderItemsModel extends Model<IOrderItems> {
     // --- ID ---
     @PrimaryKey
     @Default(DataType.UUIDV4) // Ánh xạ 'gen_random_uuid()'
@@ -63,20 +64,10 @@ export class OrderItemsModel extends Model<OrderItemsAttributes> {
     })
     declare product_id: string;
 
-    // Giá bán thực tế (sau khi áp dụng promotion)
-    @AllowNull(false)
-    @Column(DataType.DECIMAL(18, 2))
-    declare price: number;
-
     // Giá gốc niêm yết của sản phẩm
     @AllowNull(false)
     @Column(DataType.DECIMAL(18, 2))
-    declare original_price: number;
-
-    // Giá khuyến mãi (nếu có, không áp dụng voucher)
-    @AllowNull(false)
-    @Column(DataType.DECIMAL(18, 2))
-    declare promotion_price: number;
+    declare final_price: number;
 
     // Số lượng sản phẩm
     @AllowNull(false)
@@ -112,7 +103,7 @@ export class OrderItemsModel extends Model<OrderItemsAttributes> {
     @Default(null)
     @Column(DataType.STRING)
     declare created_by: string;
-
+    
     // --- Định nghĩa mối quan hệ (Tùy chọn) ---
     @BelongsTo(() => OrdersModel, 'order_id')
     order?: OrdersModel;
