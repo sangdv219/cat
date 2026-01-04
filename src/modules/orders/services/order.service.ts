@@ -1,15 +1,17 @@
+import { PricingStrategyFactory } from '@/domain/pricing/factory';
+import { BullService } from '@bull/bull.service';
 import { DoublyLinkedList } from '@core/data-structures/doubly-linked-list';
 import { SinglyLinkedList } from '@core/data-structures/singly-linked-list';
 import { PricingType } from '@core/enum/pg-error-codes.enum';
-import { PricingStrategyFactory } from '@/domain/pricing/factory';
-import { BullService } from '@bull/bull.service';
 import { BaseService } from '@core/services/base.service';
 import { InventoryService } from '@modules/inventory/services/inventory.service';
 import { ORDER_ENTITY } from '@modules/orders/constants/order.constant';
 import { OrdersModel } from '@modules/orders/domain/models/orders.model';
 import { CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
 import { GetAllOrderResponseDto, GetByIdOrderResponseDto } from '@modules/orders/dto/order.response.dto';
-import { PostgresOrderItemsRepository, PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
+import { PostgresOrderHistoryRepository, PostgresOrderItemsRepository, PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
+import { IOrder, IOrderItems, IOrderItemsEntity } from '@modules/orders/interface/order.interface';
+import { IProduct } from '@modules/products/domain/models/product.model';
 import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -17,9 +19,7 @@ import { InjectConnection } from '@nestjs/sequelize';
 import { RedisService } from '@redis/redis.service';
 import { plainToInstance } from 'class-transformer';
 import * as crypto from 'crypto';
-import { QueryTypes, Sequelize, Transaction, where } from 'sequelize';
-import { IOrder, IOrderItems, IOrderItemsEntity } from '../interface/order.interface';
-import { IProduct } from '@modules/products/domain/models/product.model';
+import { QueryTypes, Sequelize, Transaction } from 'sequelize';
 
 @Injectable()
 export class OrderService extends
@@ -36,6 +36,7 @@ export class OrderService extends
     public cacheManage: RedisService,
     protected orderRepository: PostgresOrderRepository,
     protected orderItemsRepository: PostgresOrderItemsRepository,
+    protected orderHistoryRepository: PostgresOrderHistoryRepository,
     protected productRepository: PostgresProductRepository,
     public inventoryService: InventoryService,
     private readonly bullService: BullService,
@@ -75,9 +76,14 @@ export class OrderService extends
 
   async checkout(dto: CreatedOrderRequestDto) {
     this.cleanCacheRedis()
-    return await this.bullService.addOrderJob(dto);
-  }
 
+     await this.bullService.addOrderJob(dto);
+
+    // return {
+    //   jobId: job.jobId
+    // };
+  }
+ 
   async implementsOrder(dto: CreatedOrderRequestDto) {
     const orderItems: IOrderItems[] = dto.items;
     orderItems.sort((a, b) => a.product_id.localeCompare(b.product_id));
@@ -99,6 +105,7 @@ export class OrderService extends
         if (productMap.has(oi.product_id) === false) {
           throw new NotFoundException(`Product with ID ${oi.product_id} not found!`);
         } else {
+          await this.lockAndCheckInventory(oi.product_id, oi.quantity, t)
           await this.decreaseStockInventory(oi.product_id, oi.quantity, t)
           const VATAmount = oi.vat ? (productMap.get(oi.product_id)?.promotion_price! * 1.1) : productMap.get(oi.product_id)?.promotion_price;
           const price = productMap.get(oi.product_id)?.promotion_price!;
@@ -119,14 +126,22 @@ export class OrderService extends
       const sumItems = orderItemPayloads.reduce(
         (s, i) => s + i.final_price, 0
       );
-      const EPS = 0.0001;
-      Logger.log('Math.abs(sumItems - subtotal):', Math.abs(sumItems - subtotal));
+      // const EPS = 0.0001;
       
-      if (Math.abs(sumItems - subtotal) > EPS) {
-        throw new HttpException('Subtotal mismatch', HttpStatus.BAD_REQUEST);
-      }
+      // if (Math.abs(sumItems - subtotal) > EPS) {
+      //   throw new HttpException('Subtotal mismatch', HttpStatus.BAD_REQUEST);
+      // }
       // // 4. Add order-item
       await this.orderItemsRepository.bulkCreate(orderItemPayloads, { transaction: t })
+
+      Logger.log('orderId:', orderId);
+      
+      await this.orderHistoryRepository.create({
+        order_id: orderId,
+        user_id: dto.user_id,
+        order_total: subtotal,
+        items_json: JSON.stringify(orderItemPayloads),
+      }, { transaction: t });
     });
   }
 

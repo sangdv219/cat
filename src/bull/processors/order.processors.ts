@@ -13,8 +13,7 @@ export class OrderProcessor {
     @Process('place-order') // name job
     async handlePlaceOrder(job: Job, token?: string) {
         try {
-            const result = await this.orderService.implementsOrder(job.data)
-            this.logger.log("✅ Order success:", result);
+            await this.orderService.implementsOrder(job.data)
 
             return { status: 'ok' };
         } catch (error) {

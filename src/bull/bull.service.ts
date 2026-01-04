@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 
@@ -14,7 +14,7 @@ export class BullService {
     ) { }
 
     async addOrderJob(data) {
-        await this.orderQueue.add('place-order', data, {
+        const job = await this.orderQueue.add('place-order', data, {
             delay: 1000, // 1 giây sau mới chạy
             attempts: 1, // thử lại tối đa 1 lần - Retry (số lần thử lại khi job fail)
             backoff: {
@@ -28,6 +28,9 @@ export class BullService {
             removeOnFail: true,
             // concurrency: 300
         });
+        return {
+            jobId: job.id
+        }
     }
 
     async addSendMailJob(data) {
