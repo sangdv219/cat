@@ -110,6 +110,7 @@ jobs:
         envs: APP_NAME
         script: |
           echo "---------- Start deploy-staging.sh on EC2 ----------"
+          sudo su
           chmod +x /home/ubuntu/scripts/deploy-staging.sh
 
           bash /home/ubuntu/scripts/deploy-staging.sh
