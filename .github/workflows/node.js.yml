@@ -72,14 +72,17 @@ jobs:
     runs-on: [self-hosted, macOS]
     # needs: [lint, test, sonarQube] 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          clean: false
         
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.TOKEN }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & Push Docker image
         uses: docker/build-push-action@v6
