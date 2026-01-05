@@ -71,6 +71,9 @@ jobs:
     if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
     runs-on: [self-hosted, macOS]
     # needs: [lint, test, sonarQube] 
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
