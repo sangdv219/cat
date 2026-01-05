@@ -89,7 +89,7 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/sangdv219/cat:${{ github.sha }}
 
   deploy-staging:
     if: github.ref == 'refs/heads/staging'
