@@ -1,11 +1,13 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
 
-name: Node.js CI
+name: Build Image Development CI/CD
 
 on:
   push:
     branches: [ "main", "staging", "develop", "feat/**" ]
+  workflow_dispatch:
+    # logLevel: 'info'
   # pull_request:
   #   branches: [ "main", "staging" ] # production, staging
 
@@ -67,7 +69,7 @@ jobs:
 
   package:
     if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, mac]
     # needs: [lint, test, sonarQube] 
     steps:
       - uses: actions/checkout@v4
@@ -88,7 +90,7 @@ jobs:
 
   deploy-staging:
     if: github.ref == 'refs/heads/staging'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, mac]
     environment:
       name: staging
       url: ${{vars.URL}}   
@@ -110,7 +112,7 @@ jobs:
 
   deploy-prod:
     if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, mac]
     environment:
       name: production
       url: ${{vars.URL}}
