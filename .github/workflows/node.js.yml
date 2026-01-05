@@ -118,7 +118,7 @@ jobs:
 
   deploy-prod:
     if: github.ref == 'refs/heads/main'
-    runs-on: [self-hosted, macOS]
+    runs-on:  ubuntu-latest
     environment:
       name: production
       url: ${{vars.URL}}
