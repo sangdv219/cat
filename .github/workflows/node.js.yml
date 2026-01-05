@@ -110,8 +110,9 @@ jobs:
         envs: APP_NAME
         script: |
           echo "---------- Start deploy-staging.sh on EC2 ----------"
-          chmod +x ${{vars.PATH_DEPLOY}}
-          bash ${{vars.PATH_DEPLOY}}
+          chmod +x /home/ubuntu/scripts/deploy-staging.sh
+
+          bash /home/ubuntu/scripts/deploy-staging.sh
           echo "---------- Finished deploy-staging.sh ----------"
       env:
           APP_NAME: cat
