@@ -69,7 +69,7 @@ jobs:
 
   package:
     if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
-    runs-on: [self-hosted, mac]
+    runs-on: [self-hosted, macOS]
     # needs: [lint, test, sonarQube] 
     steps:
       - uses: actions/checkout@v4
@@ -90,7 +90,7 @@ jobs:
 
   deploy-staging:
     if: github.ref == 'refs/heads/staging'
-    runs-on: [self-hosted, mac]
+    runs-on: [self-hosted, macOS]
     environment:
       name: staging
       url: ${{vars.URL}}   
@@ -112,7 +112,7 @@ jobs:
 
   deploy-prod:
     if: github.ref == 'refs/heads/main'
-    runs-on: [self-hosted, mac]
+    runs-on: [self-hosted, macOS]
     environment:
       name: production
       url: ${{vars.URL}}
