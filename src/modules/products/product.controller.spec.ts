@@ -1,11 +1,11 @@
-import { PaginationQueryDto } from '@/dto/common';
+import { PaginationQueryDto } from '@/shared/dto/common';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ProductController } from './controller/product.app.controller';
 import {
   CreatedProductRequestDto,
   UpdatedProductRequestDto,
-} from './DTO/product.request.dto';
+} from './dto/product.request.dto';
 import { ProductService } from './services/product.service';
 
 // DTO và model giả định (thay theo dự án thật)

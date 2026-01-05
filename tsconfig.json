@@ -25,6 +25,10 @@
       "@config/*": ["src/config/*"],
       "@core/*": ["src/core/*"],
       "@database/*": ["src/database/*"],
+      "@redis/*": ["src/redis/*"],
+      "@bull/*": ["src/bull/*"],
+      "@shared/*": ["src/shared/*"],
+      "@audit/*": ["src/audit/*"],
     }
   }
 }

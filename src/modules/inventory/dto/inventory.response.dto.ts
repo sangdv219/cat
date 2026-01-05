@@ -1,4 +1,4 @@
-import { ProductResponseDto } from '@/modules/products/DTO/product.response.dto';
+import { ProductResponseDto } from '@modules/products/dto/product.response.dto';
 import { Expose } from 'class-transformer';
 
 export class InventoryBaseDto {
@@ -29,5 +29,8 @@ export class CreatedInventoryReponseDto extends InventoryBaseDto {
 }
 
 
-export class GetByIdInventoryResponseDto extends CreatedInventoryReponseDto {}
+export class GetByIdInventoryResponseDto extends CreatedInventoryReponseDto {
+  @Expose()
+  product: ProductResponseDto
+}
 

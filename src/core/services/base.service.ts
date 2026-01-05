@@ -1,8 +1,4 @@
-import { CacheVersionService } from '@/modules/common/services/cache-version.service';
-import { sensitiveFields } from '@/shared/config/sensitive-fields.config';
-import { RedisContext } from '@/shared/redis/enums/redis-key.enum';
-import { buildRedisKeyQuery } from '@/shared/redis/helpers/redis-key.helper';
-import { IBaseRepository } from '@core/repositories/base.repository';
+import { IBaseRepository, IPaginationDTO } from '@core/repositories/base.repository';
 import {
   BeforeApplicationShutdown,
   Logger,
@@ -11,33 +7,45 @@ import {
   OnModuleDestroy,
   OnModuleInit
 } from '@nestjs/common';
+import { RedisContext } from '@redis/enums/redis-key.enum';
+import { buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
+import { RedisService } from '@redis/redis.service';
+import { sensitiveFields } from '@shared/config/sensitive-fields.config';
+import { Model } from 'sequelize';
+
 export abstract class BaseService<
-TEntity, 
-TCreateDto extends Partial<TEntity>, 
-TUpdateDto extends Partial<TEntity>, 
-GetByIdResponseDto extends Partial<TEntity>,
-GetAllResponseDto 
-> 
-implements
+  TEntity,
+  TCreateDto,
+  TUpdateDto,
+  GetByIdResponseDto,
+  GetAllResponseDto
+>
+  implements
   OnModuleInit,
   OnApplicationBootstrap,
   BeforeApplicationShutdown,
   OnModuleDestroy {
   protected abstract entityName: string;
-  protected abstract repository: IBaseRepository<TEntity>;
-  protected abstract cacheManage: CacheVersionService;
+  protected abstract cacheManage: RedisService;
   protected abstract moduleInit(): Promise<void>;
   protected abstract bootstrapLogic(): Promise<void>;
   protected abstract beforeAppShutDown(signal?: string): Promise<void>;
   protected abstract moduleDestroy(): Promise<void>;
   private readonly logger = new Logger(BaseService.name);
+  constructor(
+    protected readonly repository: IBaseRepository<TEntity>,
+    protected readonly mapper?: (dto: TCreateDto) => Partial<TEntity>,
+  ) { }
+
   async onModuleInit() {
     await this.moduleInit();
     this.logger.log(`${this.entityName} Service initialized`);
   }
 
+  async loadPermissionsDefault() {}
+
   async onApplicationBootstrap() {
-    await this.bootstrapLogic();
+   
   }
 
   async beforeApplicationShutdown(signal?: string) {
@@ -48,14 +56,12 @@ implements
     await this.moduleDestroy();
   }
 
-  async getPagination(query): Promise<GetAllResponseDto> {
-    const time = new Date().getTime();
-    console.log("time::::::::: ", time);
-    const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST, query);
+  async getPagination(query:IPaginationDTO) {
+    const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST, query as unknown as Record<string, string>);
 
     const cached = await this.cacheManage.get(redisKey);
 
-    const dataCache = cached ? JSON.parse(cached) : null;
+    const dataCache = cached && JSON.parse(cached);
 
     if (cached) return dataCache;
 
@@ -65,37 +71,61 @@ implements
 
     const response = { data: items, totalRecord: total };
 
-    await this.cacheManage.set(redisKey, JSON.stringify(response), 'EX', 300);
+    await this.cacheManage.set(redisKey, JSON.stringify(response), 'EX', 30);
 
     return response as GetAllResponseDto;
   }
 
-  create(dto: TCreateDto) {
+  async create(dto: TCreateDto) {
     this.cleanCacheRedis()
-    return this.repository.create(dto);
+    const entity = this.mapper ? this.mapper(dto) : (dto as Partial<TEntity>)
+    
+    return await this.repository.create(entity);
   }
-
-  async update(id: string, dto: TUpdateDto){
-    this.getById(id)
+  
+  async update(id: string, dto: TUpdateDto): Promise<any> {
     this.cleanCacheRedis()
-    const modifyDto = { ...dto, updated_at: new Date() };
-    return await this.repository.update(id, modifyDto);
+    const entity = await this.repository.findByPk(id, [], false) as Model<any, any>
+    
+    if (!entity) return null;
+    try {
+      Object.assign(entity, dto)
+      await entity.save()
+      return entity;
+    } catch (error) {
+      this.logger.error('[base.service:97] message', error);
+      
+    }
   }
+  
+  async getById(id: string): Promise<GetByIdResponseDto | any> {
+    const redisKey = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.DETAIL, {}, id);
 
-  async getById(id: string): Promise<GetByIdResponseDto | null> {
-    const entity = await this.repository.findOne(id);
+    const cached = await this.cacheManage.get(redisKey);
+
+    const dataCache = cached && JSON.parse(cached);
+
+    if (cached) return dataCache;
+
+    const exclude = sensitiveFields[this.entityName] ?? [];
+    const entity = await this.repository.findByPk(id, exclude);
     if (!entity) {
       throw new NotFoundException(`${this.entityName} with id ${id} not found`);
     }
-    return entity as GetByIdResponseDto;
+    // const dto = plainToInstance<GetByIdResponseDto, any>(GetByIdResponseDto, entity, { excludeExtraneousValues: true });
+    await this.cacheManage.set(redisKey, JSON.stringify(entity), 'EX', 30);
   }
 
   async cleanCacheRedis() {
-    const keyCacheListByBrand = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST);
-    await this.cacheManage.delCache(keyCacheListByBrand);
+    try {
+      const keyCacheListByBrand = buildRedisKeyQuery(this.entityName.toLocaleLowerCase(), RedisContext.LIST);
+      await this.cacheManage.delCache(keyCacheListByBrand);
+    } catch (error) {
+      this.logger.error(`${error}`);
+    }
   }
 
-  async delete(id: string){
+  async delete(id: string) {
     await this.cleanCacheRedis();
     await this.getById(id);
     await this.repository.delete(id);

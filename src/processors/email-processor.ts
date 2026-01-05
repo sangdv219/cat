@@ -1,7 +1,9 @@
-import { EmailService } from '@/modules/auth/services/mail.service';
+import { EmailService } from '@modules/auth/services/mail.service';
+import { ConfigService } from '@nestjs/config';
 import { SandboxedJob, WaitingError } from 'bullmq';
 
-const emailService = new EmailService();
+const configService = new ConfigService();
+const emailService = new EmailService(configService);
 export default async function (job: SandboxedJob) {
     console.log(`📧 [Sandbox] Sending email to ${job.data.to}, subject: ${job.data.subject}`);
     try {
