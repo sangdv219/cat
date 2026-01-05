@@ -124,7 +124,7 @@ jobs:
         envs: APP_NAME
         script: |
           echo "---------- Start deploy-prod.sh on EC2 ----------"
-          chmod +x ${{vars.PATH_DEPLOY}}
+
           bash ${{vars.PATH_DEPLOY}}
           echo "---------- Finished deploy-prod.sh ----------"
       env:
