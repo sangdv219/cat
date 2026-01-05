@@ -39,4 +39,12 @@ export class AuditLogModel extends BaseModel<AuditLogModel> {
   @AllowNull(true)
   @Column({ type: DataType.JSONB })
   declare new_data: any;
+
+  @AllowNull(true)
+  @Column({ type: DataType.JSONB })
+  declare diff: any;
+
+  @AllowNull(true)
+  @Column({ type: DataType.JSONB })
+  declare changed_fields: any;
 }

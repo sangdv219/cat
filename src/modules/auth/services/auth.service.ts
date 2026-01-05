@@ -4,18 +4,21 @@ import { RefreshTokenResponseDto } from '@modules/auth/interface/refreshToken.in
 import { PasswordService } from '@modules/password/services/password.service';
 import { UserModel } from '@modules/users/domain/models/user.model';
 import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
-import { RedisContext, RedisModule } from '@shared/redis/enums/redis-key.enum';
-import { buildRedisKey } from '@shared/redis/helpers/redis-key.helper';
+import { RedisContext, RedisModule } from '@redis/enums/redis-key.enum';
+import { buildRedisKey, buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
 import { findCacheByEmail, scanlAlKeys } from '@shared/utils/common.util';
 import { GoneException, Inject, Injectable, Logger, NotFoundException, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
-import { RegisterDto } from '../DTO/register.dto';
-import { OTPService } from './OTP.service';
+import { RegisterDto } from '@modules/auth/DTO/register.dto';
+import { OTPService } from '@modules/auth/services/OTP.service';
 import { REDIS_TOKEN } from '@redis/redis.module';
 import { BullService } from '@bull/bull.service';
 import Redis from 'ioredis';
+import { v4 as uuidv4 } from 'uuid';
+import { RedisService } from '@redis/redis.service';
+import { UserService } from '@modules/users/services/user.service';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -28,16 +31,19 @@ export class AuthService implements OnModuleInit {
     protected readonly userModel: typeof UserModel,
     private readonly userRepository: PostgresUserRepository, // Assuming Redis is injected for cache management
     private readonly configService: ConfigService,
+    private readonly userService: UserService,
     @Inject(REDIS_TOKEN)
     private readonly redis: Redis,
     private readonly bullService: BullService,
-  ) { }
+    public cacheManage: RedisService,
+  ) {
+  }
 
-  onModuleInit() {}
+  onModuleInit() { }
 
   async incrementFailedLogins(id: string): Promise<void> {
     const user = await this.userRepository.findByPk(id);
-    
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -97,11 +103,63 @@ export class AuthService implements OnModuleInit {
       );
       if (isPasswordValid) {
         await this.resetFailedLogins(user.id);
-        const payload = { email: user.email, id: user.id };
+        const session_id = uuidv4()
+        const rolePermission = await this.userService.getRolePermissionByUserId(user.id);
+        const rolePermissions = {};
+        Logger.log('###session_id:', session_id);
+
+        const normalizePermissions = (rows) => {
+          const result: any = { roles: new Set(), permissions: {} };
+          for (const row of rows) {
+            result.roles.add(row.role_name);
+            if (!result.permissions[row.resource])
+                result.permissions[row.resource] = {};
+                result.permissions[row.resource][row.permission_action] = true;
+          }
+          result.roles = [...result.roles];
+          return result;
+        }
+
+        
+        const normalizePermissionsRoleDefault = (rows) => {
+          const roleMap = new Map();
+          for (const item of rows) {
+            const roleName = item.roles.name;
+            const permissionKey = `${item.permissions.resource}.${item.permissions.action}`;
+
+            if (!roleMap.has(roleName)) {
+              roleMap.set(roleName, new Set()); // Dùng Set để tránh trùng
+            }
+            roleMap.get(roleName).add(permissionKey);
+          }
+
+          const result = [
+            Object.fromEntries(
+              Array.from(roleMap, ([role, perms]) => [role, [...perms]])
+            )
+          ];
+        }
+
+        
+        
+        if (rolePermission && rolePermission.length) {
+          Object.assign(rolePermissions, normalizePermissions(rolePermission))
+        } else {
+          rolePermissions['roles'] = ['USER']
+        }
+
+
+        const redisKey = buildRedisKeyQuery('auth', RedisContext.SESSION, {}, session_id);
+        
+        await this.cacheManage.set(redisKey, JSON.stringify(rolePermissions), 'EX', 84600);
+
+        const payload = { sub: user.id, session_id };
+
         const accessToken = await this.jwtService.signAsync(payload, {
           secret: this.configService.getOrThrow('ACCESS_TOKEN_SECRET'),
           expiresIn: '24h',
         });
+
         const refreshToken = await this.jwtService.signAsync(payload, {
           secret: this.configService.getOrThrow('REFRESH_TOKEN_SECRET'),
           expiresIn: '1y',
@@ -178,7 +236,7 @@ export class AuthService implements OnModuleInit {
     if (!cacheByEmail) {
       await this.redis.set(key, JSON.stringify(otpCache), 'EX', TTL_OTP);
       await this.bullService.addSendMailJob({ email, otp })
-    }else{
+    } else {
       const cache = JSON.parse((await this.redis.get(cacheByEmail as string)) as string);
       const sendCount = cache.sendCount;
       const limitSendEmail = this.configService.getOrThrow('LIMIT_SEND_EMAIL');

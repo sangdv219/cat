@@ -49,3 +49,7 @@ export const POSTGRES_ERROR_HTTP_STATUS: Record<string, HttpStatus> = {
   [POSTGRES_ERROR_CODES.UNDEFINED_TABLE]: HttpStatus.BAD_REQUEST,
   [POSTGRES_ERROR_CODES.UNDEFINED_COLUMN]: HttpStatus.BAD_REQUEST,
 };
+export enum PricingType {
+    NORMAL = 'NORMAL',
+    FLASH_SALE = 'FLASH_SALE',
+}

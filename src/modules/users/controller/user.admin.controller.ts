@@ -3,7 +3,6 @@ import { BaseResponseInterceptor } from '@core/interceptors/base-response.interc
 import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
 import { PaginationQueryDto } from '@shared/dto/common';
 import { BaseGetResponse } from '@shared/interface/common';
-import { CacheTTL } from '@nestjs/cache-manager';
 import {
   Body,
   Controller,
@@ -20,10 +19,10 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
-import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../dto/user.admin.request.dto';
-import { UserModel } from '../domain/models/user.model';
-import { UserService } from '../services/user.service';
-import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../dto/user.admin.response.dto';
+import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@modules/users/dto/user.admin.request.dto';
+import { UserModel } from '@modules/users/domain/models/user.model';
+import { UserService } from '@modules/users/services/user.service';
+import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@modules/users/dto/user.admin.response.dto';
 import { JWTAuthGuard } from '@core/guards/jwt.guard';
 import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
@@ -38,8 +37,6 @@ export class UserAdminController {
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(JWTAuthGuard)
-  @UseInterceptors(UserContextInterceptor)
-  @CacheTTL(60)
   async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllUserAdminResponseDto> {
     try {
       return this.userService.getPagination(query);
@@ -50,10 +47,19 @@ export class UserAdminController {
 
   @Get(':id')
   @UseGuards(JWTAuthGuard)
-  @UseInterceptors(UserContextInterceptor)
   async getUserAdminById(@Param('id') id: string): Promise<GetByIdUserAdminResponseDto | null> {
     try {
       return await this.userService.getById(id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get('getRolePermissionByUserId/:id')
+  @UseGuards(JWTAuthGuard)
+  async getRolePermissionByUserId(@Param('id') id: string): Promise<any | null> {
+    try {
+      return await this.userService.getRolePermissionByUserId(id);
     } catch (error) {
       throw error;
     }

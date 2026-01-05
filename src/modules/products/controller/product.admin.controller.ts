@@ -23,9 +23,10 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../dto/product.response.dto';
+import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
-@Controller({ path:'admin/products', version: '1' })
+@Controller({ path: 'admin/products', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class ProductAdminController {
@@ -53,9 +54,10 @@ export class ProductAdminController {
     }
   }
 
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
-  @Post()
+  @UseInterceptors(UserContextInterceptor)
   async create(@Body() createProductDto: CreatedProductRequestDto) {
     try {
       return await this.userService.create(createProductDto);
@@ -67,6 +69,7 @@ export class ProductAdminController {
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async updateProduct(@Param('id') id: string, @Body() dto: UpdatedProductRequestDto) {
     try {
       return await this.userService.update(id, dto);
@@ -78,6 +81,7 @@ export class ProductAdminController {
   @Delete(':id')
   @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(UserContextInterceptor)
   async deleteProduct(@Param('id') id: string): Promise<void> {
     try {
       return await this.userService.delete(id);

@@ -1,27 +1,42 @@
+import { DefaultTokenSecretResolverStrategy } from '@core/strategies/default-token-secret-resolver.strategy';
+import { RedisService } from '@redis/redis.service';
 import { OrderAppController } from '@modules/orders/controller/order.app.controller';
 import { OrdersModel } from '@modules/orders/domain/models/orders.model';
-import { RedisService } from '@/redis/redis.service';
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { InventoryModule } from '../inventory/inventory.module';
-import { InventoryService } from '../inventory/services/inventory.service';
-import { OrderItemsModule } from '../order-items/orderItems.module';
-import { PostgresProductRepository } from '../products/infrastructure/repository/postgres-product.repository';
-import { ProductModule } from '../products/product.module';
-import { PostgresOrderRepository } from './infrastructure/repository/postgres-order.repository';
-import { OrderService } from './services/order.service';
+import { InventoryModule } from '@modules/inventory/inventory.module';
+import { InventoryService } from '@modules/inventory/services/inventory.service';
+import { ProductModule } from '@modules/products/product.module';
+import { UserModel } from '@modules/users/domain/models/user.model';
+import { PostgresOrderHistoryRepository, PostgresOrderItemsRepository, PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
+import { OrderService } from '@modules/orders/services/order.service';
+import { AssociationsModule } from '@modules/associations/associations.module';
+import { RbacModule } from '@modules/rbac/rbac.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { PaymentMethodModel } from '@models/payment_methods.model';
+import { ShippingMethodModel } from '@models/shipping_methods.model';
+import { WarehouseModel } from '@models/warehouses.model';
+import { CancelReasonModel } from '@/models/cancel_reason.model';
+import { OrderItemsModel } from './domain/models/order_items.model';
+import { OrderHistoryModel } from './domain/models/order_history.model';
 
 @Module({
-  imports: [ SequelizeModule.forFeature([OrdersModel]), OrderItemsModule, InventoryModule, ProductModule ],
+  imports: [
+    SequelizeModule.forFeature([OrdersModel, OrderItemsModel, OrderHistoryModel, UserModel, PaymentMethodModel, ShippingMethodModel, WarehouseModel, CancelReasonModel]), InventoryModule, ProductModule, AssociationsModule, RbacModule,
+    EventEmitterModule.forRoot(),
+  ],
   controllers: [ OrderAppController ],
   providers: [
     OrderService,
-    JwtModule,
     PostgresOrderRepository,
+    PostgresOrderItemsRepository,
+    PostgresOrderHistoryRepository,
     InventoryService,
-    // PostgresProductRepository,
-    RedisService
+    RedisService,
+    {
+      provide: 'TokenSecretResolver',
+      useClass: DefaultTokenSecretResolverStrategy,
+    },
   ],
   exports: [PostgresOrderRepository, OrderService],
 })

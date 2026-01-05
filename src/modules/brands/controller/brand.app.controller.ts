@@ -15,7 +15,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '../DTO/brand.response.dto';
+import { GetAllBrandResponseDto, GetByIdBrandResponseDto } from '../dto/brand.response.dto';
 
 @ApiBearerAuth('Authorization')
 @Controller({ path:'app/brands', version: '1' })

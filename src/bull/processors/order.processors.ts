@@ -13,8 +13,7 @@ export class OrderProcessor {
     @Process('place-order') // name job
     async handlePlaceOrder(job: Job, token?: string) {
         try {
-            const result = await this.orderService.implementsOrder(job.data)
-            this.logger.log("✅ Order success:", result);
+            await this.orderService.implementsOrder(job.data)
 
             return { status: 'ok' };
         } catch (error) {
@@ -23,9 +22,9 @@ export class OrderProcessor {
                 const status = error.getStatus();
                 const response = error.getResponse();
                 this.logger.error(`Order failed: ${status} - ${JSON.stringify(response)}`);
-                throw error; // vẫn throw để Bull đánh dấu job failed
+                throw error;
             }
-            throw new Error(error.message);
+            throw new Error('Error from job =>', error);
         }
     }
 }

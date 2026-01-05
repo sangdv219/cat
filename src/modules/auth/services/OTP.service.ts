@@ -1,13 +1,13 @@
 import Redis from 'ioredis';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { UserService } from '@modules/users/services/user.service';
-import { RedisContext, RedisModule } from '@shared/redis/enums/redis-key.enum';
-import { buildRedisKey } from '@shared/redis/helpers/redis-key.helper';
+import { RedisContext, RedisModule } from '@redis/enums/redis-key.enum';
+import { buildRedisKey } from '@redis/helpers/redis-key.helper';
 import { findCacheByEmail, scanlAlKeys } from '@shared/utils/common.util';
 import { GoneException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { VerifyOtpDto } from '../DTO/verify-otp.dto';
-import { VerifyResponseDto } from '../interface/login.interface';
+import { VerifyOtpDto } from '@modules/auth/DTO/verify-otp.dto';
+import { VerifyResponseDto } from '@modules/auth/interface/login.interface';
 import { REDIS_TOKEN } from '@redis/redis.module';
 
 @Injectable()

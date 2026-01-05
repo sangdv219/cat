@@ -1,6 +1,5 @@
 import { BaseService } from '@core/services/base.service';
-import { CategoryModel } from '@modules/categories/domain/models/category.model';
-import { RedisService } from '@/redis/redis.service';
+import { RedisService } from '@redis/redis.service';
 import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable, Logger } from '@nestjs/common';
 import { CATEGORY_ENTITY } from '@modules/categories/constants/category.constant';
@@ -8,6 +7,7 @@ import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/c
 import { PostgresCategoryRepository } from '@modules/categories/infrastructure/repository/postgres-category.repository';
 import { plainToInstance } from 'class-transformer';
 import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@modules/categories/dto/category.response.dto';
+import { CategoryModel } from '@modules/categories/domain/models/categories.model';
 
 @Injectable()
 export class CategoryService extends 
@@ -23,7 +23,7 @@ GetAllCategoryResponseDto> {
     protected postgresProductRepository: PostgresProductRepository,
     public cacheManage: RedisService,
   ) {
-    super();
+    super(repository);
     this.entityName = CATEGORY_ENTITY.NAME;
   }
 

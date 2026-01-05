@@ -8,16 +8,18 @@ import { DatabaseService } from '@database/database.service';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { InventoryModule } from '@modules/inventory/inventory.module';
+import { OrderModule } from '@modules/orders/order.module';
+import { BullModule } from '@bull/bull.module';
+import { RedisModule } from '@redis/redis.module';
+import { AuditModule } from '@audit/audit.module';
+import { ClsModule } from 'nestjs-cls';
+import { AnalyticsModule } from '@modules/analytics/analytics.module';
+import { RolesModule } from '@modules/roles/roles.module';
+import { PermissionsModule } from '@modules/permissions/permissions.module';
+import { AssociationsModule } from '@modules/associations/associations.module';
 import { AppController } from './app.controller';
 import { ChatGateway } from './gateways/chat.gateway';
-import { InventoryModule } from './modules/inventory/inventory.module';
-import { OrderModule } from './modules/orders/order.module';
-import { BullModule } from './bull/bull.module';
-import { RedisModule } from './redis/redis.module';
-import { AuditModule } from './audit/audit.module';
-import { ClsModule } from 'nestjs-cls';
-import { AnalyticsModule } from './modules/analytics/analytics.module';
-import { OrderItemsModule } from './modules/order-items/orderItems.module';
 
 @Module({
   imports: [
@@ -39,10 +41,12 @@ import { OrderItemsModule } from './modules/order-items/orderItems.module';
     CategoryModule,
     ProductModule,
     OrderModule,
-    OrderItemsModule,
     InventoryModule,
+    RolesModule,
+    PermissionsModule,
     BullModule,
     AnalyticsModule,
+    AssociationsModule,
     AuditModule,
   ],
   controllers: [AppController],

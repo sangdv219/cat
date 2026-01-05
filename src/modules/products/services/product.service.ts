@@ -1,5 +1,5 @@
 import { BaseService } from '@core/services/base.service';
-import { RedisService } from '@/redis/redis.service';
+import { RedisService } from '@redis/redis.service';
 import { PRODUCT_ENTITY } from '@modules/products/constants/product.constant';
 import { ProductModel } from '@modules/products/domain/models/product.model';
 import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@modules/products/dto/product.request.dto';
@@ -20,7 +20,12 @@ GetAllProductResponseDto> {
         protected repository: PostgresProductRepository,
         public cacheManage: RedisService,
     ) {
-        super();
+        // super(repository, (dto) => ({
+        //     ...dto,
+        //     price: dto.price.toFixed(2),
+        //     promotion_price: dto.price.toFixed(2) 
+        // }));
+        super(repository)
         this.entityName = PRODUCT_ENTITY.NAME;
     }
 

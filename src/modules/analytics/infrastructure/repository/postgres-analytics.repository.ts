@@ -6,11 +6,11 @@ import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class PostgresAnalyticsRepository extends AbstractAnalyticsRepository {
-  private static readonly ENTITY_NAME = CATEGORY_ENTITY.NAME;
+  private static readonly searchableFields = ['phone', 'gender', 'email', 'name'];
   constructor(
     @InjectModel(UserModel)
     protected readonly userModel: typeof UserModel,
   ) {
-    super(PostgresAnalyticsRepository.ENTITY_NAME, userModel);
+    super(UserModel, PostgresAnalyticsRepository.searchableFields);
   }
 }

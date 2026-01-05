@@ -2,7 +2,12 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { config } from 'dotenv';
+import { ConfigService } from '@nestjs/config';
 
+
+config();
+const configService = new ConfigService();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -36,6 +41,8 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
+
+  console.log(`🚀 HTTP server running on port http://localhost:${configService.getOrThrow('PORT')}/api#/`);
 
   await app.listen(process.env.PORT ?? 3000);
 }

@@ -1,3 +1,5 @@
+// import { UserRolesModel } from '@/modules/associations/models/user-roles.model';
+import { UserRolesModel } from '@modules/associations/models/user-roles.model';
 import { BaseModel } from '@shared/model/base.model';
 import { ClsServiceManager } from 'nestjs-cls';
 import {
@@ -6,6 +8,7 @@ import {
   Column,
   DataType,
   Default,
+  HasMany,
   PrimaryKey,
   Sequelize,
   Table,
@@ -26,7 +29,11 @@ export class UserModel extends BaseModel<UserModel> {
 
   @AllowNull(false)
   @Column({ type: DataType.STRING(500) })
-  declare name: string;
+  declare fullname: string;
+
+  @AllowNull(false)
+  @Column({ type: DataType.STRING(500) })
+  declare ascii_name: string;
 
   @AllowNull(true)
   @Column(DataType.TEXT)
@@ -106,4 +113,7 @@ export class UserModel extends BaseModel<UserModel> {
   @Default(null)
   @Column(DataType.DATE)
   declare locked_until: Date; // New field to track when the account is locked until
+
+  @HasMany(() => UserRolesModel)
+  declare userRoles: UserRolesModel[]
 }

@@ -28,6 +28,7 @@
       "@redis/*": ["src/redis/*"],
       "@bull/*": ["src/bull/*"],
       "@shared/*": ["src/shared/*"],
+      "@audit/*": ["src/audit/*"],
     }
   }
 }

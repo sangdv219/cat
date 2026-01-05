@@ -1,12 +1,15 @@
-import * as argon2 from 'argon2';
 import { BaseService } from '@core/services/base.service';
+import { PostgresUserRolesRepository } from '@modules/associations/repositories/user-roles.repository';
 import { UserModel } from '@modules/users/domain/models/user.model';
-import { RedisService } from '@/redis/redis.service';
+import { CreatedUserAuthRequestDto } from '@modules/users/dto/user-auth.request.dto';
+import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@modules/users/dto/user.admin.request.dto';
+import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@modules/users/dto/user.admin.response.dto';
+import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { CreatedUserAuthRequestDto } from '../dto/user-auth.request.dto';
-import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '../dto/user.admin.request.dto';
-import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '../dto/user.admin.response.dto';
-import { PostgresUserRepository } from '../repository/user.admin.repository';
+import { InjectConnection } from '@nestjs/sequelize';
+import { RedisService } from '@redis/redis.service';
+import * as argon2 from 'argon2';
+import { Sequelize } from 'sequelize';
 
 @Injectable()
 export class UserService extends
@@ -18,11 +21,15 @@ export class UserService extends
   protected entityName: string;
   private users: string[] = [];
   constructor(
+    @InjectConnection()
+    private readonly sequelize: Sequelize,
     protected repository: PostgresUserRepository,
+    protected userRolesRepository: PostgresUserRolesRepository,
+    // protected userPermissionsRepository: PostgresRolePermissionsRepository,
     private readonly userRepository: PostgresUserRepository,
     public cacheManage: RedisService,
   ) {
-    super();
+    super(repository);
     this.entityName = 'User';
   }
 
@@ -30,13 +37,14 @@ export class UserService extends
     this.users = ['Iphone', 'Galaxy'];
   }
 
-  protected async bootstrapLogic(): Promise<void> {}
+  protected async bootstrapLogic(): Promise<void> {
+    Logger.log(`🛑 repository--------->`, this.repository);
+    Logger.log(this.repository);
+   }
 
   protected async beforeAppShutDown(signal): Promise<void> {
     this.stopJob();
-    Logger.log(
-      `🛑 beforeApplicationShutdown: UserService cleanup before shutdown.`,
-    );
+    Logger.log(`🛑 beforeApplicationShutdown: UserService cleanup before shutdown.`);
   }
 
   private async stopJob() {
@@ -102,6 +110,26 @@ export class UserService extends
     };
   }
 
+  async getRolePermissionByUserId(userId: string) {
+    const rawQuery = await this.sequelize.query(`
+        SELECT DISTINCT p.id, p.resource as resource, p.action as permission_action, r.name as role_name
+        FROM permissions p
+        JOIN role_permissions rp ON p.id = rp.permission_id
+        JOIN roles r ON r.id = rp.role_id
+        JOIN user_roles ur ON ur.role_id = r.id
+        JOIN users u ON u.id = ur.user_id
+        WHERE u.id = :userId;
+      `,
+    {
+      replacements: { userId },
+      raw: true,
+      nest: true
+    })
+
+    // Logger.log('rawQuery:', rawQuery);
+    return rawQuery;
+  }
+
   async createUserWithEmailOnly(body: CreatedUserAuthRequestDto): Promise<void> {
     const existsEmail = await this.userRepository.checkExistsField({
       email: { value: body.email, mode: 'equal' },
@@ -109,6 +137,6 @@ export class UserService extends
     if (existsEmail) {
       throw new ConflictException('Email already exists');
     }
-     await this.userRepository.create(body);
+    await this.userRepository.create(body);
   }
 }
