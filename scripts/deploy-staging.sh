@@ -3,7 +3,7 @@ set -e  # dừng script nếu lệnh nào fail
 
 APP_NAME=${APP_NAME:-cat}  
 BRANCH=${BRANCH:-staging}
-IMAGE=ghcr.io/sangdEv2109/$APP_NAME:latest
+IMAGE=sangdev2109/cat-app
 HOST_PORT=80
 CONTAINER_PORT=3000
 HOST_MAIN=https://54.252.231.194
@@ -19,7 +19,6 @@ sudo docker rm $APP_NAME || true
 
 echo "[INFO] Log in to Hub Docker"
 echo ${{DOCKER_HUB_TOKEN}} | sudo docker login -u sangdev2109 --password-stdin
-sudo docker pull $IMAGE
 
 echo "DB_HOST=$STAGING_DB_HOST" > .env.staging
 echo "DB_PORT=$STAGING_DB_PORT" >> .env.staging
