@@ -1,19 +1,19 @@
-plop-templates
-test
-tools
-logs
-*.log
-npm-debug.log*
-pnpm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*    
-yarn.lock
+# plop-templates
+# test
+# tools
+# logs
+# *.log
+# npm-debug.log*
+# pnpm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# lerna-debug.log*    
+# yarn.lock
+# dist
+# .github
 
-.github
 
-node_modules
-dist
+node_modules/
 # Dockerfile
 # .prettierrc
 # .eslint.config.mjs

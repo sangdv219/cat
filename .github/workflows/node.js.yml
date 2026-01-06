@@ -67,10 +67,14 @@ jobs:
   #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   #       run: npm run sonar 
 
+  
   package:
     if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
     runs-on: [self-hosted, macOS]
     # needs: [lint, test, sonarQube] 
+    env:
+      IMG_NAME: cat-dev 
+      IMAGE_LASTEST_CAT: cat:latest
     permissions:
       contents: read
       packages: write
@@ -87,12 +91,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & Push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: |
-            ghcr.io/sangdv219/cat:${{ github.sha }}
+      - name: Build docker image save version tag
+        run: |
+          docker build -f Dockerfile --build-arg PF_ENV=development -t ${{ env.IMG_NAME }}:latest .
+      - name: Push docker image lastest and version tag
+        run: |
+          docker push ${{ env.IMG_NAME }}/${{ env.IMAGE_LASTEST_CAT }}
 
   deploy-staging:
     if: github.ref == 'refs/heads/staging'
@@ -101,20 +105,40 @@ jobs:
       name: staging
       url: ${{vars.URL}}   
     steps:
-    - name: Deploy to EC2 via SSH in Staging
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Copy script to EC2
+      uses: appleboy/scp-action@master
+      with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          source: "deploy-staging.sh"        # File nguồn ở trên GitHub
+          target: "/home/${{ secrets.EC2_USERNAME }}/" # Đích đến trên EC2
+    - name: Execute Deployment in Staging
       uses: appleboy/ssh-action@v1.0.0
       with:
-        host: ${{ secrets.EC2_HOST  }}
-        username: ubuntu 
-        key: ${{ secrets.EC2_SSH_KEY  }}
-        envs: APP_NAME
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }} 
+        key: ${{ secrets.EC2_SSH_PRIVATE_KEY  }}
+        envs: APP_NAME, DOCKER_HUB_TOKEN, STAGING_DB_HOST, STAGING_DB_PORT, STAGING_DB_USER, STAGING_DB_PASSWORD, STAGING_DB_DATABASE, STAGING_REDIS_HOST
         script: |
           echo "---------- Start deploy-staging.sh on EC2 ----------"
-          chmod +x ${{vars.PATH_DEPLOY}}
-          bash ${{vars.PATH_DEPLOY}}
+          cd /home/${{ secrets.EC2_USERNAME }}/scripts
+          chmod +x deploy-staging.sh
+          ./deploy-staging.sh
+
+          bash /home/ubuntu/scripts/deploy-staging.sh
           echo "---------- Finished deploy-staging.sh ----------"
-      env:
+      env:  
           APP_NAME: cat
+          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
+          STAGING_DB_HOST: ${{ secrets.STAGING_DB_HOST }}
+          STAGING_DB_PORT: ${{ secrets.STAGING_DB_PORT }}
+          STAGING_DB_USER: ${{ secrets.STAGING_DB_USER }}
+          STAGING_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
+          STAGING_DB_DATABASE: ${{ secrets.STAGING_DB_DATABASE }}
+          STAGING_REDIS_HOST: ${{ secrets.STAGING_REDIS_HOST }}
 
   deploy-prod:
     if: github.ref == 'refs/heads/main'
@@ -132,7 +156,7 @@ jobs:
         envs: APP_NAME
         script: |
           echo "---------- Start deploy-prod.sh on EC2 ----------"
-          chmod +x ${{vars.PATH_DEPLOY}}
+
           bash ${{vars.PATH_DEPLOY}}
           echo "---------- Finished deploy-prod.sh ----------"
       env:
