@@ -67,10 +67,14 @@ jobs:
   #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   #       run: npm run sonar 
 
+  
   package:
     if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
     runs-on: [self-hosted, macOS]
     # needs: [lint, test, sonarQube] 
+    env:
+      IMG_NAME: cat-dev 
+      IMAGE_LASTEST_CAT: cat:latest
     permissions:
       contents: read
       packages: write
@@ -87,12 +91,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build & Push Docker image
-        uses: docker/build-push-action@v6
-        with:
-          push: true
-          tags: |
-            ghcr.io/sangdv219/cat:${{ github.sha }}
+      - name: Build docker image save version tag
+        run: |
+          docker build -f Dockerfile --build-arg PF_ENV=development -t ${{ env.IMG_NAME }}:latest .
+      - name: Push docker image lastest and version tag
+        run: |
+          docker push ${{ env.IMG_NAME }}/${{ env.IMAGE_LASTEST_CAT }}
 
   deploy-staging:
     if: github.ref == 'refs/heads/staging'

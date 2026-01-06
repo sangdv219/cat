@@ -22,7 +22,6 @@
       "@/*": ["src/*"],
       "@modules/*": ["src/modules/*"],
       "@models/*": ["src/models/*"],
-      "@config/*": ["src/config/*"],
       "@core/*": ["src/core/*"],
       "@database/*": ["src/database/*"],
       "@redis/*": ["src/redis/*"],
@@ -30,6 +29,5 @@
       "@shared/*": ["src/shared/*"],
       "@audit/*": ["src/audit/*"],
     }
-  }
+  },
 }
-
