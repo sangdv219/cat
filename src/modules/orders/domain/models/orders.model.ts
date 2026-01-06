@@ -75,7 +75,7 @@ export class OrdersModel extends Model<IOrder> {
 
   // --- TRẠNG THÁI & THÔNG TIN CHUNG ---
 
-  @Default('pending')
+  @Default('PENDING')
   @AllowNull(false)
   @Column({ type: DataType.ENUM('PENDING', 'CONFIRM', 'CANCELLED') })
   declare status: 'PENDING' | 'CONFIRM' | 'CANCELLED';

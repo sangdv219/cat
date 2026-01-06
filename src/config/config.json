@@ -3,21 +3,21 @@
     "username": "sangduong",
     "password": 210919,
     "database": "cat",
-    "host": "localhost",
+    "host": "postgres",
     "dialect": "postgres"
   },
   "test": {
     "username": "sangduong",
     "password": 210919,
-    "database": "database_test",
-    "host": "localhost",
+    "database": "cat",
+    "host": "postgres",
     "dialect": "postgres"
   },
   "production": {
     "username": "sangduong",
     "password": 210919,
-    "database": "database_production",
-    "host": "localhost",
+    "database": "cat",
+    "host": "postgres",
     "dialect": "postgres"
   }
 }
