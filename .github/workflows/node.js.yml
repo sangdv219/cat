@@ -115,6 +115,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          port: 22
           target: "/home/${{ secrets.EC2_USERNAME }}/" # Đích đến trên EC2
     - name: Execute Deployment in Staging
       uses: appleboy/ssh-action@v1.0.0
