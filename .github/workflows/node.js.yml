@@ -110,13 +110,11 @@ jobs:
       uses: actions/checkout@v3
     - name: Copy script to EC2
       run: |
-        # Ghi đè nội dung Secret vào file tạm
+        # 1. Tạo file key từ Secret
         echo "${{ secrets.EC2_SSH_PRIVATE_KEY }}" > private_key.pem
-        # Cấp quyền 600 để SSH chấp nhận file key
         chmod 600 private_key.pem
-        # Dùng scp gốc của hệ thống để copy file
-        scp -i private_key.pem -o StrictHostKeyChecking=no scripts/deploy-staging.sh ubuntu@54.252.231.194:/home/ubuntu/
-        # Xóa file key sau khi dùng xong để bảo mật
+        ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@54.252.231.194 "mkdir -p /home/ubuntu/scripts"
+        scp -i private_key.pem -o StrictHostKeyChecking=no scripts/deploy-staging.sh ubuntu@54.252.231.194:/home/ubuntu/scripts/
         rm private_key.pem
     - name: Execute Deployment in Staging
       uses: appleboy/ssh-action@v1.0.0
