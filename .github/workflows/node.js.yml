@@ -112,11 +112,11 @@ jobs:
       uses: appleboy/scp-action@master
       with:
           source: "scripts/deploy-staging.sh" # File nguồn ở trên GitHub
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
+          host: 54.252.231.194
+          username: ubuntu
           key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
           port: 22
-          target: "/home/${{ secrets.EC2_USERNAME }}/" # Đích đến trên EC2
+          target: "/home/ubuntu/" # Đích đến trên EC2
     - name: Execute Deployment in Staging
       uses: appleboy/ssh-action@v1.0.0
       with:
