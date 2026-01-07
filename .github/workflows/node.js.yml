@@ -118,6 +118,7 @@ jobs:
         port: 22
         target: "/home/${{ secrets.EC2_USERNAME }}/scripts"
         strip_components: 1
+        use_insecure_cipher: true
         rm: true
         debug: true
     - name: Execute Deployment in Staging
