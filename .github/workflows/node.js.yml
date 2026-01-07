@@ -115,7 +115,10 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }} 
         key: ${{ secrets.EC2_SSH_PRIVATE_KEY  }}
         source: "scripts/deploy-staging.sh"
+        port: 22
         target: "/home/${{ secrets.EC2_USERNAME }}/scripts"
+        strip_components: 1
+        rm: true
         debug: true
     - name: Execute Deployment in Staging
       uses: appleboy/ssh-action@v1.0.0
