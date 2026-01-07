@@ -123,6 +123,7 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }} 
         key: ${{ secrets.EC2_SSH_PRIVATE_KEY  }}
+        debug: true
         envs: APP_NAME, DOCKER_HUB_TOKEN, STAGING_DB_HOST, STAGING_DB_PORT, STAGING_DB_USER, STAGING_DB_PASSWORD, STAGING_DB_DATABASE, STAGING_REDIS_HOST
         script: |
           echo "---------- Start deploy-staging.sh on EC2 ----------"
