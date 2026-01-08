@@ -100,37 +100,20 @@ jobs:
   deploy-staging:
     if: github.ref == 'refs/heads/staging'
     needs: staging
-    runs-on:  ubuntu-latest
+    runs-on: self-hosted
     environment:
       name: staging
-      url: ${{vars.URL}}
     steps:
     - name: Execute Deployment in Staging
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.STAGING_SERVER_HOST }}
-        username: ${{ secrets.STAGING_SERVER_USERNAME }} 
-        port: ${{ secrets.STAGING_SERVER_SSH_PORT || 22 }}
-        key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
-        passphrase: ${{ secrets.STAGING_SERVER_SSH_PASSPHRASE }}
-        debug: true
-        envs: APP_NAME, DOCKER_HUB_TOKEN, STAGING_DB_HOST, STAGING_DB_PORT, STAGING_DB_USER, STAGING_DB_PASSWORD, STAGING_DB_DATABASE, STAGING_REDIS_HOST
-        script: |
-          echo "---------- Start deploy-staging.sh ----------"
-          # Ví dụ lệnh pull image mới về
-          docker pull ${{ env.USERNAME }}/${{ env.IMG_NAME }}:latest
-          # Stop và xóa container cũ, sau đó chạy container mới...
-          echo "Connection successful!"
-          echo "---------- Finished deploy-staging.sh ----------"
-      env:  
-          APP_NAME: cat
-          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
-          STAGING_DB_HOST: ${{ secrets.STAGING_DB_HOST }}
-          STAGING_DB_PORT: ${{ secrets.STAGING_DB_PORT }}
-          STAGING_DB_USER: ${{ secrets.STAGING_DB_USER }}
-          STAGING_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
-          STAGING_DB_DATABASE: ${{ secrets.STAGING_DB_DATABASE }}
-          STAGING_REDIS_HOST: ${{ secrets.STAGING_REDIS_HOST }}
+      run: |
+        echo "---------- Start Deploying on Local VMware ----------"
+        # Vì chạy trực tiếp trên máy, bạn có thể gọi Docker luôn
+        docker pull sangdev2109/cat-app:latest
+        
+        # Ví dụ: Xóa container cũ và chạy cái mới
+        docker stop cat-app-container || true
+        docker rm cat-app-container || true
+        docker run -d --name cat-app-container -p 80:80 sangdev2109/cat-app:latest
   
   deploy-prod:
     if: github.ref == 'refs/heads/main'
