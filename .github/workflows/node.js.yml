@@ -107,13 +107,11 @@ jobs:
     - name: Execute Deployment in Staging
       run: |
         echo "---------- Start Deploying on Local VMware ----------"
-        # Vì chạy trực tiếp trên máy, bạn có thể gọi Docker luôn
-        docker pull sangdev2109/cat-app:latest
-        
-        # Ví dụ: Xóa container cũ và chạy cái mới
-        docker stop cat-app-container || true
-        docker rm cat-app-container || true
-        docker run -d --name cat-app-container -p 80:80 sangdev2109/cat-app:latest
+        cd Code
+        docker-compose pull cat-app
+        docker-compose up -d --remove-orphans
+        docker image prune -f
+        echo "---------- Finished Deploying on Local VMware ----------"
   
   deploy-prod:
     if: github.ref == 'refs/heads/main'

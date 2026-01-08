@@ -18,9 +18,11 @@ services:
       - NODE_ENV=production
   app:
     build: .
+    image: sangdev2109/cat-app:latest
     container_name: cat
     ports: 
-      - "3003:3004"
+      - "80:80"
+    restart: always
     env_file:
       - .env.production
     environment:
