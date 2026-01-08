@@ -97,8 +97,6 @@ jobs:
     - name: Push docker image lastest and version tag
       run: |
         docker push ${{ env.USERNAME }}/${{ env.IMG_NAME }}:latest
-        docker push ${{ env.USERNAME }}/${{ env.IMG_NAME }}:${{ github.sha }}
-
   deploy-staging:
     if: github.ref == 'refs/heads/staging'
     needs: staging
