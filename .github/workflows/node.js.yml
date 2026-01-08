@@ -67,51 +67,37 @@ jobs:
   #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   #       run: npm run sonar 
 
-  
-  package:
-    if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/staging'
-    runs-on: [self-hosted, macOS]
-    # needs: [lint, test, sonarQube] 
-    env:
-      IMG_NAME: cat-app 
-      USERNAME: sangdev2109
-      PF_ENV: ${{vars.PF_ENV}}
-    environment:
-      name: staging  
-      # Set PF_ENV variable based on the branch
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          clean: false
-        
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build docker image save version tag
-        run: |
-          docker build -f Dockerfile  --build-arg PF_ENV="${PF_ENV}" -t ${{ env.IMG_NAME }} .
-          docker tag ${{ env.IMG_NAME }}:latest ${{ env.USERNAME }}/${{ env.IMG_NAME }}:latest
-      - name: Push docker image lastest and version tag
-        run: |
-          docker push ${{ env.USERNAME }}/${{ env.IMG_NAME }}:latest
-
   deploy-staging:
     if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     environment:
       name: staging  
       url: ${{vars.URL}}   
+    env:
+      IMG_NAME: cat-app 
+      USERNAME: sangdev2109
+      PF_ENV: ${{vars.PF_ENV}}
+    permissions:
+      contents: read
+      packages: write
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        clean: true
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build docker image save version tag
+      run: |
+        docker build -f Dockerfile  --build-arg PF_ENV="${PF_ENV}" -t ${{ env.IMG_NAME }} .
+        docker tag ${{ env.IMG_NAME }}:latest ${{ env.USERNAME }}/${{ env.IMG_NAME }}:latest
+    - name: Push docker image lastest and version tag
+      run: |
+        docker push ${{ env.USERNAME }}/${{ env.IMG_NAME }}:latest
     - name: Copy script to EC2
       uses: appleboy/ssh-action@v1.0.0
       with:
