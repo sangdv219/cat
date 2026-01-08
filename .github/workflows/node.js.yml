@@ -112,6 +112,7 @@ jobs:
         username: ${{ secrets.STAGING_SERVER_USERNAME }} 
         port: ${{ secrets.STAGING_SERVER_SSH_PORT || 22 }}
         key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
+        passphrase: ${{ secrets.STAGING_SERVER_SSH_PASSPHRASE }}
         debug: true
         envs: APP_NAME, DOCKER_HUB_TOKEN, STAGING_DB_HOST, STAGING_DB_PORT, STAGING_DB_USER, STAGING_DB_PASSWORD, STAGING_DB_DATABASE, STAGING_REDIS_HOST
         script: |
