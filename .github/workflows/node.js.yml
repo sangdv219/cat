@@ -107,10 +107,11 @@ jobs:
     - name: Execute Deployment in Staging
       run: |
         echo "---------- Start Deploying on Local VMware ----------"
+        ls
         cd Code
-        docker-compose pull cat-app
-        docker-compose up -d --remove-orphans
-        docker image prune -f
+        # docker-compose pull cat-app
+        # docker-compose up -d --remove-orphans
+        # docker image prune -f
         echo "---------- Finished Deploying on Local VMware ----------"
   
   deploy-prod:
