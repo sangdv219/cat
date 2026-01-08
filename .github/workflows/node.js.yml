@@ -114,7 +114,7 @@ jobs:
         source: "docker-compose.yml"
         target: "/home/sangduong/Code/"
         strip_components: 0
-
+        debug: true
     - name: Execute Deployment in Staging
       run: |
         echo "---------- Start Deploying on Local VMware ----------"
