@@ -67,12 +67,25 @@ jobs:
   #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   #       run: npm run sonar 
 
-
+  staging:
+    if: github.ref == 'refs/heads/staging'
+    runs-on: [self-hosted, macOS]
+    environment:
+      name: staging  
+      url: ${{vars.URL}}   
+  
    
   deploy-staging:
     
     if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
+    env:
+      IMG_NAME: cat-app 
+      USERNAME: sangdev2109
+      PF_ENV: ${{vars.PF_ENV}}
+    permissions:
+      contents: read
+      packages: write
     environment:
       name: staging
     steps:
