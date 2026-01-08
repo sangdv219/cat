@@ -67,9 +67,9 @@ jobs:
   #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   #       run: npm run sonar 
 
-  deploy-staging:
+  staging:
     if: github.ref == 'refs/heads/staging'
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, macOS]
     environment:
       name: staging  
       url: ${{vars.URL}}   
@@ -112,18 +112,17 @@ jobs:
     - name: Execute Deployment in Staging
       uses: appleboy/ssh-action@v1.0.0
       with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USERNAME }} 
-        key: ${{ secrets.EC2_SSH_PRIVATE_KEY  }}
+        host: ${{ secrets.STAGING_SERVER_HOST }}
+        username: ${{ secrets.STAGING_SERVER_USERNAME }} 
+        port: ${{ secrets.STAGING_SERVER_SSH_PORT || 22 }}
+        key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
         debug: true
         envs: APP_NAME, DOCKER_HUB_TOKEN, STAGING_DB_HOST, STAGING_DB_PORT, STAGING_DB_USER, STAGING_DB_PASSWORD, STAGING_DB_DATABASE, STAGING_REDIS_HOST
         script: |
           echo "---------- Start deploy-staging.sh on EC2 ----------"
-          cd /home/${{ secrets.EC2_USERNAME }}/scripts
-          chmod +x deploy-staging.sh
-          ./deploy-staging.sh
 
-          bash /home/ubuntu/scripts/deploy-staging.sh
+          echo "Connection successful!"
+
           echo "---------- Finished deploy-staging.sh ----------"
       env:  
           APP_NAME: cat
@@ -134,7 +133,7 @@ jobs:
           STAGING_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
           STAGING_DB_DATABASE: ${{ secrets.STAGING_DB_DATABASE }}
           STAGING_REDIS_HOST: ${{ secrets.STAGING_REDIS_HOST }}
-
+  
   deploy-prod:
     if: github.ref == 'refs/heads/main'
     runs-on:  ubuntu-latest
