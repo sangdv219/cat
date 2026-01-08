@@ -113,11 +113,12 @@ jobs:
         key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
         source: "docker-compose.yml"
         target: "/home/sangduong/Code/"
-
+        strip_components: 0
 
     - name: Execute Deployment in Staging
       run: |
         echo "---------- Start Deploying on Local VMware ----------"
+        ls 
         cd /home/sangduong/Code/
         docker-compose down
         docker-compose pull
