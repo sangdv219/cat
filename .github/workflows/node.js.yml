@@ -112,7 +112,7 @@ jobs:
         username: ${{ secrets.STAGING_SERVER_USERNAME }}
         key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
         source: "docker-compose.yml"
-        target: "/home/sangduong/Code/"
+        target: "/home/sangduong/"
         strip_components: 0
         debug: true
     - name: Execute Deployment in Staging
