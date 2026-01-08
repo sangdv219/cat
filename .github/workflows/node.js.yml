@@ -104,14 +104,25 @@ jobs:
     environment:
       name: staging
     steps:
+    - name: Copy docker-compose.yml to Server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.STAGING_SERVER_HOST }}
+        port: ${{ secrets.STAGING_SERVER_PORT }}
+        username: ${{ secrets.STAGING_SERVER_USERNAME }}
+        key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
+        source: "docker-compose.yml"
+        target: "/home/sangduong/Code/"
+
+
     - name: Execute Deployment in Staging
       run: |
         echo "---------- Start Deploying on Local VMware ----------"
-        ls
-        cd Code
-        # docker-compose pull cat-app
-        # docker-compose up -d --remove-orphans
-        # docker image prune -f
+        cd /home/sangduong/Code/
+        docker-compose down
+        docker-compose pull
+        docker-compose up -d --remove-orphans
+        docker image prune -f
         echo "---------- Finished Deploying on Local VMware ----------"
   
   deploy-prod:
