@@ -73,6 +73,10 @@ jobs:
     environment:
       name: staging  
       url: ${{vars.URL}}   
+    env:
+      USERNAME: sangdev2109
+      IMG_NAME: cat-app
+      PF_ENV: staging
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
