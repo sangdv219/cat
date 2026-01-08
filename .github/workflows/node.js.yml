@@ -67,12 +67,6 @@ jobs:
   #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
   #       run: npm run sonar 
 
-  staging:
-    if: github.ref == 'refs/heads/staging'
-    runs-on: [self-hosted, macOS]
-    environment:
-      name: staging  
-      url: ${{vars.URL}}   
   
    
   deploy-staging:
