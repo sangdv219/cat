@@ -12,20 +12,20 @@ services:
         condition: service_healthy
     networks:
       - demo
-    environment:
-      - -NODE_ENV=production
     env_file:
       - .env.production
+    environment:
+      - NODE_ENV=production
   app:
     build: .
     container_name: cat
     ports: 
       - "3003:3004"
+    env_file:
+      - .env.production
     environment:
       - NODE_ENV=production
       - REDIS_HOST=redis
-    env_file:
-      - .env.production
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules

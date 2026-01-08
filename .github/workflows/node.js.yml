@@ -75,6 +75,10 @@ jobs:
     env:
       IMG_NAME: cat-app 
       USERNAME: sangdev2109
+      PF_ENV: ${{vars.PF_ENV}}
+    environment:
+      name: staging  
+      # Set PF_ENV variable based on the branch
     permissions:
       contents: read
       packages: write
@@ -93,7 +97,7 @@ jobs:
 
       - name: Build docker image save version tag
         run: |
-          docker build -f Dockerfile -t ${{ env.IMG_NAME }} .
+          docker build -f Dockerfile  --build-arg PF_ENV="${PF_ENV}" -t ${{ env.IMG_NAME }} .
           docker tag ${{ env.IMG_NAME }}:latest ${{ env.USERNAME }}/${{ env.IMG_NAME }}:latest
       - name: Push docker image lastest and version tag
         run: |
@@ -103,7 +107,7 @@ jobs:
     if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
     environment:
-      name: staging
+      name: staging  
       url: ${{vars.URL}}   
     steps:
     - name: Checkout code

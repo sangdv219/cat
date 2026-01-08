@@ -9,7 +9,7 @@ RUN npm install
 # Rebuild the source code only when needed
 FROM node:20-alpine AS builder   
 ARG PF_ENV
-
+ARG PF_ENV=staging 
 WORKDIR /app
 RUN echo "${PF_ENV}" > /app/.env
 COPY . .
