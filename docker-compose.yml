@@ -5,17 +5,17 @@ networks:
 services:
   migrate:
     build: .
-    command: npx sequelize-cli db:migrate --config dist/config/config.json --env production
+    command: npx sequelize-cli db:migrate --config dist/config/config.json --env development 
     container_name: migrate-cat
     depends_on:
       postgres:
         condition: service_healthy
-      app:
-        condition: service_started
     networks:
       - demo
     environment:
       - -NODE_ENV=production
+    env_file:
+      - .env.production
   app:
     build: .
     container_name: cat
