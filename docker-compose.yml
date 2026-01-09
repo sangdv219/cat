@@ -5,8 +5,9 @@ networks:
 services:
   migrate:
     build: .
+    image: sangdev2109/cat-migrate:latest
     command: npx sequelize-cli db:migrate --config dist/config/config.json --env development 
-    container_name: migrate-cat
+    container_name: cat-migrate
     depends_on:
       postgres:
         condition: service_healthy
