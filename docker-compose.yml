@@ -1,7 +1,6 @@
 networks:
   demo:
     driver: bridge
-    external: true
 services:
   migrate:
     build: .
