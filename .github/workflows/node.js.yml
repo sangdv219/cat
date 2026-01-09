@@ -124,7 +124,7 @@ jobs:
         port: 22
         username: sangduong
         key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
-        source: "docker-compose.yml"
+        source: "."
         target: "/home/sangduong/cat-app"
         strip_components: 0
         debug: true
