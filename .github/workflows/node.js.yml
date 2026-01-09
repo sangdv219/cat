@@ -97,7 +97,7 @@ jobs:
    
   deploy-staging:
     if: github.ref == 'refs/heads/staging'
-    runs-on: self-hosted
+    runs-on: [self-hosted, linux, ubuntu-vm]
     needs: staging
     environment:
       name: staging
