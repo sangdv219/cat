@@ -12,8 +12,6 @@ services:
         condition: service_healthy
     networks:
       - demo
-    env_file:
-      - .env.production
     environment:
       - NODE_ENV=production
   app:
