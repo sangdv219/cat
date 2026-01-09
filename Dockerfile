@@ -11,7 +11,7 @@ FROM node:20-alpine AS builder
 ARG PF_ENV
 ARG PF_ENV=staging 
 WORKDIR /app
-RUN echo "${PF_ENV}" > /app/.env
+RUN echo "${PF_ENV}" > /app/.env.staging
 COPY . .
 COPY --from=dependencies /app/node_modules ./node_modules
 RUN yarn build
