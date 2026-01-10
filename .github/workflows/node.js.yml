@@ -156,6 +156,7 @@ jobs:
         cd /home/sangduong/cat-app
         docker compose down
         docker compose pull
+        docker volume prune -f
         docker compose up -d --build --remove-orphans
         docker image prune -f
         echo "---------- Finished Deploying on Local VMware ----------"
