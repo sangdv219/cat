@@ -239,7 +239,7 @@ export class AuthService implements OnModuleInit {
     } else {
       const cache = JSON.parse((await this.redis.get(cacheByEmail as string)) as string);
       const sendCount = cache.sendCount;
-      const limitSendEmail = this.configService.getOrThrow('LIMIT_SEND_EMAIL');
+      const limitSendEmail = 5 
       const now = Date.now();
       const lastTime = cache.lastTime;
       if (sendCount <= Number(limitSendEmail)) {

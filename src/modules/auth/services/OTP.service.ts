@@ -48,7 +48,7 @@ export class OTPService {
     const key = buildRedisKey(RedisModule.AUTH, RedisContext.OTP, email);
     if (keyByEmailCache) {
       const cache = JSON.parse((await this.redis.get(keyByEmailCache)) as string);
-      const limitCheckEmail = this.configService.getOrThrow('LIMIT_CHECK_EMAIL');
+      const limitCheckEmail = 5 
       const checkCount = cache.checkCount;
       if (Number(checkCount) > Number(limitCheckEmail)) {
         throw new GoneException('Đã vượt quá số lần check');
