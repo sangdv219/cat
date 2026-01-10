@@ -5,7 +5,7 @@ services:
   migrate:
     build: .
     image: sangdev2109/cat-migrate:latest
-    command: npx sequelize-cli db:migrate --config dist/config/config.json --env development 
+    command: npx sequelize-cli db:migrate --config dist/config/config.json --env ${PF_ENV} 
     container_name: cat-migrate
     depends_on:
       postgres:
