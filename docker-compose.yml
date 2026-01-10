@@ -7,13 +7,15 @@ services:
     image: sangdev2109/cat-migrate:latest
     command: npx sequelize-cli db:migrate --config dist/config/config.json --env ${PF_ENV} 
     container_name: cat-migrate
+    volumes:
+      - ./dist/config/config.json:/app/dist/config/config.json
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - demo
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=${PF_ENV}
   app:
     build: .
     image: sangdev2109/cat-app:latest
