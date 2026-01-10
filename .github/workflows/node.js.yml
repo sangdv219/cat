@@ -101,8 +101,10 @@ jobs:
         echo "ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}" >> .env.staging
         echo "REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}" >> .env.staging
         echo "OTP_TOKEN_SECRET=${{ secrets.OTP_TOKEN_SECRET }}" >> .env.staging
+        echo "SMTP_USER=${{ secrets.SMTP_USER }}" >> .env.staging
         echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env.staging
         echo "DB_PASSWORD=${{ secrets.DB_PASSWORD_STAGING }}" >> .env.staging
+        echo "SONAR_TOKEN=${{ secrets.SONAR_TOKEN }}" >> .env.staging
         echo "REDIS_HOST=${{ env.REDIS_HOST }}" >> .env.staging
         echo "PORT=${{ env.PORT }}" >> .env.staging
 
