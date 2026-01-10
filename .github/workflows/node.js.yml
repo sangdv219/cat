@@ -133,9 +133,9 @@ jobs:
         echo "---------- Start Deploying on Local VMware ----------"
         ls 
         cd /home/sangduong/cat-app
-        docker-compose down
-        docker-compose pull
-        docker-compose up -d --remove-orphans
+        docker compose down
+        docker compose pull
+        docker compose up -d --remove-orphans
         docker image prune -f
         echo "---------- Finished Deploying on Local VMware ----------"
   
