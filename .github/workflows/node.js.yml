@@ -110,6 +110,8 @@ jobs:
     if: github.ref == 'refs/heads/staging'
     runs-on: [self-hosted, linux, arm64]
     needs: staging
+    permissions:
+      contents: write
     environment:
       name: staging
     steps:
