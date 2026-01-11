@@ -5,7 +5,7 @@ services:
   migrate:
     build: .
     image: sangdev2109/cat-migrate:latest
-    command: npx sequelize-cli db:migrate --config dist/config/config.json --env ${PF_ENV} 
+    command: npx sequelize-cli db:migrate --config dist/config/config.json --env ${NODE_ENV} 
     container_name: migrate
     volumes:
       - .:/app
@@ -15,7 +15,7 @@ services:
     networks:
       - demo
     environment:
-      - NODE_ENV=${PF_ENV}
+      - NODE_ENV=${NODE_ENV}
   app:
     build: .
     image: sangdev2109/cat-app:latest
