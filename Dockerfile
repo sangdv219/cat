@@ -18,7 +18,6 @@ RUN yarn build
 FROM node:20-alpine AS runner
 WORKDIR /app
 ARG NODE_ENV
-ENV NODE_ENV=${NODE_ENV}
 
 COPY --from=builder /app/dist ./dist
 # COPY --from=builder /app/.env .env
