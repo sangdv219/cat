@@ -138,11 +138,11 @@ jobs:
           cd /home/sangduong/cat-app
           # echo "---------- Start Deploying ----------"
           # docker pull sangdev2109/cat-app:latest
-          # docker rm -f cat
           # docker run -d --name cat -p 9999:80 --env-file .env.staging sangdev2109/cat-app:latest
-
+          
           docker compose down
           docker compose pull
+          docker rm -f cat
           docker compose up -d 
 
           # echo "---------- Finished ----------"
