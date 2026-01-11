@@ -46,8 +46,8 @@ services:
   postgres:
     image: postgres:17
     networks:
-    container_name: postgres
       - demo
+    container_name: postgres
     restart: on-failure
     ports:
       - "5433:5432"
