@@ -95,7 +95,7 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
     - name: Create .env file
       run: |
-        echo -e "ENV_CONTENT=staging" > .env
+        echo -e "ENV_CONTENT=staging" > .env.staging
 
     - name: Build docker image save version tag
       run: |
@@ -152,25 +152,3 @@ jobs:
         docker pull sangdev2109/cat-app:latest
         docker run -d --name cat -p 9999:80 --env-file .env sangdev2109/cat-app:latest
         echo "---------- Finished Deploying on Local VMware ----------"
-
-  deploy-prod:
-    if: github.ref == 'refs/heads/main'
-    runs-on:  ubuntu-latest
-    environment:
-      name: production
-      url: ${{vars.URL}}
-    steps:
-    - name: Deploy to EC2 via SSH in Production
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu 
-        key: ${{ secrets.EC2_SSH_KEY }}
-        envs: APP_NAME
-        script: |
-          echo "---------- Start deploy-prod.sh on EC2 ----------"
-
-          bash ${{vars.PATH_DEPLOY}}
-          echo "---------- Finished deploy-prod.sh ----------"
-      env:
-        APP_NAME: cat
