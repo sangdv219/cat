@@ -136,10 +136,17 @@ jobs:
         key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
         script: |
           cd /home/sangduong/cat-app
-          echo "---------- Start Deploying ----------"
-          docker pull sangdev2109/cat-app:latest
-          docker stop cat || true
-          docker rm cat || true
-          docker run -d --name cat -p 9999:80 --env-file .env sangdev2109/cat-app:latest
-          docker image prune -f
-          echo "---------- Finished ----------"
+          # echo "---------- Start Deploying ----------"
+          # docker pull sangdev2109/cat-app:latest
+          # docker rm cat || true
+          # docker run -d --name cat -p 9999:80 --env-file .env sangdev2109/cat-app:latest
+          # docker image prune -f
+
+
+          docker compose restart cat
+          # echo "---------- Finished ----------"
+
+
+
+
+  # production:
