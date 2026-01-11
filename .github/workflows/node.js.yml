@@ -137,7 +137,7 @@ jobs:
         script: |
           cd /home/sangduong/cat-app
           # echo "---------- Start Deploying ----------"
-          
+          echo "$ENV_CONTENT" > .env.staging 
           docker compose down
           docker compose pull
           docker rm -f cat
