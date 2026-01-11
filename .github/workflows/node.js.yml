@@ -95,18 +95,7 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
     - name: Create .env file
       run: |
-        echo "NODE_ENV=staging" >> .env
-        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
-        echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-        echo "ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}" >> .env
-        echo "REFRESH_TOKEN_SECRET=${{ secrets.REFRESH_TOKEN_SECRET }}" >> .env
-        echo "OTP_TOKEN_SECRET=${{ secrets.OTP_TOKEN_SECRET }}" >> .env
-        echo "SMTP_USER=${{ secrets.SMTP_USER }}" >> .env
-        echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env
-        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD_STAGING }}" >> .env
-        echo "SONAR_TOKEN=${{ secrets.SONAR_TOKEN }}" >> .env
-        echo "REDIS_HOST=${{ env.REDIS_HOST }}" >> .env
-        echo "PORT=${{ env.PORT }}" >> .env
+        echo -e "ENV_CONTENT=staging" > .env
 
     - name: Build docker image save version tag
       run: |
