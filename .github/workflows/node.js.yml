@@ -142,7 +142,7 @@ jobs:
           docker image prune -f
 
 
-          docker compose restart cat
+          # docker compose restart cat
           # echo "---------- Finished ----------"
 
 
