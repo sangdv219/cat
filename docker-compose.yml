@@ -6,7 +6,7 @@ services:
     build: .
     image: sangdev2109/cat-migrate:latest
     command: npx sequelize-cli db:migrate --config dist/config/config.json --env ${PF_ENV} 
-    container_name: cat-migrate
+    container_name: migrate
     volumes:
       - .:/app
     depends_on:
@@ -33,9 +33,9 @@ services:
       - PORT=${PORT}
     ports: 
       - "80:80"
-    restart: always
+    restart: on-failure
     volumes:
-      - .:/usr/src/app
+      - .:/app
       - /usr/src/app/node_modules
     depends_on:
       - postgres
@@ -46,8 +46,9 @@ services:
   postgres:
     image: postgres:17
     networks:
+    container_name: postgres
       - demo
-    restart: always
+    restart: on-failure
     ports:
       - "5433:5432"
     environment:
@@ -70,7 +71,7 @@ services:
       - demo
     ports:
       - "6379:6379"
-    restart: always
+    restart: on-failure
     volumes:
       - redis_data:/data
 
