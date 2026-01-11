@@ -138,7 +138,6 @@ jobs:
           cd /home/sangduong/cat-app
           # echo "---------- Start Deploying ----------"
           # docker pull sangdev2109/cat-app:latest
-          # docker rm cat || true
           # docker run -d --name cat -p 9999:80 --env-file .env sangdev2109/cat-app:latest
           # docker image prune -f
 
