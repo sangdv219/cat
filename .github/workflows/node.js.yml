@@ -154,13 +154,16 @@ jobs:
         echo "---------- Start Deploying on Local VMware ----------"
         ls 
         cd /home/sangduong/cat-app
-        docker compose down
-        docker compose pull
-        docker volume prune -f
-        docker compose up -d --build --remove-orphans
-        docker image prune -f
+        # docker compose down 
+        # docker compose pull
+        # docker volume prune -f
+        # docker compose up -d --build --remove-orphans
+        # docker image prune -f
+        docker stop cat || true
+        docker pull sangdev2109/cat-app:latest
+        docker run -d --name cat -p 9999:80 --env-file .env sangdev2109/cat-app:latest
         echo "---------- Finished Deploying on Local VMware ----------"
-  
+
   deploy-prod:
     if: github.ref == 'refs/heads/main'
     runs-on:  ubuntu-latest
