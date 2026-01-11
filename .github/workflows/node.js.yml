@@ -99,6 +99,7 @@ jobs:
 
     - name: Build docker image save version tag
       run: |
+        echo -e "$ENV_CONTENT=staging" > .env.staging
         docker build -f Dockerfile  --build-arg NODE_ENV="${NODE_ENV}" -t ${{ env.IMG_NAME }} .
         docker tag ${{ env.IMG_NAME }}:latest ${{ env.USERNAME }}/${{ env.IMG_NAME }}:latest
     - name: Push docker image lastest and version tag
@@ -137,7 +138,7 @@ jobs:
         script: |
           cd /home/sangduong/cat-app
           # echo "---------- Start Deploying ----------"
-          echo -e "$ENV_CONTENT" > .env.staging 
+           
           docker compose down
           docker compose pull
           docker rm -f cat
