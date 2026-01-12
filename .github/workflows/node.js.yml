@@ -76,7 +76,7 @@ jobs:
     env:
       USERNAME: sangdev2109
       IMG_NAME: cat-app
-      NODE_ENV: staging
+      NODE_ENV: production
       DB_HOST: postgres
       DB_PORT: 5432
       DB_NAME: cat
@@ -95,11 +95,11 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
     - name: Create .env file
       run: |
-        echo -e "ENV_CONTENT=staging" > .env.staging
+        echo -e "ENV_CONTENT=production" > .env.production
 
     - name: Build docker image save version tag
       run: |
-        echo -e "$ENV_CONTENT=staging" > .env.staging
+        echo -e "$ENV_CONTENT=production" > .env.production
         docker build -f Dockerfile  --build-arg NODE_ENV="${NODE_ENV}" -t ${{ env.IMG_NAME }} .
         docker tag ${{ env.IMG_NAME }}:latest ${{ env.USERNAME }}/${{ env.IMG_NAME }}:latest
     - name: Push docker image lastest and version tag

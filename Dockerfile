@@ -9,7 +9,7 @@ RUN npm install
 # Rebuild the source code only when needed
 FROM node:20-alpine AS builder   
 WORKDIR /app
-RUN echo "${NODE_ENV}" > /app/.env.staging
+RUN echo "${NODE_ENV}" > /app/.env.production
 COPY . .
 COPY --from=dependencies /app/node_modules ./node_modules
 RUN yarn build
