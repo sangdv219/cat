@@ -7,13 +7,13 @@ services:
     image: sangdev2109/cat-migrate:latest
     command: npx sequelize-cli db:migrate --config dist/config/config.json --env ${NODE_ENV} 
     container_name: migrate
+    environment:
+      - NODE_ENV=staging
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - demo
-    environment:
-      - NODE_ENV=${NODE_ENV}
   app:
     build: .
     image: sangdev2109/cat-app:latest
