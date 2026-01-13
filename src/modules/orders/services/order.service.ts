@@ -1,8 +1,6 @@
-import { OrderItemsModel } from '@modules/order-items/domain/models/order-items.model';
 import { BullService } from '@bull/bull.service';
 import { BaseService } from '@core/services/base.service';
 // import { InventoryService } from '@modules/inventory/services/inventory.service';
-import { PostgresOrderItemsRepository } from '@modules/order-items/infrastructure/repository/postgres-order-items.repository';
 import { ORDER_ENTITY } from '@modules/orders/constants/order.constant';
 import { OrdersModel } from '@modules/orders/domain/models/orders.model';
 import { CreatedOrderItemRequestDto, CreatedOrderRequestDto, UpdatedOrderRequestDto } from '@modules/orders/dto/order.request.dto';
@@ -35,7 +33,6 @@ export class OrderService extends
     public cacheManage: RedisService,
     protected repository: PostgresOrderRepository,
     // protected productRepository: PostgresProductRepository,
-    protected orderItemsRepository: PostgresOrderItemsRepository,
     // public inventoryService: InventoryService,
     private readonly bullService: BullService,
     private eventEmitter: EventEmitter2,
@@ -167,15 +164,12 @@ export class OrderService extends
   };
 
   async calculatorAndUpdateAmountOrder(orderId: string) {
-    const orderItem = await this.orderItemsRepository.findByFields('order_id', orderId, ['final_price'])
     const order = await this.repository.findByPk(orderId)
     if (!order) throw new NotFoundException('Order not found !')
     const shipping_fee = order?.shipping_fee || 300000;
     const discountAmount = order?.discount_amount;
     let subTotal = 0;
-    for (const el of orderItem) {
-      subTotal += Number(el.final_price)
-    }
+   
 
     const totalAmount = subTotal - (Number(shipping_fee) + Number(discountAmount));
     await this.sequelize.query(
@@ -282,17 +276,11 @@ export class OrderService extends
   async deleteOrderItems(id: string) {
     this.cleanCacheRedis()
     return await this.sequelize.transaction(async (t: Transaction) => {
-      const orderItems = await this.orderItemsRepository.findByPk(id);
-      if (!orderItems) throw new NotFoundException('OrderItems not found!')
-      const { order_id } = orderItems || {}
-      await this.calculatorOrder(id, order_id, t)
-      await this.destroyRowOrderItems(id, t)
+    this.destroyRowOrderItems(id, t)
     })
   }
 
   async getOrderByIdv2(id: string) {
-    const products = await this.orderItemsRepository.findByFields('order_id', id, ['quantity', 'price', 'discount', 'final_price', 'note']);
-
     const order = await this.repository.findByOneByRaw({
       where: { id },
       include: [{
@@ -304,7 +292,6 @@ export class OrderService extends
       raw: true,
       nest: true
     })
-    order['products'] = products
     return plainToInstance<GetByIdOrderResponseDtoV2, any>(GetByIdOrderResponseDtoV2, order, { excludeExtraneousValues: true });
   }
 
@@ -329,7 +316,6 @@ export class OrderService extends
           attributes: [],
         },
         {
-          model: OrderItemsModel,
           attributes: [],
         }
       ],
