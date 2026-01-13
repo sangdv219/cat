@@ -8,7 +8,7 @@ import { findCacheByEmail, scanlAlKeys } from '@shared/utils/common.util';
 import { GoneException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { VerifyOtpDto } from '@modules/auth/DTO/verify-otp.dto';
 import { VerifyResponseDto } from '@modules/auth/interface/login.interface';
-import { REDIS_TOKEN } from '@redis/redis.module';
+import { REDIS_TOKEN } from '@redis/constants/key-prefix.constant';
 
 @Injectable()
 export class OTPService {
