@@ -1,9 +1,9 @@
-import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
-import { JWTAuthGuard } from '@/core/guards/jwt.guard';
-import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
-import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
-import { PaginationQueryDto } from '@/dto/common';
-import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@modules/products/DTO/product.request.dto';
+import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
+import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
+import { PaginationQueryDto } from '@shared/dto/common';
+import { CreatedProductRequestDto, UpdatedProductRequestDto } from '@modules/products/dto/product.request.dto';
 import { ProductService } from '@modules/products/services/product.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
@@ -22,10 +22,11 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../DTO/product.response.dto';
+import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../dto/product.response.dto';
+import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
-@Controller('admin/products')
+@Controller({ path: 'admin/products', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class ProductAdminController {
@@ -53,9 +54,10 @@ export class ProductAdminController {
     }
   }
 
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
-  @Post()
+  @UseInterceptors(UserContextInterceptor)
   async create(@Body() createProductDto: CreatedProductRequestDto) {
     try {
       return await this.userService.create(createProductDto);
@@ -67,6 +69,7 @@ export class ProductAdminController {
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async updateProduct(@Param('id') id: string, @Body() dto: UpdatedProductRequestDto) {
     try {
       return await this.userService.update(id, dto);
@@ -78,6 +81,7 @@ export class ProductAdminController {
   @Delete(':id')
   @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(UserContextInterceptor)
   async deleteProduct(@Param('id') id: string): Promise<void> {
     try {
       return await this.userService.delete(id);

@@ -1,43 +1,29 @@
-import { ProductModel } from '@/modules/products/domain/models/product.model';
-import {
-  AllowNull,
-  Column,
-  DataType,
-  Default,
-  ForeignKey,
-  Model,
-  PrimaryKey,
-  Table,
-} from 'sequelize-typescript';
+import { ProductModel } from '@modules/products/domain/models/product.model';
+import { BaseModel } from '@shared/model/base.model';
+import { AllowNull, BelongsTo, Column, DataType, Default, ForeignKey, PrimaryKey, Sequelize, Table } from 'sequelize-typescript';
+import { INVENTORY_ENTITY } from '@modules/inventory/constants/inventory.constant';
 
 @Table({
-  tableName: 'inventory',
+  tableName: INVENTORY_ENTITY.TABLE_NAME,
   timestamps: true,
   underscored: true,
 })
-export class InventoryModel extends Model {
+export class InventoryModel extends BaseModel<InventoryModel> {
   @PrimaryKey
-  @Default(DataType.UUIDV4)
-  @Column(DataType.UUIDV4)
+  @Default(Sequelize.literal('gen_random_uuid()'))
+  @Column(DataType.UUID)
   declare id: string;
 
   @ForeignKey(() => ProductModel)
   @AllowNull(false)
   @Column(DataType.UUID)
-  product_id: string;
+  declare product_id: string;
+
+  @BelongsTo(() => ProductModel)
+  declare product: ProductModel;
 
   @AllowNull(false)
   @Default(0)
   @Column(DataType.INTEGER)
-  stock: number;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  created_at: Date;
-
-  @AllowNull(true)
-  @Default(DataType.NOW)
-  @Column(DataType.DATE)
-  updated_at: Date;
+  declare stock: number;
 }

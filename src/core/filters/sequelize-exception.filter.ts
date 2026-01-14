@@ -4,6 +4,7 @@ import { Response } from 'express';
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
     catch(exception: any, host: ArgumentsHost) {
+        // console.log("exception:===> ", exception);
         const ctx = host.switchToHttp();
         const request = ctx.getRequest<Request>();
         const response = ctx.getResponse<Response>();
@@ -27,7 +28,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
         response.status(statusCode).json({
             message,
-            timestamp: new Date().toISOString(),
+          timestamp: new Date().toLocaleString(),
         });
     }
 }

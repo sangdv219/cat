@@ -1,37 +1,27 @@
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS dependencies
 
-
-# Set working directory
 WORKDIR /app
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
 
 
-# Copy file
-COPY package*.json ./
-RUN npm install
+# Rebuild the source code only when needed
+FROM node:20-alpine AS builder   
+ARG NODE_ENV
+
+WORKDIR /app
+RUN echo "${NODE_ENV}" > /app/.env
 COPY . .
+COPY --from=dependencies /app/node_modules ./node_modules
+RUN yarn build
 
-
-# Expose port
-EXPOSE 3000
-
-
-#Run app
-RUN npm run build
-
-
-# Stage 2: production
-FROM node:18-alpine AS production   
+# Production image, copy all the files and run next
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 COPY --from=builder /app/dist ./dist
 # COPY --from=builder /app/.env .env
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
-CMD ["node", "dist/main"]
-
-
-
-
-
-
-
+# CMD ["node", "dist/main"]
+CMD ["yarn", "start"]

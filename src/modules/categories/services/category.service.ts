@@ -1,13 +1,13 @@
-import { BaseService } from '@/core/services/base.service';
-import { CategoryModel } from '@/modules/categories/domain/models/category.model';
-import { CacheVersionService } from '@/modules/common/services/cache-version.service';
-import { PostgresProductRepository } from '@/modules/products/infrastructure/repository/postgres-product.repository';
-import { Injectable } from '@nestjs/common';
-import { CATEGORY_ENTITY } from '../constants/category.constant';
-import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '../dto/category.request.dto';
-import { PostgresCategoryRepository } from '../infrastructure/repository/postgres-category.repository';
+import { BaseService } from '@core/services/base.service';
+import { RedisService } from '@redis/redis.service';
+import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
+import { Injectable, Logger } from '@nestjs/common';
+import { CATEGORY_ENTITY } from '@modules/categories/constants/category.constant';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/dto/category.request.dto';
+import { PostgresCategoryRepository } from '@modules/categories/infrastructure/repository/postgres-category.repository';
 import { plainToInstance } from 'class-transformer';
-import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '../dto/category.response.dto';
+import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@modules/categories/dto/category.response.dto';
+import { CategoryModel } from '@modules/categories/domain/models/categories.model';
 
 @Injectable()
 export class CategoryService extends 
@@ -21,19 +21,19 @@ GetAllCategoryResponseDto> {
   constructor(
     protected repository: PostgresCategoryRepository,
     protected postgresProductRepository: PostgresProductRepository,
-    public cacheManage: CacheVersionService,
+    public cacheManage: RedisService,
   ) {
-    super();
+    super(repository);
     this.entityName = CATEGORY_ENTITY.NAME;
   }
 
   protected async moduleInit() {
-    // console.log('✅ Init Category cache...');
+    // Logger.log('✅ Init Category cache...');
     this.categorys = ['Iphone', 'Galaxy'];
   }
 
   protected async bootstrapLogic(): Promise<void> {
-    // console.log(
+    // Logger.log(
     //   '👉 OnApplicationBootstrap: CategoryService bootstrap: preloading cache...',
     // );
     //Bắt đầu chạy cron job đồng bộ tồn kho.
@@ -42,29 +42,29 @@ GetAllCategoryResponseDto> {
 
   protected async beforeAppShutDown(signal): Promise<void> {
     this.stopJob();
-    console.log(
+    Logger.log(
       `🛑 beforeApplicationShutdown: CategoryService cleanup before shutdown.`,
     );
   }
 
   private async stopJob() {
-    console.log('logic dừng cron job: ');
-    console.log('* Ngắt kết nối queue worker: ');
+    Logger.log('logic dừng cron job: ');
+    Logger.log('* Ngắt kết nối queue worker: ');
   }
 
   protected async moduleDestroy() {
     this.categorys = [];
-    console.log('🗑️onModuleDestroy -> categorys: ', this.categorys);
+    Logger.log('🗑️onModuleDestroy -> categorys: ', this.categorys);
   }
 
   async getById(id: string): Promise<GetByIdCategoryResponseDto> {
-    const category = await this.repository.findOne(id);
+    const category = await this.repository.findByPk(id);
     if(!category) throw new TypeError('Category not found');
     const categoryId = category.id;
     const products = await this.postgresProductRepository.findOneByField('category_id',categoryId);
+    console.log("products: ", products);
     category['products'] = products;
     const dto = plainToInstance(GetByIdCategoryResponseDto, category, { excludeExtraneousValues: true });
-    // dto.products = products;
     return dto;
   }
 }

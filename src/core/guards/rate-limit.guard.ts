@@ -3,16 +3,19 @@ import {
   ExecutionContext,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import Redis from 'ioredis';
+import { REDIS_TOKEN } from '@redis/constants/key-prefix.constant';
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
   constructor(
+    @Inject(REDIS_TOKEN)
+    private readonly redis: Redis,
     private readonly reflector: Reflector,
-    // private readonly redis: Redis = new Redis(),
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -30,15 +33,14 @@ export class RateLimitGuard implements CanActivate {
     if (!redisKey) return true;
     const ip = request.ip;
     const key = `${redisKey}:${ip}`;
-    const redis = new Redis();
 
-    const currentCount = await redis.incr(key);
+    const currentCount = await this.redis.incr(key);
     if (currentCount === 1) {
-      await redis.expire(key, rateLimit.ttl);
+      await this.redis.expire(key, rateLimit.ttl);
     }
 
     if (currentCount > rateLimit.limit) {
-      const ttl = await redis.ttl(key); // seconds remaining
+      const ttl = await this.redis.ttl(key); // seconds remaining
       throw new HttpException(
         `Rate limit exceeded. Try again in ${ttl} seconds.`,
         HttpStatus.TOO_MANY_REQUESTS,

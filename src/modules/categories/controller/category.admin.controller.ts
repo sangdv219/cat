@@ -1,9 +1,9 @@
-import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
-import { JWTAuthGuard } from '@/core/guards/jwt.guard';
-import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
-import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
-import { PaginationQueryDto } from '@/dto/common';
-import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@/modules/categories/dto/category.request.dto';
+import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
+import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
+import { PaginationQueryDto } from '@shared/dto/common';
+import { CreatedCategoryRequestDto, UpdatedCategoryRequestDto } from '@modules/categories/dto/category.request.dto';
 import { CategoryService } from '@modules/categories/services/category.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
@@ -22,10 +22,11 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '../dto/category.response.dto';
+import { GetAllCategoryResponseDto, GetByIdCategoryResponseDto } from '@modules/categories/dto/category.response.dto';
+import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
-@Controller('admin/categories')
+@Controller({ path:'admin/categories', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class CategoryAdminController {
@@ -55,6 +56,7 @@ export class CategoryAdminController {
 
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @Post()
   async create(@Body() createCategoryDto: CreatedCategoryRequestDto) {
     try {
@@ -67,6 +69,7 @@ export class CategoryAdminController {
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async updateCategory(@Param('id') id: string, @Body() dto: UpdatedCategoryRequestDto) {
     try {
       return await this.categoryService.update(id, dto);
@@ -77,6 +80,7 @@ export class CategoryAdminController {
 
   @Delete(':id')
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteCategory(@Param('id') id: string): Promise<void> {
     try {

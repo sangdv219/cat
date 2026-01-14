@@ -1,9 +1,9 @@
-import { AllExceptionsFilter } from '@/core/filters/sequelize-exception.filter';
-import { JWTAuthGuard } from '@/core/guards/jwt.guard';
-import { BaseResponseInterceptor } from '@/core/interceptors/base-response.interceptor';
-import { LoggingInterceptor } from '@/core/interceptors/logging.interceptor';
-import { PaginationQueryDto } from '@/dto/common';
-import { CreatedInventoryRequestDto, UpdatedInventoryRequestDto } from '@/modules/inventory/dto/inventory.request.dto';
+import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
+import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
+import { PaginationQueryDto } from '@shared/dto/common';
+import { CreatedInventoryRequestDto, UpdatedInventoryRequestDto } from '@modules/inventory/dto/inventory.request.dto';
 import { InventoryService } from '@modules/inventory/services/inventory.service';
 import { CacheTTL } from '@nestjs/cache-manager';
 import {
@@ -22,10 +22,11 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { GetAllInventoryResponseDto, GetByIdInventoryResponseDto } from '../dto/inventory.response.dto';
+import { GetAllInventoryResponseDto } from '../dto/inventory.response.dto';
+import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
 
 @ApiBearerAuth('Authorization')
-@Controller('admin/inventory')
+@Controller({ path:'admin/inventorys', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class InventoryAdminController {
@@ -43,19 +44,20 @@ export class InventoryAdminController {
     }
   }
 
-  @Get(':id')
-  @UseGuards(JWTAuthGuard)
-  async getInventoryById(@Param('id') id: string): Promise<GetByIdInventoryResponseDto | null> {
-    try {
-      return await this.inventoryService.getById(id);
-    } catch (error) {
-      throw error;
-    }
-  }
+  // @Get(':id')
+  // @UseGuards(JWTAuthGuard)
+  // async getInventoryById(@Param('id') id: string): Promise<GetByIdInventoryResponseDto | null> {
+  //   try {
+  //     return await this.inventoryService.getById(id);
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(JWTAuthGuard)
-  @Post()
+  @UseInterceptors(UserContextInterceptor)
   async create(@Body() createInventoryDto: CreatedInventoryRequestDto) {
     try {
       return await this.inventoryService.create(createInventoryDto);
@@ -67,6 +69,7 @@ export class InventoryAdminController {
   @Patch(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   async updateInventory(@Param('id') id: string, @Body() dto: UpdatedInventoryRequestDto) {
     try {
       return await this.inventoryService.update(id, dto);
@@ -77,6 +80,7 @@ export class InventoryAdminController {
 
   @Delete(':id')
   @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteInventory(@Param('id') id: string): Promise<void> {
     try {
