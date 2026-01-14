@@ -35,7 +35,7 @@ import { ChatGateway } from './gateways/chat.gateway';
     }),
     RedisModule.forRootAsync(),
     DatabaseModule,
-    AuthModule,
+    // AuthModule,
     UserModule,
     BrandModule,
     CategoryModule,
