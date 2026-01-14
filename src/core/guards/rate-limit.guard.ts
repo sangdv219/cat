@@ -1,4 +1,3 @@
-import { REDIS_TOKEN } from '@redis/redis.module';
 import {
   CanActivate,
   ExecutionContext,
@@ -9,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import Redis from 'ioredis';
+import { REDIS_TOKEN } from '@redis/constants/key-prefix.constant';
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {

@@ -13,12 +13,12 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/sequelize';
 import { RegisterDto } from '@modules/auth/DTO/register.dto';
 import { OTPService } from '@modules/auth/services/OTP.service';
-import { REDIS_TOKEN } from '@redis/redis.module';
 import { BullService } from '@bull/bull.service';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
 import { RedisService } from '@redis/redis.service';
 import { UserService } from '@modules/users/services/user.service';
+import { REDIS_TOKEN } from '@redis/constants/key-prefix.constant';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -239,7 +239,7 @@ export class AuthService implements OnModuleInit {
     } else {
       const cache = JSON.parse((await this.redis.get(cacheByEmail as string)) as string);
       const sendCount = cache.sendCount;
-      const limitSendEmail = this.configService.getOrThrow('LIMIT_SEND_EMAIL');
+      const limitSendEmail = 5 
       const now = Date.now();
       const lastTime = cache.lastTime;
       if (sendCount <= Number(limitSendEmail)) {

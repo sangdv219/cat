@@ -1,12 +1,16 @@
-import { REDIS_TOKEN } from '@redis/redis.module';
 import { Inject } from '@nestjs/common';
 import Redis from 'ioredis';
+import { REDIS_TOKEN } from '@redis/constants/key-prefix.constant';
 
 export class RedisService {
   constructor(
     @Inject(REDIS_TOKEN)
     private readonly redis: Redis,
   ) {}
+
+  async onModuleDestroy() {
+    await this.redis.quit();
+  }
 
   async incrementVersion(keyPrefix: string): Promise<number> {
     const versionKey = `cache_version:${keyPrefix}`;

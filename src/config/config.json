@@ -1,21 +1,21 @@
 {
   "development": {
     "username": "sangduong",
-    "password": 210919,
+    "password": "210919",
     "database": "cat",
     "host": "postgres",
     "dialect": "postgres"
   },
-  "test": {
+  "staging": {
     "username": "sangduong",
-    "password": 210919,
+    "password": "210919",
     "database": "cat",
     "host": "postgres",
     "dialect": "postgres"
   },
   "production": {
     "username": "sangduong",
-    "password": 210919,
+    "password": "210919",
     "database": "cat",
     "host": "postgres",
     "dialect": "postgres"

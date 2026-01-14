@@ -1,34 +1,29 @@
 networks:
   demo:
     driver: bridge
-    external: true
 services:
   migrate:
     build: .
-    command: npx sequelize-cli db:migrate --config dist/config/config.json --env development 
-    container_name: migrate-cat
+    image: sangdev2109/cat-migrate:latest
+    command: npx sequelize-cli db:migrate --config dist/config/config.json --env ${NODE_ENV} 
+    container_name: migrate
+    environment:
+      - NODE_ENV=staging
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - demo
-    env_file:
-      - .env.production
-    environment:
-      - NODE_ENV=production
   app:
     build: .
+    image: sangdev2109/cat-app:latest
     container_name: cat
-    ports: 
-      - "3003:3004"
     env_file:
-      - .env.production
-    environment:
-      - NODE_ENV=production
-      - REDIS_HOST=redis
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - .env.staging
+   
+    ports: 
+      - "80:3000"
+    restart: on-failure
     depends_on:
       - postgres
       - redis
@@ -39,7 +34,8 @@ services:
     image: postgres:17
     networks:
       - demo
-    restart: always
+    container_name: postgres
+    restart: on-failure
     ports:
       - "5433:5432"
     environment:
@@ -62,7 +58,7 @@ services:
       - demo
     ports:
       - "6379:6379"
-    restart: always
+    restart: on-failure
     volumes:
       - redis_data:/data
 
@@ -72,3 +68,14 @@ volumes:
   pgadmin_data: null
   redis_data: null
 
+#  environment:
+      # - DB_PASSWORD=${DB_PASSWORD}
+      # - JWT_SECRET=${JWT_SECRET}
+      # - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+      # - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      # - OTP_TOKEN_SECRET=${OTP_TOKEN_SECRET}
+      # - SMTP_USER=${SMTP_USER}
+      # - SMTP_PASS=${SMTP_PASS}
+      # - NODE_ENV=production
+      # - REDIS_HOST=${REDIS_HOST}
+      # - PORT=${PORT}

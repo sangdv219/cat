@@ -23,7 +23,7 @@ import { ChatGateway } from './gateways/chat.gateway';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: [`.env.${process.env.NODE_ENV}`, '.env'] }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`, '.env'] }),
     ClsModule.forRoot({
       global: true,
       middleware: { mount: true } // auto bind context cho mỗi request

@@ -74,12 +74,15 @@ jobs:
       name: staging  
       url: ${{vars.URL}}   
     env:
-      IMG_NAME: cat-app 
       USERNAME: sangdev2109
-      PF_ENV: ${{vars.PF_ENV}}
-    permissions:
-      contents: read
-      packages: write
+      IMAGE_NAME: cat-app
+      NODE_ENV: staging
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: cat
+      DB_USER: sangduong
+      REDIS_HOST: redis
+      PORT: 3000
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -90,68 +93,62 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
+    - name: Create .env file
+      run: |
+        echo -e "ENV_CONTENT=production" > .env.production
+
     - name: Build docker image save version tag
       run: |
-        docker build -f Dockerfile  --build-arg PF_ENV="${PF_ENV}" -t ${{ env.IMG_NAME }} .
-        docker tag ${{ env.IMG_NAME }}:latest ${{ env.USERNAME }}/${{ env.IMG_NAME }}:latest
+        echo -e "$ENV_CONTENT" > .env.staging
+        docker build -f Dockerfile  --build-arg PF_ENV="${{secrets.ENV_CONTENT}}" -t ${{ env.IMAGE_NAME }} .
+        docker tag ${{ env.IMAGE_NAME }}:latest ${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:latest
     - name: Push docker image lastest and version tag
       run: |
-        docker push ${{ env.USERNAME }}/${{ env.IMG_NAME }}:latest
-    - name: Copy script to EC2
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: 54.252.231.194
-        username: ubuntu 
-        key: ${{ secrets.EC2_SSH_PRIVATE_KEY  }}
-        port: 22
-        script: |
-          echo "Kết nối thành công!"
-          whoami
-          ls -la /home/ubuntu
-        debug: true
-    - name: Execute Deployment in Staging
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.STAGING_SERVER_HOST }}
-        username: ${{ secrets.STAGING_SERVER_USERNAME }} 
-        port: ${{ secrets.STAGING_SERVER_SSH_PORT || 22 }}
-        key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
-        debug: true
-        envs: APP_NAME, DOCKER_HUB_TOKEN, STAGING_DB_HOST, STAGING_DB_PORT, STAGING_DB_USER, STAGING_DB_PASSWORD, STAGING_DB_DATABASE, STAGING_REDIS_HOST
-        script: |
-          echo "---------- Start deploy-staging.sh on EC2 ----------"
-
-          echo "Connection successful!"
-
-          echo "---------- Finished deploy-staging.sh ----------"
-      env:  
-          APP_NAME: cat
-          DOCKER_HUB_TOKEN: ${{ secrets.DOCKER_HUB_TOKEN }}
-          STAGING_DB_HOST: ${{ secrets.STAGING_DB_HOST }}
-          STAGING_DB_PORT: ${{ secrets.STAGING_DB_PORT }}
-          STAGING_DB_USER: ${{ secrets.STAGING_DB_USER }}
-          STAGING_DB_PASSWORD: ${{ secrets.STAGING_DB_PASSWORD }}
-          STAGING_DB_DATABASE: ${{ secrets.STAGING_DB_DATABASE }}
-          STAGING_REDIS_HOST: ${{ secrets.STAGING_REDIS_HOST }}
-  
-  deploy-prod:
-    if: github.ref == 'refs/heads/main'
-    runs-on:  ubuntu-latest
+        docker push ${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:latest  
+   
+  deploy-staging:
+    if: github.ref == 'refs/heads/staging'
+    runs-on: [self-hosted, linux, arm64]
+    needs: staging
+    permissions:
+      contents: write
     environment:
-      name: production
-      url: ${{vars.URL}}
+      name: staging
     steps:
-    - name: Deploy to EC2 via SSH in Production
-      uses: appleboy/ssh-action@v1.0.0
+    - name: Checkout repository
+      uses: actions/checkout@v4
       with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu 
-        key: ${{ secrets.EC2_SSH_KEY }}
-        envs: APP_NAME
-        script: |
-          echo "---------- Start deploy-prod.sh on EC2 ----------"
+        clean: true
 
-          bash ${{vars.PATH_DEPLOY}}
-          echo "---------- Finished deploy-prod.sh ----------"
-      env:
-        APP_NAME: cat
+    - name: Copy file to Server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST_SERVER }}
+        port: 22
+        username: ${{ secrets.USER_SERVER }} 
+        key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
+        source: "."
+        target: "/home/sangduong/cat-app"
+
+    - name: Execute Deployment in Staging
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST_SERVER }}
+        port: 22
+        username: ${{ secrets.USER_SERVER }} 
+        key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
+        script: |
+          cd /home/sangduong/cat-app
+          # echo "---------- Start Deploying ----------"
+           
+          docker compose down
+          docker compose pull
+          docker rm -f cat
+          docker compose up -d 
+
+          # echo "---------- Finished ----------"
+
+
+
+
+  # production:
