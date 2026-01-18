@@ -5,8 +5,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { config } from 'dotenv';
 import { ConfigService } from '@nestjs/config';
-import { RmqService } from 'libs/common/src/rabbitMQ/rmb.service';
-import { SERVICES } from 'libs/common/src/constants/services';
+import { RmqService } from '@libs/common/src/rabbitMQ/rmb.service';
+import { SERVICES } from '@libs/common/src/constants/services';
 
 config();
 const configService = new ConfigService();

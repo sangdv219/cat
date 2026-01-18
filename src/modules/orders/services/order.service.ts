@@ -14,9 +14,9 @@ import { plainToInstance } from 'class-transformer';
 import { QueryTypes, Sequelize, Transaction } from 'sequelize';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import * as crypto from 'crypto';
-import { SERVICES } from 'libs/common/src/constants/services';
+import { SERVICES } from '@/libs/common/src/constants/services';
 import { ClientProxy } from '@nestjs/microservices';
-import { CMD } from 'libs/common/src/constants/event';
+import { CMD } from '@/libs/common/src/constants/event';
 
 @Injectable()
 export class OrderService extends

@@ -29,6 +29,7 @@
       "@bull/*": ["src/bull/*"],
       "@shared/*": ["src/shared/*"],
       "@audit/*": ["src/audit/*"],
+      "@libs/*": ["src/libs/*"],
     }
   }
 }
