@@ -10,7 +10,7 @@ export abstract class AbstractOrderItemsRepository extends BaseRepository<OrderI
 export abstract class AbstractOrderHistoryRepository extends BaseRepository<OrderItemsModel> {}
 @Injectable()
 export class PostgresOrderRepository extends AbstractOrderRepository {
-  private static readonly searchableFields = ['order_code', 'subtotal', 'discount_amount', 'shipping_address', 'shipping_fee', 'total_amount', 'payment_method', 'status'];
+  private static readonly searchableFields = ['order_code', 'subtotal', 'discount_amount', 'shipping_address', 'total_amount', 'payment_method', 'status'];
   constructor(@InjectModel(OrdersModel)
     protected readonly orderModel: typeof OrdersModel,
   ) {
