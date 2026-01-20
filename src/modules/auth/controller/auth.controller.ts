@@ -1,8 +1,8 @@
 import { RateLimit } from '@core/decorators/rate-limit';
-import { LoginDto } from '@modules/auth/DTO/login.dto';
-import { RefreshTokenDto } from '@modules/auth/DTO/refreshToken.dto';
-import { RegisterDto } from '@modules/auth/DTO/register.dto';
-import { VerifyOtpDto } from '@modules/auth/DTO/verify-otp.dto';
+import { LoginDto } from '@modules/auth/dto/login.dto';
+import { RefreshTokenDto } from '@modules/auth/dto/refreshToken.dto';
+import { RegisterDto } from '@modules/auth/dto/register.dto';
+import { VerifyOtpDto } from '@modules/auth/dto/verify-otp.dto';
 import { LoginResponseDto, VerifyResponseDto } from '@modules/auth/interface/login.interface';
 import { AuthService } from '@modules/auth/services/auth.service';
 import { OTPService } from '@modules/auth/services/OTP.service';
