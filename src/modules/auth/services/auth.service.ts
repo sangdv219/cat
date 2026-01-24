@@ -82,6 +82,8 @@ export class AuthService implements OnModuleInit {
       where: { email },
       returning: true,
     });
+    Logger.log('email', email)
+    Logger.log('user', user)
     if (!user) {
       throw new NotFoundException('User not found');
     }

@@ -38,7 +38,7 @@ export class OrderAppController {
   ) { }
 
   @Get()
-  @Resource('order')
+  @Resource('orders')
   @Action('read')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JWTAuthGuard, RbacGuard)
