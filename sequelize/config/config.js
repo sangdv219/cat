@@ -1,7 +1,6 @@
-require('dotenv').config();
+require('dotenv').config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
 
 const schemaConfig = require(__dirname + '/schema.js');
-
 module.exports = {
   development: {
     username: process.env.DB_USER,

@@ -64,14 +64,14 @@ export class AuthService implements OnModuleInit {
   }
 
   async findEmail(email: string) {
-    return this.userRepository.findOneByField('email', email);
+    return this.userRepository.findOneByField('email', email)
   }
 
   async resetFailedLogins(id: string): Promise<void> {
     const update = {
       locked_until: null,
       failed_login_attempts: 0,
-    };
+    }
 
     await this.userRepository.update(id, update);
   }
@@ -82,7 +82,6 @@ export class AuthService implements OnModuleInit {
       where: { email },
       returning: true,
     });
-    Logger.log('email', email)
     Logger.log('user', user)
     if (!user) {
       throw new NotFoundException('User not found');

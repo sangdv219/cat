@@ -10,7 +10,7 @@ module.exports = {
       code: {
         type: Sequelize.STRING(50),
         allowNull: false,
-        unique: true
+        unique: true,
       },
       user_id: {
         type: Sequelize.UUID,
@@ -20,7 +20,7 @@ module.exports = {
           key: 'id',
         },
         onUpdate: 'CASCADE',
-        onDelete: 'CASCADE'
+        onDelete: 'CASCADE',
       },
       status: {
         type: Sequelize.STRING(10),
@@ -99,7 +99,7 @@ module.exports = {
       },
       cancel_reason_id: {
         type: Sequelize.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'cancel_reasons',
           key: 'id',
@@ -117,16 +117,16 @@ module.exports = {
         defaultValue: null,
         type: Sequelize.STRING,
       },
-    });
+    })
 
     await queryInterface.sequelize.query(`
           CREATE INDEX idx_orders_extra_data_gin
           ON orders
           USING GIN (extra_data jsonb_path_ops);
-    `);
+    `)
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('orders');
+    await queryInterface.dropTable('orders')
   },
-};
+}

@@ -40,8 +40,8 @@ services:
       - "5433:5432"
     environment:
       POSTGRES_USER: sangduong
-      POSTGRES_DB: cat
-      POSTGRES_PASSWORD: 210919
+      DB_DATABASE: cat
+      DB_PASSWORD: 210919
     volumes: 
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
