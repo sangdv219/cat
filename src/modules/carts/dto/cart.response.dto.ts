@@ -1,6 +1,6 @@
 import { Expose } from 'class-transformer'
 
-export class BrandBaseDto {
+export class CartBaseDto {
   @Expose()
   id: string
 
@@ -32,15 +32,15 @@ export class BrandBaseDto {
   description: string
 }
 
-export class GetAllBrandResponseDto {
+export class GetAllCartResponseDto {
   @Expose()
-  items: BrandBaseDto[]
+  items: CartBaseDto[]
 
   @Expose()
   totalRecord: number
 }
 
-export class CreatedBrandReponseDto extends BrandBaseDto {
+export class CreatedCartReponseDto extends CartBaseDto {
   @Expose()
   created_at: Date
 
@@ -48,7 +48,7 @@ export class CreatedBrandReponseDto extends BrandBaseDto {
   updated_at: Date
 }
 
-export class GetByIdBrandResponseDto extends CreatedBrandReponseDto {
+export class GetByIdCartResponseDto extends CreatedCartReponseDto {
   // @Expose()
-  // products: BrandBaseDto[];
+  // products: CartBaseDto[];
 }

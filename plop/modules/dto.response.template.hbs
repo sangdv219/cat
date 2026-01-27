@@ -1,0 +1,27 @@
+import { Expose } from 'class-transformer';
+
+export class {{ pascalCase name }}BaseDto {
+  
+}
+
+export class GetAll{{ pascalCase name }}ResponseDto {
+  @Expose()
+  items: {{ pascalCase name }}BaseDto[];
+
+  @Expose()
+  totalRecord: number;
+}
+
+export class Created{{ pascalCase name }}ReponseDto extends {{ pascalCase name }}BaseDto {
+  @Expose()
+  created_at: Date;
+
+  @Expose()
+  updated_at: Date;
+}
+
+
+export class GetById{{ pascalCase name }}ResponseDto extends Created{{ pascalCase name }}ReponseDto {
+  // @Expose()
+  // products: {{ pascalCase name }}BaseDto[];
+}
