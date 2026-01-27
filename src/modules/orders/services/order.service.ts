@@ -220,7 +220,7 @@ export class OrderService extends BaseService<
       .setVoucherApplied(dto.voucher_applied)
       .setExtraData(dto.extra_data)
       .setNote(dto.note)
-      .calculateProvisionalAmount(dto.provisional_amount) // Auto-calculate from items
+      .setProvisionalAmount(dto.provisional_amount) // Auto-calculate from items
       .calculateTotalAmount(PricingType.NORMAL)
       .build()
 

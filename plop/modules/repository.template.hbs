@@ -1,0 +1,17 @@
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { BaseRepository } from '@core/repositories/base.repository';
+import { {{ pascalCase name }}Model } from '@modules/{{ name }}s/models/{{ name }}.model';
+
+
+export abstract class Abstract{{ pascalCase name }}Repository extends BaseRepository<{{ pascalCase name }}Model> {}
+@Injectable()
+export class Postgres{{ pascalCase name }}Repository extends Abstract{{ pascalCase name }}Repository {
+  private static readonly searchableFields = ['name'];
+  constructor(
+    @InjectModel({{ pascalCase name }}Model)
+    protected readonly {{ name }}Model: typeof {{ pascalCase name }}Model,
+  ) {
+    super({{ name }}Model, Postgres{{ pascalCase name }}Repository.searchableFields);
+  }
+}

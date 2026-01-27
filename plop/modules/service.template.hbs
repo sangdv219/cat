@@ -1,0 +1,39 @@
+import { BaseService } from '@core/services/base.service'
+import { {{ constantCase name }} } from '@modules/{{ name }}s/constants/{{ name }}.constants'
+import { {{ pascalCase name }}Model } from '@modules/{{ name }}s/models/{{ name }}.model'
+import { Injectable, Logger } from '@nestjs/common'
+import { RedisService } from '@redis/redis.service'
+import { Created{{ pascalCase name }}RequestDto, Updated{{ pascalCase name }}RequestDto } from '../dto/{{ name }}.request.dto'
+import { GetAll{{ pascalCase name }}ResponseDto, GetById{{ pascalCase name }}ResponseDto } from '../dto/{{ name }}.response.dto'
+import { Postgres{{ pascalCase name }}Repository } from '../infrastructure/repository/postgres-{{ name }}.repository'
+
+@Injectable()
+export class {{pascalCase name}}Service extends BaseService<
+  {{ pascalCase name }}Model,
+  Created{{ pascalCase name }}RequestDto,
+  Updated{{ pascalCase name }}RequestDto,
+  GetById{{ pascalCase name }}ResponseDto,
+  GetAll{{ pascalCase name }}ResponseDto
+> {
+  protected entityName: string
+  private {{ name }}s: string[] = []
+  constructor(
+    public cacheManage: RedisService,
+    protected repository: Postgres{{ pascalCase name }}Repository,
+  ) {
+    super(repository)
+    this.entityName = {{ constantCase name }}.NAME
+  }
+
+  protected async moduleInit() {}
+
+  protected async bootstrapLogic(): Promise<void> {}
+
+  protected async beforeAppShutDown(signal): Promise<void> {}
+
+  private async stopJob() {}
+
+  protected async moduleDestroy() {
+    this.{{ name }}s = []
+  }
+}

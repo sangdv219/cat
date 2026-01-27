@@ -1,0 +1,31 @@
+import { Postgres{{ pascalCase name }}Repository } from '@modules/{{ name }}s/infrastructure/repository/postgres-{{ name }}.repository';
+import { {{ pascalCase name }}Model } from '@modules/{{ name }}s/models/{{ name }}.model';
+import { RedisService } from '@redis/redis.service';
+import { {{ pascalCase name }}Service } from '@modules/{{ name }}s/services/{{ name }}.service';
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { DefaultTokenSecretResolverStrategy } from '@core/strategies/default-token-secret-resolver.strategy';
+import { {{ pascalCase name }}Controller } from '@modules/{{ name }}s/controller/{{ name }}.controller';
+import { RedisModule } from '@redis/redis.module';
+
+@Module({
+  imports: [SequelizeModule.forFeature([{{ pascalCase name }}Model]), RedisModule],
+  controllers: [{{ pascalCase name }}Controller],
+  providers: [
+    Postgres{{ pascalCase name }}Repository,
+    {{ pascalCase name }}Service,
+    JwtModule,
+    RedisService,
+    {
+      provide: 'TokenSecretResolver',
+      useClass: DefaultTokenSecretResolverStrategy,
+    },
+    {
+      provide: 'I{{ pascalCase name }}CheckService',
+      useClass: {{ pascalCase name }}Service
+    }
+  ],
+  exports: [Postgres{{ pascalCase name }}Repository, {{ pascalCase name }}Service, 'I{{ pascalCase name }}CheckService'],
+})
+export class {{ pascalCase name }}Module {}

@@ -1,0 +1,93 @@
+import { AllExceptionsFilter } from '@core/filters/sequelize-exception.filter';
+import { JWTAuthGuard } from '@core/guards/jwt.guard';
+import { BaseResponseInterceptor } from '@core/interceptors/base-response.interceptor';
+import { LoggingInterceptor } from '@core/interceptors/logging.interceptor';
+import { PaginationQueryDto } from '@shared/dto/common';
+import { Created{{ pascalCase name }}RequestDto, Updated{{ pascalCase name }}RequestDto } from '@modules/{{ name }}s/dto/{{ name }}.request.dto';
+import { {{ pascalCase name }}Service } from '@modules/{{ name }}s/services/{{ name }}.service';
+import { CacheTTL } from '@nestjs/cache-manager';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseFilters,
+  UseGuards,
+  UseInterceptors
+} from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { GetAll{{ pascalCase name }}ResponseDto, GetById{{ pascalCase name }}ResponseDto } from '@modules/{{ name }}s/dto/{{ name }}.response.dto';
+import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
+
+@ApiBearerAuth('Authorization')
+@Controller({ path:'admin/{{ name }}', version: '1' })
+@UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
+@UseFilters(new AllExceptionsFilter())
+export class {{ pascalCase name }}Controller {
+  constructor(private readonly {{ name }}Service: {{ pascalCase name }}Service) { }
+
+  @Get()
+  @UseGuards(JWTAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @CacheTTL(60)
+  async getPagination(@Query() query: PaginationQueryDto): Promise<GetAll{{ pascalCase name }}ResponseDto> {
+    try {
+      return await this.{{ name }}Service.getPagination(query);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get(':id')
+  @UseGuards(JWTAuthGuard)
+  async get{{ pascalCase name }}ById(@Param('id') id: string): Promise<GetById{{ pascalCase name }}ResponseDto | null> {
+    try {
+      return await this.{{ name }}Service.getById(id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
+  async create(@Body() create{{ pascalCase name }}Dto: Created{{ pascalCase name }}RequestDto) {
+    try {
+      return await this.{{ name }}Service.create(create{{ pascalCase name }}Dto);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Patch(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
+  async update{{ pascalCase name }}(@Param('id') id: string, @Body() dto: Updated{{ pascalCase name }}RequestDto) {
+    try {
+      return await this.{{ name }}Service.update(id, dto);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Delete(':id')
+  @UseGuards(JWTAuthGuard)
+  @UseInterceptors(UserContextInterceptor)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async delete{{ pascalCase name }}(@Param('id') id: string): Promise<void> {
+    try {
+      return await this.{{ name }}Service.delete(id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+}

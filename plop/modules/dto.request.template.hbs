@@ -1,0 +1,16 @@
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min
+} from 'class-validator';
+
+export class Created{{ pascalCase name }}RequestDto {
+  
+}
+
+export class Updated{{ pascalCase name }}RequestDto extends PartialType(Created{{ pascalCase name }}RequestDto) {}

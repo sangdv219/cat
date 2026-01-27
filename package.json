@@ -60,7 +60,8 @@
     "sequelize": "^6.37.7",
     "sequelize-typescript": "^2.1.6",
     "socket.io": "^4.8.1",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "generate": "plop"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -84,7 +85,7 @@
     "jest": "^29.7.0",
     "jest-sonar-reporter": "^2.0.0",
     "npm": "^11.6.0",
-    "plop": "^4.0.1",
+    "plop": "^4.0.5",
     "prettier": "^3.8.1",
     "sonarqube-scanner": "^4.3.0",
     "source-map-support": "^0.5.21",

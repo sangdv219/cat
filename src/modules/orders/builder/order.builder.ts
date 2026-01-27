@@ -98,7 +98,7 @@ export class OrderBuilder {
     return this
   }
 
-  calculateProvisionalAmount(provisional_amount?: number): this {
+  setProvisionalAmount(provisional_amount?: number): this {
     this.order.provisional_amount = provisional_amount
     return this
   }
@@ -164,10 +164,3 @@ export class OrderBuilder {
     }
   }
 }
-// 1. Fluent interface: methods return `this` for chaining
-// 2. Validation: checks required fields before building
-// 3. Auto-calculation: `calculateProvisionalAmount()` sums item prices
-// 4. Pricing strategy: `calculateTotalAmount()` uses the factory
-// 5. Item management: `addItem()`, `addItems()`, `clearItems()`
-// 6. Static factory: `fromDto()` creates a builder from an existing DTO
-// 7. Reset: `reset()` clears the builder state
