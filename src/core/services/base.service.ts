@@ -11,7 +11,7 @@ import { RedisContext } from '@redis/enums/redis-key.enum';
 import { buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
 import { RedisService } from '@redis/redis.service';
 import { sensitiveFields } from '@shared/config/sensitive-fields.config';
-import { Model } from 'sequelize';
+import { FindOptions, Model, Op } from 'sequelize';
 
 export abstract class BaseService<
   TEntity,
@@ -32,6 +32,8 @@ export abstract class BaseService<
   protected abstract beforeAppShutDown(signal?: string): Promise<void>;
   protected abstract moduleDestroy(): Promise<void>;
   private readonly logger = new Logger(BaseService.name);
+  protected searchableFields: string[] = [];
+  protected booleanFields: string[] = [];
   constructor(
     protected readonly repository: IBaseRepository<TEntity>,
     protected readonly mapper?: (dto: TCreateDto) => Partial<TEntity>,
@@ -74,6 +76,40 @@ export abstract class BaseService<
     await this.cacheManage.set(redisKey, JSON.stringify(response), 'EX', 30);
 
     return response as GetAllResponseDto;
+  }
+
+  async search(
+    params: IPaginationDTO, 
+    queryBuilder?: (options: FindOptions<TEntity>) => FindOptions<TEntity> | Promise<FindOptions<TEntity>>): Promise<any>{
+    let options: FindOptions<TEntity> = {};
+    let whereClause: any = { [Op.and]: [] };
+    if (params.keyword && this.searchableFields.length > 0) {
+      const searchCondition = {
+        [Op.or]: this.searchableFields.map(field => ({
+          [field]: { [Op.iLike]: `%${params.keyword}%` }
+        }))
+      };
+      this.booleanFields.forEach(field => {
+        if (params[field] !== undefined) {
+          Logger.log("field", field)
+          // Ép kiểu vì param từ URL luôn là string "true" hoặc "false"
+          const boolValue = params[field] === 'true' || params[field] === true;
+          whereClause[Op.and].push({ [field]: boolValue });
+        }
+      });
+
+      Logger.log("booleanFields", this.booleanFields)
+      Logger.log("whereClause", whereClause)
+      whereClause = { [Op.and]: [whereClause, searchCondition] };
+    }
+    Logger.log("options", options)
+
+    options.where = whereClause;
+
+    if(queryBuilder){
+      options = await queryBuilder(options)
+    }
+    return this.repository.search(params, options)
   }
 
   async create(dto: TCreateDto) {

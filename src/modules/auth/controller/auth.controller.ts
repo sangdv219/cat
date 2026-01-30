@@ -56,16 +56,6 @@ export class AuthController {
     return await this.authService.refreshToken(body.refreshToken);
   }
   
-  @Post('register')
-  @Version('3')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  // @RateLimit(3, 300)
-  // @RedisKey(buildRedisKey('auth', RedisContext.RATE_LIMIT, 'send'))
-  //  // @UseGuards(RateLimitGuard)
-  async register(@Body() body: RegisterDto): Promise<void> {
-    return await this.authService.register(body);
-  }
-  
   @Post('verify-otp')
   @Version('3')
   @HttpCode(HttpStatus.CREATED)

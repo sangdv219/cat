@@ -1,8 +1,9 @@
+import { IPaginationDTO } from '@/core/repositories/base.repository';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsEnum, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
-export class PaginationQueryDto {
+export class PaginationQueryDto implements IPaginationDTO {
   @IsOptional()
   @ApiPropertyOptional({ example: 1, description: 'Page number (1–10)' })
   @Type(() => Number)
@@ -36,5 +37,5 @@ export class PaginationQueryDto {
   @ApiPropertyOptional({
     enum: ['ASC', 'DESC'],
   })
-  orderDirection: 'ASC' | 'DESC';
+  sortOrder: 'ASC' | 'DESC';
 }

@@ -1,17 +1,17 @@
 import { NotFoundException } from '@nestjs/common';
-import { FindAndCountOptions, WhereOptions } from '@sequelize/core';
-import { Op, QueryTypes, Transaction } from 'sequelize';
+import { FindOptions, Op, FindAndCountOptions, QueryTypes, Transaction, WhereOptions } from 'sequelize';
 import { Sequelize } from "sequelize-typescript";
 
 export interface IPaginationDTO {
   page: number;
   limit: number;
-  keyword?: string;
-  orderBy?: string;
-  orderDirection?: 'ASC' | 'DESC';
+  keyword: string;
+  orderBy: string;
+  sortOrder: 'ASC' | 'DESC'
 }
 
 export interface IBaseRepository<T> {
+  search(params: IPaginationDTO, options: FindOptions<T>);
   findWithPagination(param: IPaginationDTO, exclude: string[]): Promise<{ items: any; total: number }>;
   findByFields<K extends keyof T>(field: K, value: T[K], attributes?: string[], exclude?: string[]): Promise<any[]>;
   findAllByRaw(condition: Record<string, any>, exclude?: string[]): Promise<any[] | null>;
@@ -30,6 +30,35 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
     readonly model,
     protected searchableFields: string[] = []
   ) {}
+  
+  async search(params: IPaginationDTO, options: FindOptions<T> = {}){
+    const page = Number(params.page) || 1;
+    const limit = Number(params.limit) || 10;
+    const offset = (page - 1) * limit;
+
+    // 1. Xử lý Sort
+    let order: any = [['created_at', 'DESC']];
+    if (params.sortOrder) {
+        const direction = params.sortOrder.startsWith('-') ? 'DESC' : 'ASC';
+        const column = params.sortOrder.replace('-', '');
+        order = [[column, direction]];
+    }
+
+    const { rows, count } = await this.model.findAndCountAll({
+      ...options, // Spread options để lấy include, attributes...
+      limit,
+      offset,
+      order: options.order || order,
+    });
+
+    return {
+      items: rows,
+      total: count,
+      page,
+      limit,
+      totalPages: Math.ceil(count / limit),
+    };
+  }
 
   async findWithPagination(parameter, exclude = ['']): Promise<{ items: T; total: number }> {
     const { page = 1, limit = 100, keyword, orderBy = 'created_at', orderDirection = 'DESC', filters = {} } = parameter;

@@ -10,7 +10,7 @@
   "bracketSameLine": false,
   "singleAttributePerLine": false,
   "useTabs": false,
-  "proseWrap": "preserve",
+  "proseWrap": "",
   "htmlWhitespaceSensitivity": "css",
   "embeddedLanguageFormatting": "auto",
   "endOfLine": "lf"

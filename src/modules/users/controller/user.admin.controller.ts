@@ -16,7 +16,8 @@ import {
   Query,
   UseFilters,
   UseGuards,
-  UseInterceptors
+  UseInterceptors,
+  Version
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@modules/users/dto/user.admin.request.dto';
@@ -25,13 +26,18 @@ import { UserService } from '@modules/users/services/user.service';
 import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@modules/users/dto/user.admin.response.dto';
 import { JWTAuthGuard } from '@core/guards/jwt.guard';
 import { UserContextInterceptor } from '@core/interceptors/user-context.interceptor';
+import { RegisterDto } from '@modules/auth/dto/register.dto';
+import { RegisterUserUseCase } from '@modules/users/use-cases/sign-up/signup.use-case';
 
 @ApiBearerAuth('Authorization')
 @Controller({ path:'user-admin', version: '1' })
 @UseInterceptors(new BaseResponseInterceptor(), new LoggingInterceptor())
 @UseFilters(new AllExceptionsFilter())
 export class UserAdminController {
-  constructor(private readonly userService: UserService) { }
+  constructor(
+    private readonly userService: UserService,
+    private readonly registerUserUseCase: RegisterUserUseCase,
+  ) { }
 
   @ApiOkResponse({ description: 'Danh sách user phân trang', type: BaseGetResponse<UserModel> })
   @Get()
@@ -55,6 +61,13 @@ export class UserAdminController {
     }
   }
 
+  @Post('register')
+  @Version('3')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async register(@Body() body: RegisterDto): Promise<void> {
+    return await this.registerUserUseCase.execute(body);
+  }
+  
   @Get('getRolePermissionByUserId/:id')
   @UseGuards(JWTAuthGuard)
   async getRolePermissionByUserId(@Param('id') id: string): Promise<any | null> {

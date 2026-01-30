@@ -1,7 +1,9 @@
+import { PaginationQueryDto } from '@shared/dto/common';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsDateString,
+  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsObject,
@@ -12,6 +14,7 @@ import {
   Min,
   MinLength
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreatedProductRequestDto {
   @ApiProperty({ description: 'Tên sản phẩm', example: 'iPhone 15 Pro Max' })
@@ -169,3 +172,31 @@ export class CreatedProductRequestDto {
 }
 
 export class UpdatedProductRequestDto extends PartialType(CreatedProductRequestDto) {}
+export class FilterProductRequestDto extends PaginationQueryDto{
+  @ApiPropertyOptional({description: 'Giá tối thiểu', example: 15000000 })
+  @IsNumber()
+  @IsOptional()
+  declare minPrice?: number
+
+  @ApiPropertyOptional({description: 'Giá tối đa', example: 23000000 })
+  @IsNumber()
+  @IsOptional()
+  declare maxPrice?: number
+
+  @IsOptional()
+  @IsEnum([true, false])
+  @ApiPropertyOptional({
+    type: Boolean,
+    // default: true
+  })
+  declare is_published?: boolean
+
+  @IsOptional()
+  @IsBoolean()
+  @IsEnum([true, false])
+  @ApiPropertyOptional({
+    type: Boolean,
+    // default: true
+  })
+  declare is_freeship?: boolean
+}

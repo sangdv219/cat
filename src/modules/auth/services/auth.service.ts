@@ -63,10 +63,6 @@ export class AuthService implements OnModuleInit {
     await this.userRepository.update(id, updatedBody);
   }
 
-  async findEmail(email: string) {
-    return this.userRepository.findOneByField('email', email)
-  }
-
   async resetFailedLogins(id: string): Promise<void> {
     const update = {
       locked_until: null,
@@ -207,56 +203,6 @@ export class AuthService implements OnModuleInit {
         throw new UnauthorizedException('Token expired');
       }
       throw new UnauthorizedException('Invalid token');
-    }
-  }
-
-  async register(body: RegisterDto): Promise<void> {
-    const { email } = body;
-
-    const existingUser = await this.findEmail(email);
-
-    if (existingUser) {
-      throw new UnauthorizedException('Email already exists in system');
-    }
-    const otp = this.OTPService.gennerateOtp();
-
-    const otpCache = {
-      otp,
-      sendCount: 1,
-      checkCount: 1,
-      lastTime: Date.now() + 1 * 60 * 1000,
-    };
-
-    const TTL_OTP = 86400;
-
-    const key = buildRedisKey(RedisModule.AUTH, RedisContext.OTP, email);
-    const keyCacheOtpByEmail = await scanlAlKeys(`${buildRedisKey(RedisModule.AUTH, RedisContext.OTP)}*`);
-
-    const cacheByEmail = findCacheByEmail(keyCacheOtpByEmail, email);
-
-    if (!cacheByEmail) {
-      await this.redis.set(key, JSON.stringify(otpCache), 'EX', TTL_OTP);
-      await this.bullService.addSendMailJob({ email, otp })
-    } else {
-      const cache = JSON.parse((await this.redis.get(cacheByEmail as string)) as string);
-      const sendCount = cache.sendCount;
-      const limitSendEmail = 5 
-      const now = Date.now();
-      const lastTime = cache.lastTime;
-      if (sendCount <= Number(limitSendEmail)) {
-        if (now >= lastTime) {
-          await this.bullService.addSendMailJob({ email, otp })
-          const updatedOtpCache = Object.assign({}, otpCache, {
-            sendCount: sendCount + 1,
-            lastTime: Date.now() + 1 * 60 * 1000,
-          });
-          await this.redis.set(key, JSON.stringify(updatedOtpCache), 'EX', TTL_OTP);
-        } else {
-          throw new GoneException('Vui lòng đợi khoảng 1p');
-        }
-      } else {
-        throw new GoneException('Đã vượt quá số lần gửi');
-      }
     }
   }
 }

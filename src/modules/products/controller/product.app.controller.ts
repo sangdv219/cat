@@ -24,23 +24,23 @@ import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../dto/prod
 export class ProductAppController {
   constructor(private readonly userService: ProductService) { }
 
-  @Get()
-  @HttpCode(HttpStatus.OK)
-  @CacheTTL(60)
-  async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllProductResponseDto> {
-    try {
-      return await this.userService.getPagination(query);
-    } catch (error) {
-      throw error;
-    }
-  }
+  // @Get()
+  // @HttpCode(HttpStatus.OK)
+  // @CacheTTL(60)
+  // async getPagination(@Query() query: PaginationQueryDto): Promise<GetAllProductResponseDto> {
+  //   try {
+  //     return await this.userService.getPagination(query);
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
   
-  @Get(':id')
-  async getProductById(@Param('id') id: string): Promise<GetByIdProductResponseDto | null> {
-    try {
-      return await this.userService.getById(id);
-    } catch (error) {
-      throw error;
-    }
-  }
+  // @Get(':id')
+  // async getProductById(@Param('id') id: string): Promise<GetByIdProductResponseDto | null> {
+  //   try {
+  //     return await this.userService.getById(id);
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 }

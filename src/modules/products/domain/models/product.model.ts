@@ -43,6 +43,7 @@ export interface IProduct {
   timestamps: true,
   underscored: true,
 })
+
 export class ProductModel extends BaseModel<IProduct> {
   @PrimaryKey
   @Default(DataType.UUIDV4) // Ánh xạ 'gen_random_uuid()'
@@ -171,6 +172,7 @@ export class ProductModel extends BaseModel<IProduct> {
   @AllowNull(true)
   @Column(DataType.TEXT)
   declare description?: string;
+
   @AllowNull(true)
   @Column(DataType.STRING(100))
   declare evaluate?: string;

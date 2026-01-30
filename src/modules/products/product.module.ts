@@ -13,7 +13,7 @@ import { RedisService } from '@redis/redis.service';
 
 @Module({
   imports: [SequelizeModule.forFeature([ProductModel]), BrandModule, RedisModule],
-  controllers: [ProductAppController, ProductAdminController],
+  controllers: [ProductAdminController],
   providers: [
     PostgresProductRepository,
     ProductService,
