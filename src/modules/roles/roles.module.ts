@@ -5,13 +5,13 @@ import { RolesController } from '@/modules/roles/controller/roles.controller';
 import { RolesModel } from '@modules/roles/domain/models/roles.model';
 import { PostgresRoleRepository } from '@modules/roles/infrastructure/repository/postgres-role.repository';
 import { RolesService } from '@modules/roles/services/roles.service';
-import { UserModel } from '@modules/users/domain/models/user.model';
+import { UserEntity } from '@modules/users/domain/models/user.model';
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { RedisService } from '@redis/redis.service';
 
 @Module({
-  imports: [ SequelizeModule.forFeature([RolesModel, UserModel, RolePermissionsModel, UserRolesModel])],
+  imports: [ SequelizeModule.forFeature([RolesModel, UserEntity, RolePermissionsModel, UserRolesModel])],
   controllers: [ RolesController ],
   providers: [
     RolesService,

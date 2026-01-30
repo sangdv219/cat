@@ -21,7 +21,7 @@ import {
   underscored: true,
 })
 
-export class UserModel extends BaseModel<UserModel> {
+export class UserEntity extends BaseModel<UserEntity> {
   @PrimaryKey
   @Default(Sequelize.literal('gen_random_uuid()'))
   @Column(DataType.UUID)
@@ -87,7 +87,7 @@ export class UserModel extends BaseModel<UserModel> {
   declare deleted_by: string;
 
   @BeforeUpdate
-  static setDeteledBy(instance: UserModel) {
+  static setDeteledBy(instance: UserEntity) {
     const userId = ClsServiceManager.getClsService().get('userId');
     if (userId) {
       instance.deleted_by = userId;

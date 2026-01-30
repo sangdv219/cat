@@ -1,6 +1,6 @@
 import { BaseService } from '@core/services/base.service';
 import { PostgresUserRolesRepository } from '@modules/associations/repositories/user-roles.repository';
-import { UserModel } from '@modules/users/domain/models/user.model';
+import { UserEntity } from '@modules/users/domain/models/user.model';
 import { CreatedUserAuthRequestDto } from '@modules/users/dto/user-auth.request.dto';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@modules/users/dto/user.admin.request.dto';
 import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@modules/users/dto/user.admin.response.dto';
@@ -13,7 +13,7 @@ import { Sequelize } from 'sequelize';
 
 @Injectable()
 export class UserService extends
-  BaseService<UserModel,
+  BaseService<UserEntity,
     CreatedUserAdminRequestDto,
     UpdatedUserAdminRequestDto,
     GetByIdUserAdminResponseDto,
@@ -101,12 +101,12 @@ export class UserService extends
       return { success: false, message: 'User not found or restore failed' };
     }
 
-    const restoredUser = result[1][0] as UserModel;
+    const restoredUser = result[1][0] as UserEntity;
     const { password_hash, ...safeData } = restoredUser.get({ plain: true });
 
     return {
       success: true,
-      data: safeData as Partial<UserModel>,
+      data: safeData as Partial<UserEntity>,
     };
   }
 

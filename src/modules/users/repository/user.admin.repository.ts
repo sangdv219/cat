@@ -1,15 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { AbstractUserRepository } from '@modules/users/abstract/user.admin.abstract';
-import { UserModel } from '@modules/users/domain/models/user.model';
+import { UserEntity } from '@modules/users/domain/models/user.model';
+import { GetAllUserAdminResponseDto } from '../dto/user.admin.response.dto';
+import { PaginationQueryDto } from '@/shared/dto/common';
+
+
+export interface IUserRepository {
+  getAll(dto: PaginationQueryDto):UserEntity
+}
 
 @Injectable()
 export class PostgresUserRepository extends AbstractUserRepository {
+
   private static readonly searchableFields = ['phone', 'gender', 'email', 'name'];
   constructor(
-    @InjectModel(UserModel)
-    protected readonly userModel: typeof UserModel
+    // @InjectModel(UserEntity)
+    // protected readonly UserEntity: typeof UserEntity
   ) {
-    super(userModel, PostgresUserRepository.searchableFields);
+    super(UserEntity, PostgresUserRepository.searchableFields);
   }
 }

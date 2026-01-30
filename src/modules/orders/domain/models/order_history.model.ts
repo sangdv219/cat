@@ -22,7 +22,7 @@ export class OrderHistoryModel extends Model<IOrderHistory> {
     @Column(DataType.UUID)
     declare order_id: string;
     
-    @ForeignKey(() => 'UserModel' as any) // Tham chiếu đến mô hình User
+    @ForeignKey(() => 'UserEntity' as any) // Tham chiếu đến mô hình User
     @AllowNull(false)
      @Column({
         type: DataType.UUID,

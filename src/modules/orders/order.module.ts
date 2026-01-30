@@ -7,7 +7,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { InventoryModule } from '@modules/inventory/inventory.module';
 import { InventoryService } from '@modules/inventory/services/inventory.service';
 import { ProductModule } from '@modules/products/product.module';
-import { UserModel } from '@modules/users/domain/models/user.model';
+import { UserEntity } from '@modules/users/domain/models/user.model';
 import { PostgresOrderHistoryRepository, PostgresOrderItemsRepository, PostgresOrderRepository } from '@modules/orders/infrastructure/repository/postgres-order.repository';
 import { OrderService } from '@modules/orders/services/order.service';
 import { AssociationsModule } from '@modules/associations/associations.module';
@@ -22,7 +22,7 @@ import { OrderHistoryModel } from './domain/models/order_history.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([OrdersModel, OrderItemsModel, OrderHistoryModel, UserModel, PaymentMethodModel, ShippingMethodModel, WarehouseModel, CancelReasonModel]), InventoryModule, ProductModule, AssociationsModule, RbacModule,
+    SequelizeModule.forFeature([OrdersModel, OrderItemsModel, OrderHistoryModel, UserEntity, PaymentMethodModel, ShippingMethodModel, WarehouseModel, CancelReasonModel]), InventoryModule, ProductModule, AssociationsModule, RbacModule,
     EventEmitterModule.forRoot(),
   ],
   controllers: [ OrderAppController ],

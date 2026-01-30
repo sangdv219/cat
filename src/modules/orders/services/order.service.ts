@@ -289,7 +289,7 @@ export class OrderService extends BaseService<
   //   const order = await this.orderRepository.findByOneByRaw({
   //     where: { id },
   //     include: [{
-  //       model: UserModel,
+  //       model: UserEntity,
   //       // attributes: {exclude: ['password_hash', 'created_by']}
   //       attributes: ['name', 'email', 'phone', 'age', 'gender', 'avatar']
   //     },
@@ -318,7 +318,7 @@ export class OrderService extends BaseService<
   //     ],
   //     include: [
   //       {
-  //         model: UserModel,
+  //         model: UserEntity,
   //         attributes: [],
   //       },
   //       {

@@ -5,13 +5,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
 import { ProductModule } from '../products/product.module';
-import { UserModel } from '../users/domain/models/user.model';
+import { UserEntity } from '../users/domain/models/user.model';
 import { AnalyticsAdminController } from './controller/analytics.admin.controller';
 import { PostgresAnalyticsRepository } from './infrastructure/repository/postgres-analytics.repository';
 import { AnalyticsService } from './services/analytics.service';
 
 @Module({
-  imports: [SequelizeModule.forFeature([UserModel]), ProductModule, RedisModule ],
+  imports: [SequelizeModule.forFeature([UserEntity]), ProductModule, RedisModule ],
   controllers: [AnalyticsAdminController],
   providers: [
     PostgresAnalyticsRepository,

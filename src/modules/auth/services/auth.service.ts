@@ -1,24 +1,20 @@
 import { LoginDto } from '@/modules/auth/dto/login.dto';
+import { BullService } from '@bull/bull.service';
 import { LoginResponseDto } from '@modules/auth/interface/login.interface';
 import { RefreshTokenResponseDto } from '@modules/auth/interface/refreshToken.interface';
+import { OTPService } from '@modules/auth/services/OTP.service';
 import { PasswordService } from '@modules/password/services/password.service';
-import { UserModel } from '@modules/users/domain/models/user.model';
 import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
-import { RedisContext, RedisModule } from '@redis/enums/redis-key.enum';
-import { buildRedisKey, buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
-import { findCacheByEmail, scanlAlKeys } from '@shared/utils/common.util';
+import { UserService } from '@modules/users/services/user.service';
 import { GoneException, Inject, Injectable, Logger, NotFoundException, OnModuleInit, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { InjectModel } from '@nestjs/sequelize';
-import { RegisterDto } from '@/modules/auth/dto/register.dto';
-import { OTPService } from '@modules/auth/services/OTP.service';
-import { BullService } from '@bull/bull.service';
+import { REDIS_TOKEN } from '@redis/constants/key-prefix.constant';
+import { RedisContext } from '@redis/enums/redis-key.enum';
+import { buildRedisKeyQuery } from '@redis/helpers/redis-key.helper';
+import { RedisService } from '@redis/redis.service';
 import Redis from 'ioredis';
 import { v4 as uuidv4 } from 'uuid';
-import { RedisService } from '@redis/redis.service';
-import { UserService } from '@modules/users/services/user.service';
-import { REDIS_TOKEN } from '@redis/constants/key-prefix.constant';
 
 @Injectable()
 export class AuthService implements OnModuleInit {
@@ -27,8 +23,8 @@ export class AuthService implements OnModuleInit {
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
     private readonly OTPService: OTPService,
-    @InjectModel(UserModel)
-    protected readonly userModel: typeof UserModel,
+    // @InjectModel(UserEntity)
+    // protected readonly UserEntity: typeof UserEntity,
     private readonly userRepository: PostgresUserRepository, // Assuming Redis is injected for cache management
     private readonly configService: ConfigService,
     private readonly userService: UserService,

@@ -21,7 +21,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@modules/users/dto/user.admin.request.dto';
-import { UserModel } from '@modules/users/domain/models/user.model';
+import { UserEntity } from '@modules/users/domain/models/user.model';
 import { UserService } from '@modules/users/services/user.service';
 import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@modules/users/dto/user.admin.response.dto';
 import { JWTAuthGuard } from '@core/guards/jwt.guard';
@@ -39,7 +39,7 @@ export class UserAdminController {
     private readonly registerUserUseCase: RegisterUserUseCase,
   ) { }
 
-  @ApiOkResponse({ description: 'Danh sách user phân trang', type: BaseGetResponse<UserModel> })
+  @ApiOkResponse({ description: 'Danh sách user phân trang', type: BaseGetResponse<UserEntity> })
   @Get()
   @HttpCode(HttpStatus.OK)
   @UseGuards(JWTAuthGuard)

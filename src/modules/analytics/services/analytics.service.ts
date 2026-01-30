@@ -1,4 +1,4 @@
-import { UserModel } from '@modules/users/domain/models/user.model';
+import { UserEntity } from '@modules/users/domain/models/user.model';
 import { RedisService } from '@redis/redis.service';
 import { BaseService } from '@core/services/base.service';
 import { CreatedAnalyticsRequestDto, UpdatedAnalyticsRequestDto } from '@modules/analytics/dto/analytics.request.dto';
@@ -10,7 +10,7 @@ import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class AnalyticsService extends 
-BaseService<UserModel, 
+BaseService<UserEntity, 
 CreatedAnalyticsRequestDto, 
 UpdatedAnalyticsRequestDto, 
 GetByIdAnalyticsResponseDto, 

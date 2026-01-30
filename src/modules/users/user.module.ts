@@ -1,6 +1,6 @@
 import { PasswordModule } from '@modules/password/password.module';
 import { UserAdminController } from '@modules/users/controller/user.admin.controller';
-import { UserModel } from '@modules/users/domain/models/user.model';
+import { UserEntity } from '@modules/users/domain/models/user.model';
 import { PostgresUserRepository } from '@modules/users/repository/user.admin.repository';
 import { UserService } from '@modules/users/services/user.service';
 import { Module } from '@nestjs/common';
@@ -18,7 +18,7 @@ import { OTPService } from '../auth/services/OTP.service';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([UserModel, UserRolesModel, RolePermissionsModel ]),
+    SequelizeModule.forFeature([UserEntity, UserRolesModel, RolePermissionsModel ]),
     AssociationsModule,
     PasswordModule,
   ],

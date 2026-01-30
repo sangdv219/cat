@@ -15,7 +15,7 @@ import { CancelReasonModel } from '@/models/cancel_reason.model'
 import { WarehouseModel } from '@/models/warehouses.model'
 import { ShippingMethodModel } from '@/models/shipping_methods.model'
 import { PaymentMethodModel } from '@/models/payment_methods.model'
-import { UserModel } from '@/modules/users/domain/models/user.model'
+import { UserEntity } from '@/modules/users/domain/models/user.model'
 
 @Table({
   tableName: ORDER_ENTITY.TABLE_NAME,
@@ -38,7 +38,7 @@ export class OrdersModel extends Model<IOrder> {
   // --- KHÓA NGOẠI ---
 
   // User
-  @ForeignKey(() => UserModel)
+  @ForeignKey(() => UserEntity)
   @AllowNull(false)
   @Column({
     type: DataType.UUID,
