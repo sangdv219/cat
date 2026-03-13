@@ -49,3 +49,4 @@ InventoryService nhận event → bù lại tồn kho đã trừ (compensating t
 --> Tạm thời bỏ qua payment
 # hoduong-back-end
 # hoduong-back-end
+# hoduong-back-end
