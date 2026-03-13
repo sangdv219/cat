@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { AbstractInventoryRepository } from '@modules/inventory/domain/abstract/abstract-inventory.repository';
-import { InventoryModel } from '@modules/inventory/domain/models/inventory.model';
+import { InventoryModel } from '@/infrastructure/models/inventory.model';
+import { BaseRepository } from '@/domain/repositories/base.repository';
 
+export abstract class AbstractInventoryRepository extends BaseRepository<InventoryModel> {}
 @Injectable()
 export class PostgresInventoryRepository extends AbstractInventoryRepository {
   private static readonly searchableFields = ['stock'];

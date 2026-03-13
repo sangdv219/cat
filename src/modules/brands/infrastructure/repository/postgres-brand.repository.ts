@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { BaseRepository } from '@core/repositories/base.repository';
-import { BrandModel } from '@modules/brands/models/brand.model';
+import { BaseRepository } from '@/domain/repositories/base.repository';
+import { BrandModel } from '@/infrastructure/models/brand.model';
 
 
 export abstract class AbstractBrandRepository extends BaseRepository<BrandModel> {}

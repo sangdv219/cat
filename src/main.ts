@@ -14,11 +14,9 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
-      forbidNonWhitelisted: true,
       transform: true, // convert string -> number
-      transformOptions: {
-        enableImplicitConversion: true, // <- This line here
-      },
+      forbidNonWhitelisted: true,
+      transformOptions: { enableImplicitConversion: true },
     }),
   );
   app.setGlobalPrefix('api')

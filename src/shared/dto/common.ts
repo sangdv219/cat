@@ -1,4 +1,4 @@
-import { IPaginationDTO } from '@/core/repositories/base.repository';
+import { IPaginationDTO } from '@/domain/repositories/base.repository';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsEnum, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';

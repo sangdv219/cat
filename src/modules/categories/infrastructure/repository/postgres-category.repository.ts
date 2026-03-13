@@ -1,8 +1,9 @@
-import { AbstractCategoryRepository } from '@modules/categories/domain/abstract/abstract-category.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { CategoryModel } from '@modules/categories/domain/models/categories.model';
+import { CategoryModel } from '@/infrastructure/models/categories.model';
+import { BaseRepository } from '@/domain/repositories/base.repository';
 
+export abstract class AbstractCategoryRepository extends BaseRepository<CategoryModel> {}
 @Injectable()
 export class PostgresCategoryRepository extends AbstractCategoryRepository {
   private static readonly searchableFields = ['name'];

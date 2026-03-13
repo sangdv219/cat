@@ -1,9 +1,9 @@
 
 set -e  # dừng script nếu lệnh nào fail
 
-APP_NAME=${APP_NAME:-cat}  
+APP_NAME=${APP_NAME:-hoduong-backend}  
 BRANCH=${BRANCH:-staging}
-IMAGE=sangdev2109/cat-app
+IMAGE=sangdev2109/hoduong-backend-app
 HOST_PORT=80
 CONTAINER_PORT=3000
 HOST_MAIN=https://54.252.231.194

@@ -1,5 +1,5 @@
-import { RolesModel } from '@modules/roles/domain/models/roles.model';
-import { UserEntity } from '@modules/users/domain/models/user.model';
+import { RolesModel } from '@/infrastructure/models/roles.model';
+import { UserEntity } from '@/infrastructure/models/user.model';
 import { BaseModel } from '@shared/model/base.model';
 import { AllowNull, BelongsTo, Column, DataType, ForeignKey, Table } from 'sequelize-typescript';
 import { USER_ROLES_ENTITY } from '@modules/associations/constants/user-roles.constant';

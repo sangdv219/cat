@@ -1,5 +1,5 @@
 import { PostgresBrandRepository } from '@modules/brands/infrastructure/repository/postgres-brand.repository';
-import { BrandModel } from '@modules/brands/models/brand.model';
+import { BrandModel } from '@/infrastructure/models/brand.model';
 import { RedisService } from '@redis/redis.service';
 import { BrandService } from '@modules/brands/services/brand.service';
 import { Module } from '@nestjs/common';

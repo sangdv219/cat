@@ -9,7 +9,7 @@ import { PostgresCategoryRepository } from '@modules/categories/infrastructure/r
 import { CategoryService } from '@modules/categories/services/category.service';
 import { RedisModule } from '@redis/redis.module';
 import { RedisService } from '@redis/redis.service';
-import { CategoryModel } from '@modules/categories/domain/models/categories.model';
+import { CategoryModel } from '@/infrastructure/models/categories.model';
 
 @Module({
   imports: [SequelizeModule.forFeature([CategoryModel]), ProductModule, RedisModule ],

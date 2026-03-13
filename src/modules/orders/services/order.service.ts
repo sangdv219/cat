@@ -1,4 +1,4 @@
-import { PricingStrategyFactory } from '@/domain/pricing/factory'
+import { PricingStrategyFactory } from '@/shared/utils/factory'
 import { BullService } from '@bull/bull.service'
 import { DoublyLinkedList } from '@core/data-structures/doubly-linked-list'
 import { SinglyLinkedList } from '@core/data-structures/singly-linked-list'
@@ -6,7 +6,6 @@ import { PricingType } from '@core/enum/pg-error-codes.enum'
 import { BaseService } from '@core/services/base.service'
 import { InventoryService } from '@modules/inventory/services/inventory.service'
 import { ORDER_ENTITY } from '@modules/orders/constants/order.constant'
-import { OrdersModel } from '@modules/orders/domain/models/orders.model'
 import {
   CreatedOrderRequestDto,
   UpdatedOrderRequestDto,
@@ -25,8 +24,7 @@ import {
   IOrder,
   IOrderItems,
 } from '@modules/orders/interface/order.interface'
-import { IProduct } from '@modules/products/domain/models/product.model'
-import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository'
+import { IProduct } from '@/infrastructure/models/product.model'
 import { HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { InjectConnection } from '@nestjs/sequelize'
@@ -35,6 +33,8 @@ import { plainToInstance } from 'class-transformer'
 import * as crypto from 'crypto'
 import { QueryTypes, Sequelize, Transaction } from 'sequelize'
 import { OrderBuilder } from '../builder/order.builder'
+import { OrdersModel } from '@/infrastructure/models/orders.model'
+import { PostgresProductRepository } from '@modules/products/repository/postgres-product.repository'
 
 @Injectable()
 export class OrderService extends BaseService<

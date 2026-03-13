@@ -1,6 +1,6 @@
 import { BaseService } from '@core/services/base.service'
 import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant'
-import { CartModel } from '@/modules/carts/models/cart.model'
+import { CartModel } from '@/infrastructure/models/cart.model'
 import { Injectable, Logger } from '@nestjs/common'
 import { RedisService } from '@redis/redis.service'
 import { CreatedCartRequestDto, UpdatedCartRequestDto } from '../dto/cart.request.dto'

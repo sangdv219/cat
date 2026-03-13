@@ -1,6 +1,6 @@
 import { BaseService } from '@core/services/base.service'
 import { BRAND_ENTITY } from '@modules/brands/constants/brand.constant'
-import { BrandModel } from '@modules/brands/models/brand.model'
+import { BrandModel } from '@/infrastructure/models/brand.model'
 import { Injectable, Logger } from '@nestjs/common'
 import { RedisService } from '@redis/redis.service'
 import { CreatedBrandRequestDto, UpdatedBrandRequestDto } from '../dto/brand.request.dto'

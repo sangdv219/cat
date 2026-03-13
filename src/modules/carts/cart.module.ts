@@ -1,5 +1,5 @@
 import { PostgresCartRepository } from '@modules/carts/infrastructure/repository/postgres-cart.repository'
-import { CartModel } from '@modules/carts/models/cart.model'
+import { CartModel } from '@/infrastructure/models/cart.model'
 import { RedisService } from '@redis/redis.service'
 import { CartService } from '@modules/carts/services/cart.service'
 import { Module } from '@nestjs/common'

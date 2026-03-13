@@ -5,7 +5,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/default-token-secret-resolver.strategy';
 import { ProductModule } from '../products/product.module';
-import { UserEntity } from '../users/domain/models/user.model';
+import { UserEntity } from '../../infrastructure/models/user.model';
 import { AnalyticsAdminController } from './controller/analytics.admin.controller';
 import { PostgresAnalyticsRepository } from './infrastructure/repository/postgres-analytics.repository';
 import { AnalyticsService } from './services/analytics.service';

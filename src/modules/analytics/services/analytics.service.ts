@@ -1,10 +1,9 @@
-import { UserEntity } from '@modules/users/domain/models/user.model';
+import { UserEntity } from '@/infrastructure/models/user.model';
 import { RedisService } from '@redis/redis.service';
 import { BaseService } from '@core/services/base.service';
 import { CreatedAnalyticsRequestDto, UpdatedAnalyticsRequestDto } from '@modules/analytics/dto/analytics.request.dto';
 import { GetAllAnalyticsResponseDto, GetByIdAnalyticsResponseDto } from '@modules/analytics/dto/analytics.response.dto';
 import { PostgresAnalyticsRepository } from '@modules/analytics/infrastructure/repository/postgres-analytics.repository';
-import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
 import { Injectable, Logger } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
@@ -19,7 +18,6 @@ GetAllAnalyticsResponseDto> {
   private analyticss: string[] = [];
   constructor(
     protected repository: PostgresAnalyticsRepository,
-    protected postgresProductRepository: PostgresProductRepository,
     public cacheManage: RedisService,
   ) {
     super(repository);

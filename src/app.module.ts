@@ -3,8 +3,6 @@ import { BrandModule } from '@modules/brands/brand.module'
 import { CategoryModule } from '@modules/categories/category.module'
 import { ProductModule } from '@modules/products/product.module'
 import { UserModule } from '@modules/users/user.module'
-import { DatabaseModule } from '@database/database.module'
-import { DatabaseService } from '@database/database.service'
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { JwtModule } from '@nestjs/jwt'
@@ -19,9 +17,9 @@ import { RolesModule } from '@modules/roles/roles.module'
 import { PermissionsModule } from '@modules/permissions/permissions.module'
 import { AssociationsModule } from '@modules/associations/associations.module'
 import { AppController } from './app.controller'
-import { ChatGateway } from './gateways/chat.gateway'
 import { CartModule } from './modules/carts/cart.module'
-import { CustomerModule } from './modules/customers/customer.module'
+import { DatabaseService } from '@infrastructure/database/database.service'
+import { DatabaseModule } from '@infrastructure/database/database.module'
 
 @Module({
   imports: [
@@ -50,7 +48,6 @@ import { CustomerModule } from './modules/customers/customer.module'
     BrandModule,
     CategoryModule,
     OrderModule,
-    CustomerModule,
     InventoryModule,
     RolesModule,
     CartModule,
@@ -61,7 +58,7 @@ import { CustomerModule } from './modules/customers/customer.module'
     AuditModule,
   ],
   controllers: [AppController],
-  providers: [ChatGateway, DatabaseService],
+  providers: [DatabaseService],
   exports: [DatabaseService],
 })
 export class AppModule {}

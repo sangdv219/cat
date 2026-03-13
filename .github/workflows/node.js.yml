@@ -75,11 +75,11 @@ jobs:
       url: ${{vars.URL}}   
     env:
       USERNAME: sangdev2109
-      IMAGE_NAME: cat-app
+      IMAGE_NAME: hoduong-backend-app
       NODE_ENV: staging
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_NAME: cat
+      DB_NAME: hoduong-backend
       DB_USER: sangduong
       REDIS_HOST: redis
       PORT: 3000
@@ -128,7 +128,7 @@ jobs:
         username: ${{ secrets.USER_SERVER }} 
         key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
         source: "."
-        target: "/home/sangduong/cat-app"
+        target: "/home/sangduong/hoduong-backend-app"
 
     - name: Execute Deployment in Staging
       uses: appleboy/ssh-action@master
@@ -138,12 +138,12 @@ jobs:
         username: ${{ secrets.USER_SERVER }} 
         key: ${{ secrets.STAGING_SERVER_SSH_KEY }}
         script: |
-          cd /home/sangduong/cat-app
+          cd /home/sangduong/hoduong-backend-app
           # echo "---------- Start Deploying ----------"
            
           docker compose down
           docker compose pull
-          docker rm -f cat
+          docker rm -f hoduong-backend
           docker compose up -d 
 
           # echo "---------- Finished ----------"

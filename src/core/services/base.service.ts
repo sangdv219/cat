@@ -1,4 +1,4 @@
-import { IBaseRepository, IPaginationDTO } from '@core/repositories/base.repository';
+import { IBaseRepository, IPaginationDTO } from '@/domain/repositories/base.repository';
 import {
   BeforeApplicationShutdown,
   Logger,
@@ -91,18 +91,17 @@ export abstract class BaseService<
       };
       this.booleanFields.forEach(field => {
         if (params[field] !== undefined) {
-          Logger.log("field", field)
           // Ép kiểu vì param từ URL luôn là string "true" hoặc "false"
           const boolValue = params[field] === 'true' || params[field] === true;
           whereClause[Op.and].push({ [field]: boolValue });
         }
       });
 
-      Logger.log("booleanFields", this.booleanFields)
-      Logger.log("whereClause", whereClause)
+      // Logger.log("booleanFields", this.booleanFields)
+      // Logger.log("whereClause", whereClause)
       whereClause = { [Op.and]: [whereClause, searchCondition] };
     }
-    Logger.log("options", options)
+    // Logger.log("options", options)
 
     options.where = whereClause;
 

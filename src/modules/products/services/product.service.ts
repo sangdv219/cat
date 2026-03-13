@@ -1,9 +1,9 @@
 import { BaseService } from '@core/services/base.service';
 import { RedisService } from '@redis/redis.service';
 import { PRODUCT_ENTITY } from '@modules/products/constants/product.constant';
-import { ProductModel } from '@modules/products/domain/models/product.model';
+import { ProductModel } from '@/infrastructure/models/product.model';
 import { CreatedProductRequestDto, FilterProductRequestDto, UpdatedProductRequestDto } from '@modules/products/dto/product.request.dto';
-import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
+import { PostgresProductRepository } from '@modules/products/repository/postgres-product.repository';
 import { Injectable, Logger } from '@nestjs/common';
 import { GetAllProductResponseDto, GetByIdProductResponseDto } from '../dto/product.response.dto';
 import { Op, WhereOptions } from 'sequelize';
@@ -67,6 +67,17 @@ GetAllProductResponseDto> {
                     if (maxPrice !== undefined) where.promotion_price[Op.lte] = maxPrice;
                 }
             }
+            if (dto.keyword) {
+                const searchCondition = { [Op.iLike as any]: `%${dto.keyword}%` };
+                (where as any)[Op.or] = [
+                    { name: searchCondition },
+                    { ascii_name: searchCondition },
+                    { sku: searchCondition },
+                    { barcode: searchCondition }
+                ];
+            }
+
+            
             options.where = where;
             options.order = (orderBy && sortOrder) ? [[orderBy, sortOrder.toUpperCase()]] : [['created_at', 'DESC']];
 

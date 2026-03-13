@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/sequelize'
-import { BaseRepository } from '@core/repositories/base.repository'
-import { CartModel } from '@modules/carts/models/cart.model'
+import { BaseRepository } from '@/domain/repositories/base.repository'
+import { CartModel } from '@/infrastructure/models/cart.model'
 
 export abstract class AbstractCartRepository extends BaseRepository<CartModel> {}
 @Injectable()

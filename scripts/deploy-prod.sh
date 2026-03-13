@@ -2,7 +2,7 @@
 #!/bin/bash
 set -e  # dừng script nếu lệnh nào fail
 
-APP_NAME=${APP_NAME:-cat}  
+APP_NAME=${APP_NAME:-hoduong-backend}  
 BRANCH=${BRANCH:-main}
 IMAGE=ghcr.io/sangdv219/$APP_NAME:$BRANCH
 HOST_PORT=80

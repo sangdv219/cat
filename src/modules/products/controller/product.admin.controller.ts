@@ -37,7 +37,9 @@ export class ProductAdminController {
   // @UseGuards(JWTAuthGuard)
   @HttpCode(HttpStatus.OK)
   @CacheTTL(60)
+  
   async getPagination(@Query() query: FilterProductRequestDto): Promise<GetAllProductResponseDto> {
+    Logger.log("field", query)
     try {
       return await this.productService.getPagination(query);
     } catch (error) {

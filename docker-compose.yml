@@ -4,7 +4,7 @@ networks:
 services:
   migrate:
     build: .
-    image: sangdev2109/cat-migrate:latest
+    image: sangdev2109/hoduong-migrate:latest
     command: npx sequelize-cli db:migrate --config dist/config/config.json --env ${NODE_ENV} 
     container_name: migrate
     environment:
@@ -16,8 +16,8 @@ services:
       - demo
   app:
     build: .
-    image: sangdev2109/cat-app:latest
-    container_name: cat
+    image: sangdev2109/hoduong-app:latest
+    container_name: hoduong
     env_file:
       - .env.staging
    
@@ -40,12 +40,12 @@ services:
       - "5433:5432"
     environment:
       POSTGRES_USER: sangduong
-      DB_DATABASE: cat
+      DB_DATABASE: hoduong
       DB_PASSWORD: 210919
     volumes: 
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U sangduong -d cat"]
+      test: ["CMD-SHELL", "pg_isready -U sangduong -d hoduong"]
       interval: 10s
       timeout: 5s
       retries: 5

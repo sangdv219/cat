@@ -5,7 +5,7 @@ import { DefaultTokenSecretResolverStrategy } from '../../core/strategies/defaul
 import { ProductModule } from '../products/product.module';
 import { InventoryAdminController } from './controller/inventory.admin.controller';
 import { InventoryAppController } from './controller/inventory.app.controller';
-import { InventoryModel } from './domain/models/inventory.model';
+import { InventoryModel } from '../../infrastructure/models/inventory.model';
 import { PostgresInventoryRepository } from './infrastructure/repository/postgres-inventory.repository';
 import { InventoryService } from './services/inventory.service';
 import { RedisModule } from '@redis/redis.module';

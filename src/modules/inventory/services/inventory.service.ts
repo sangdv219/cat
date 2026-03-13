@@ -1,8 +1,8 @@
 import { BaseService } from '@core/services/base.service';
-import { InventoryModel } from '@modules/inventory/domain/models/inventory.model';
-import { PostgresProductRepository } from '@modules/products/infrastructure/repository/postgres-product.repository';
+import { InventoryModel } from '@/infrastructure/models/inventory.model';
+import { PostgresProductRepository } from '@/modules/products/repository/postgres-product.repository';
 import { RedisService } from '@redis/redis.service';
-import { ProductModel } from '@modules/products/domain/models/product.model';
+import { ProductModel } from '@/infrastructure/models/product.model';
 import { Injectable, Logger } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { INVENTORY_ENTITY } from '@modules/inventory/constants/inventory.constant';

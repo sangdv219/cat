@@ -1,9 +1,9 @@
-import { BaseRepository } from '@core/repositories/base.repository';
-import { OrdersModel } from '@modules/orders/domain/models/orders.model';
+import { BaseRepository } from '@/domain/repositories/base.repository';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { OrderItemsModel } from '@modules/orders/domain/models/order_items.model';
-import { OrderHistoryModel } from '@modules/orders/domain/models/order_history.model';
+import { OrderItemsModel } from '@/infrastructure/models/order_items.model';
+import { OrderHistoryModel } from '@/infrastructure/models/order_history.model';
+import { OrdersModel } from '@/infrastructure/models/orders.model';
 
 export abstract class AbstractOrderRepository extends BaseRepository<OrdersModel> {}
 export abstract class AbstractOrderItemsRepository extends BaseRepository<OrderItemsModel> {}

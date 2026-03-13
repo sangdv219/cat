@@ -1,6 +1,6 @@
 import { BaseService } from '@core/services/base.service';
 import { PostgresUserRolesRepository } from '@modules/associations/repositories/user-roles.repository';
-import { UserEntity } from '@modules/users/domain/models/user.model';
+import { UserEntity } from '@/infrastructure/models/user.model';
 import { CreatedUserAuthRequestDto } from '@modules/users/dto/user-auth.request.dto';
 import { CreatedUserAdminRequestDto, UpdatedUserAdminRequestDto } from '@modules/users/dto/user.admin.request.dto';
 import { GetAllUserAdminResponseDto, GetByIdUserAdminResponseDto } from '@modules/users/dto/user.admin.response.dto';
@@ -130,7 +130,7 @@ export class UserService extends
     return rawQuery;
   }
 
-  async createUserWithEmailOnly(body: CreatedUserAuthRequestDto): Promise<void> {
+  async createUserWithEmailOnly(body: any): Promise<void> {
     const existsEmail = await this.userRepository.checkExistsField({
       email: { value: body.email, mode: 'equal' },
     });
